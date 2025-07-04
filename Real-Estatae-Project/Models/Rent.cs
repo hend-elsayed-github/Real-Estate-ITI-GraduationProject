@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Real_Estate_Project.Models
 {
-    public class Rent : BillParent
+    public class Rent 
     {
+        public int id { get; set; }
+        public double value { get; set; }
 
         public DateOnly paymentDate { get; set; }
 
@@ -17,5 +19,11 @@ namespace Real_Estate_Project.Models
         [ForeignKey("unit")]
         public int unitId { get; set; }
         public virtual Unit unit { get; set; }
+
+        // billParent-rent 1-1
+
+        [ForeignKey("billParent")]
+        public int billId { get; set; }
+        public virtual BillParent billParent { get; set; }
     }
 }

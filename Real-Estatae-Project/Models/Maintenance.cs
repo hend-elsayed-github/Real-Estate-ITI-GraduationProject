@@ -3,8 +3,10 @@ using Real_Estatae_Project.Models;
 
 namespace Real_Estate_Project.Models
 {
-    public class Maintenance: BillParent
+    public class Maintenance
     {
+        public int id { get; set; }
+        public double value { get; set; }
         public string specialist  { get; set; }
         public string name { get; set; }
 
@@ -19,6 +21,12 @@ namespace Real_Estate_Project.Models
         [ForeignKey("unit")]
         public int unitId { get; set; }
         public virtual Unit unit { get; set; }
+
+        // billParent-maintenance 1-1
+
+        [ForeignKey("billParent")]
+        public int billId { get; set; }
+        public virtual BillParent billParent { get; set; }
 
     }
 }

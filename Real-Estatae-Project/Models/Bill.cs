@@ -4,8 +4,10 @@ using Real_Estatae_Project.Models;
 
 namespace Real_Estate_Project.Models
 {
-    public class Bill:BillParent
+    public class Bill
     {
+        public int  id { get; set; }        
+        public double value { get; set; }
         public string type { get; set; }
 
         public string status { get; set; }
@@ -17,6 +19,12 @@ namespace Real_Estate_Project.Models
         public int unitId { get; set; }
         public virtual Unit unit { get; set; }
 
-        
+        // billParent-bill 1-1
+
+        [ForeignKey("billParent")]
+        public int billId { get; set; }
+        public virtual BillParent billParent { get; set; }
+
+
     }
 }

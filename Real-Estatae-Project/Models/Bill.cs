@@ -17,7 +17,6 @@ namespace Real_Estate_Project.Models
         public int unitId { get; set; }
         public virtual Unit unit { get; set; }
 
-        // bill- payment 1-1
-        public virtual Payment payment { get; set; }
+        
     }
 }

@@ -24,7 +24,7 @@ namespace Real_Estate_Project.Models
         public string userId { get; set; }
         public virtual ApplicationUser user { get; set; }
 
-        // bill-payment 1-1
+        // billParent-payment 1-1
 
         [ForeignKey("billParent")]
         public int billId { get; set; }

@@ -10,7 +10,7 @@ namespace Real_Estate_Project.Models
 
         public DateTime createAt { get; set; }= DateTime.Now;
 
-        public int activationPeriod { get; set; }
+        public string activationPeriod { get; set; }
 
         // user-verificationCode 1-m(verificationCode)
         [ForeignKey("user")]

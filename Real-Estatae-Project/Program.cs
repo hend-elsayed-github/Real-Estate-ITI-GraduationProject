@@ -28,8 +28,17 @@ namespace Real_Estatae_Project
 
 
 
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ProjectContext>();
-
+            //builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ProjectContext>();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
+               options =>
+               {
+                   options.Password.RequireNonAlphanumeric = true;
+                   options.Password.RequireLowercase = true;
+                   options.Password.RequireUppercase = true;
+                   options.Password.RequireDigit = true;
+                   options.Password.RequiredLength = 8;
+               })
+               .AddEntityFrameworkStores<ProjectContext>();
 
 
             builder.Services.AddAuthentication(options =>
@@ -85,9 +94,6 @@ namespace Real_Estatae_Project
                 options.SuppressMapClientErrors = true;
             });
 
-
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
 
             var app = builder.Build();

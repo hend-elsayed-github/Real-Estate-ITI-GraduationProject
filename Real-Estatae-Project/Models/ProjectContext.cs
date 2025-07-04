@@ -9,8 +9,6 @@ namespace Real_Estate_Project.Models
         public virtual DbSet<Addvertisement> Addvertisements { get; set; }
         public virtual DbSet<BankAccount> BankAccounts { get; set; }
         public virtual DbSet<Bill> Bills { get; set; }
-
-        public virtual DbSet<BillPayment> BillPayments { get; set; }    
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<Community> Communities { get; set; }
         public virtual DbSet<CommunityPost> CommunityPosts { get; set; }

@@ -5,7 +5,7 @@ namespace Real_Estate_Project.Models
     public class Review
     {
         public int id { get; set; }
-        public float rate { get; set; }
+        public string rate { get; set; }
 
         public string content   { get; set; }
 

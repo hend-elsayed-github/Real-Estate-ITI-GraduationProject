@@ -12,8 +12,8 @@ namespace Real_Estate_Project.Models
         public string type { get; set; }
         public string street { get; set; }
         public string? area { get; set; }
-        public int? flatNumber { get; set; }
-        public int? buildingNumber { get; set; }
+        public string? flatNumber { get; set; }
+        public string? buildingNumber { get; set; }
         public string? image { get; set; }
 
         //need to be varcharr

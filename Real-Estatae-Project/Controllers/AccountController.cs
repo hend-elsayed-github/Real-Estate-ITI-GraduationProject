@@ -151,7 +151,7 @@ namespace Real_Estatae_Project.Controllers
                         return Ok(new
                         {
                             token = new JwtSecurityTokenHandler().WriteToken(myToken),// gereate & Make it string
-                            expiration = DateTime.Now.AddHours(1) // OR myTokn.expires
+                            expiration = DateTime.Now.AddHours(24) // OR myTokn.expires
                         });
                     }
 

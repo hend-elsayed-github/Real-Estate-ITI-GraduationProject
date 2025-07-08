@@ -32,8 +32,11 @@ namespace Real_Estate_Project.Models
         //Payments 1-m(Payments) -  renter  -  pay  ------------------------------------------?????????
         public virtual List<Payment>? Payments { get; set; }
 
-        //Units 1-m(Units) -  renter  -  rent
-        public virtual List<Unit>? Units { get; set; }
+        //renter 1-m(Units) -  renter  -  rent
+        public virtual List<Unit>? RenterUnits { get; set; }
+
+        //owner 1-m(Units) -  owner  -  own
+        public virtual List<Unit>? OwnerUnits { get; set; }
 
         //Addvertisement 1-m(Addvertisement) -  owner  -  add,  [visitor & renter m-m  see]----------???
         public virtual List<Addvertisement>? Addvertisements { get; set; }

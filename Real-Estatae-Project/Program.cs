@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.Text;
 
@@ -40,6 +41,8 @@ namespace Real_Estatae_Project
                })
                .AddEntityFrameworkStores<ProjectContext>();
 
+            //services
+            builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 
             builder.Services.AddAuthentication(options =>
             {

@@ -25,5 +25,24 @@ namespace Real_Estate_Project.Models
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // owner relationship
+            modelBuilder.Entity<Unit>()
+                .HasOne(o => o.owner)
+                .WithMany(u => u.OwnerUnits)
+                .HasForeignKey(o => o.ownerId)
+                .OnDelete(DeleteBehavior.NoAction); // Prevent cascading delete if needed
+
+            // renter relationship
+            modelBuilder.Entity<Unit>()
+                .HasOne(o => o.renter)
+                .WithMany(u => u.RenterUnits)
+                .HasForeignKey(o => o.renterId)
+                .OnDelete(DeleteBehavior.NoAction);
+        }
     }
 }

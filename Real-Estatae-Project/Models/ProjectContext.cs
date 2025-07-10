@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.Models;
+using System.Reflection.Metadata;
 
 namespace Real_Estate_Project.Models
 {
@@ -43,6 +44,25 @@ namespace Real_Estate_Project.Models
                 .WithMany(u => u.RenterUnits)
                 .HasForeignKey(o => o.renterId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            // 1-1  owner & community
+            modelBuilder.Entity<Community>()
+           .HasOne(e => e.Owner)
+           .WithOne(e => e.OwnerCommunity)
+           .HasForeignKey<Community>(e => e.ownerId)
+           .IsRequired();
+
+
+
+            // 1-1  owner & community
+            modelBuilder.Entity<ApplicationUser>()
+            .HasOne(e => e.OwnerCommunity)
+            .WithOne(e => e.Owner)
+            .HasForeignKey<Community>(e => e.ownerId)
+            .IsRequired();
         }
+
+            
     }
 }
+

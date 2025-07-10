@@ -18,6 +18,8 @@ namespace Real_Estate_Project.Models
         public string? image2 { get; set; }
         public string? image3 { get; set; }
 
+        public string? renterSSN { get; set; }  //to know it belongs to which renter so when renter enter his ssn, automatically the unit set to him
+
         //need to be varcharr
         public string electricityNum { get; set; }
 
@@ -36,7 +38,7 @@ namespace Real_Estate_Project.Models
         public virtual Community community { get; set; }
 
         // bill-unit 1-m(bill)
-        public virtual List<Bill> Bills  { get; set; }
+        public virtual List<Bill>? Bills  { get; set; }
 
         // review-unit 1-m(review)
         public virtual List<Review>? Reviews { get; set; }
@@ -50,10 +52,10 @@ namespace Real_Estate_Project.Models
         public virtual ApplicationUser owner { get; set; }
 
         //  unit -addvirtisement 1-1
-        public virtual Addvertisement addvertisement { get; set; }
+        public virtual Addvertisement? addvertisement { get; set; }
 
         // unit - rent 1-1
-        public virtual Rent rent { get; set; }
+        public virtual Rent? rent { get; set; }
 
 
     }

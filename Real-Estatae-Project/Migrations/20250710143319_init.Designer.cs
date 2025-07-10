@@ -12,7 +12,7 @@ using Real_Estate_Project.Models;
 namespace Real_Estatae_Project.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    [Migration("20250704221432_init")]
+    [Migration("20250710143319_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -265,6 +265,9 @@ namespace Real_Estatae_Project.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<int?>("communityId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
@@ -291,6 +294,8 @@ namespace Real_Estatae_Project.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("communityId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -403,16 +408,16 @@ namespace Real_Estatae_Project.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<string>("name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("userId")
+                    b.Property<string>("ownerId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("id");
 
-                    b.HasIndex("userId");
+                    b.HasIndex("ownerId")
+                        .IsUnique();
 
                     b.ToTable("Communities");
                 });
@@ -699,14 +704,30 @@ namespace Real_Estatae_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("image")
+                    b.Property<string>("image1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("image2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("image3")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("isDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ownerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<double>("price")
                         .HasColumnType("float");
+
+                    b.Property<string>("renterId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("renterSSN")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("status")
                         .IsRequired()
@@ -720,10 +741,6 @@ namespace Real_Estatae_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("waterNum")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -732,7 +749,9 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("communityId");
 
-                    b.HasIndex("userId");
+                    b.HasIndex("ownerId");
+
+                    b.HasIndex("renterId");
 
                     b.ToTable("Units");
                 });
@@ -837,6 +856,15 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("user");
                 });
 
+            modelBuilder.Entity("Real_Estate_Project.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("Real_Estate_Project.Models.Community", "RenterCommunity")
+                        .WithMany("renters")
+                        .HasForeignKey("communityId");
+
+                    b.Navigation("RenterCommunity");
+                });
+
             modelBuilder.Entity("Real_Estate_Project.Models.BankAccount", b =>
                 {
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
@@ -888,13 +916,13 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estate_Project.Models.Community", b =>
                 {
-                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
-                        .WithMany()
-                        .HasForeignKey("userId")
+                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "Owner")
+                        .WithOne("OwnerCommunity")
+                        .HasForeignKey("Real_Estate_Project.Models.Community", "ownerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("user");
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.CommunityPost", b =>
@@ -1023,15 +1051,22 @@ namespace Real_Estatae_Project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
-                        .WithMany("Units")
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "owner")
+                        .WithMany("OwnerUnits")
+                        .HasForeignKey("ownerId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "renter")
+                        .WithMany("RenterUnits")
+                        .HasForeignKey("renterId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("community");
 
-                    b.Navigation("user");
+                    b.Navigation("owner");
+
+                    b.Navigation("renter");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.VerificationCode", b =>
@@ -1072,11 +1107,15 @@ namespace Real_Estatae_Project.Migrations
 
                     b.Navigation("Notifications");
 
+                    b.Navigation("OwnerCommunity");
+
+                    b.Navigation("OwnerUnits");
+
                     b.Navigation("Payments");
 
-                    b.Navigation("Reviews");
+                    b.Navigation("RenterUnits");
 
-                    b.Navigation("Units");
+                    b.Navigation("Reviews");
 
                     b.Navigation("VerificationCodes");
                 });
@@ -1091,6 +1130,8 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("CommunityPosts");
 
                     b.Navigation("Units");
+
+                    b.Navigation("renters");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.CommunityPost", b =>
@@ -1111,11 +1152,9 @@ namespace Real_Estatae_Project.Migrations
 
                     b.Navigation("Reviews");
 
-                    b.Navigation("addvertisement")
-                        .IsRequired();
+                    b.Navigation("addvertisement");
 
-                    b.Navigation("rent")
-                        .IsRequired();
+                    b.Navigation("rent");
                 });
 #pragma warning restore 612, 618
         }

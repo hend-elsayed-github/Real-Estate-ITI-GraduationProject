@@ -1,4 +1,6 @@
-﻿using Real_Estatae_Project.DTO;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Real_Estatae_Project.DTO;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -6,56 +8,72 @@ namespace Real_Estatae_Project.Repositories
     public class UnitRepository : IUnitRepository
     {
         private readonly ProjectContext Context;
+
         public UnitRepository(ProjectContext _Context)
         {
             Context = _Context;
         }
-
-        public List<Unit> GetAll()
+        #region GetAll
+        public List<Unit> GetAll(string ownerId)
         {
-            throw new NotImplementedException();
+            return [.. Context.Units
+                .Include(u => u.Bills)
+                .Include(u => u.Reviews)
+                .Include(u => u.Maintenances)
+                .Where(u => u.ownerId == ownerId && !u.isDeleted)];
         }
+        #endregion
 
-        public Unit GetById(int id)
+        #region GetById
+        public Unit GetById(int id, string ownerId)
         {
-            Unit unit=Context.Units.FirstOrDefault(u=>u.id==id);
-
-            return unit;
+            return Context.Units
+                 .FirstOrDefault(u => u.id == id && u.ownerId == ownerId && !u.isDeleted);
         }
+        #endregion
+        #region GetByType
 
-        public void Add(Unit entity)
-        { 
-            throw new NotImplementedException();
+        #endregion
+
+        #region AddUnit
+        public Unit Add(Unit entity)
+        {
+            Context.Units.Add(entity);
+            Save();
+            return entity;
+
         }
+        #endregion
 
 
         #region update a single unit
-        public void Update(int id ,UnitDTO UpdatingRef)
+        public void Update(string ownerId, int id, UnitDTO UpdatingRef)
         {
-            Unit unitFromDB = GetById(id);
+            Unit unitFromDB = GetById(id, ownerId);
             unitFromDB.price = UpdatingRef.price;
             unitFromDB.description = UpdatingRef.description;
             unitFromDB.status = UpdatingRef.status;
             unitFromDB.type = UpdatingRef.type;
-            unitFromDB.image1 = UpdatingRef.image1;
-            unitFromDB.image2 = UpdatingRef.image2;
-            unitFromDB.image3 = UpdatingRef.image3;
+            //unitFromDB.image1 = UpdatingRef.image1;
+            //unitFromDB.image2 = UpdatingRef.image2;
+            //unitFromDB.image3 = UpdatingRef.image3;
+            
         }
         #endregion
 
 
         #region Delete a single unit
-        public bool Delete(int id)
+        public bool Delete(string ownerId, int id)
         {
-            Unit unit = GetById(id);
+            Unit unit = GetById(id, ownerId);
 
-            if (unit!=null)
+            if (unit != null)
             {
                 unit.isDeleted = true;
                 return true;
             }
             return false;
-            
+
         }
         #endregion
 
@@ -64,7 +82,46 @@ namespace Real_Estatae_Project.Repositories
         public void Save()
         {
             Context.SaveChanges();
-        } 
+        }
         #endregion
+
+        #region GetbyType
+        public List<Unit> GetByType(string type, string? userId, string? role)
+        {
+            if (role == "Owner")
+            {
+                return [..Context.Units
+                    .Where(u => u.ownerId == userId && u.type.ToLower() == type.ToLower() && !u.isDeleted)];
+            }
+            return [..Context.Units
+                    .Where(u=> u.type.ToLower() == type.ToLower() && !u.isDeleted)];
+
+        }
+        #endregion
+
+
+        #region GetbyStatus
+        public List<Unit> GetByStatus(string status, string? userId, string? role)
+        {
+            if (role == "Owner")
+            {
+                return [..Context.Units
+                    .Where(u => u.ownerId == userId && u.status.ToLower() == status.ToLower() && !u.isDeleted)];
+            }
+            return [..Context.Units
+                    .Where(u=> u.status.ToLower() == status.ToLower() && !u.isDeleted)];
+
+        }
+        #endregion
+
+
+        public int GetCommunityId(string ownerId)
+        {
+            return Context.Communities
+                .Where(c => c.ownerId == ownerId)
+                .Select(c => c.id)
+                .FirstOrDefault();
+        }
+
     }
 }

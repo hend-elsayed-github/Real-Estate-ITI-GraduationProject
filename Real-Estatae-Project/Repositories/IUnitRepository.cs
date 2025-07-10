@@ -5,16 +5,19 @@ namespace Real_Estatae_Project.Repositories
 {
     public interface IUnitRepository : IRepository<Unit>
     {
-        List<Unit> GetAll();
-        Unit GetById(int id);
-        void Add(Unit entity);
+        List<Unit> GetAll(string ownerId);
+        Unit GetById(int id, string ownerId);
 
-        void Update(int id,UnitDTO entity);
+        List<Unit> GetByType(string type, string? userId, string? role);
+        List<Unit> GetByStatus(string status, string? userId, string? role);
+        Unit Add(Unit entity);
 
-        bool Delete(int id);
+        void Update(string ownerId, int id, UnitDTO entity);
+
+        bool Delete(string ownerId, int id);
 
         void Save();
-
+        public int GetCommunityId(string ownerId);
 
     }
 }

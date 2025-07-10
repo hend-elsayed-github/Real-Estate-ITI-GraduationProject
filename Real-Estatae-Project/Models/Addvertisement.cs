@@ -14,7 +14,7 @@ namespace Real_Estate_Project.Models
 
         public bool isDeleted { get; set; }
 
-        // user 1-m
+        // owner 1-m 
         public string userId { get; set; }
         public virtual ApplicationUser user { get; set; }
 

@@ -26,36 +26,6 @@ namespace Real_Estatae_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    firstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    lastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    isActive = table.Column<bool>(type: "bit", nullable: true),
-                    createdAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BillParents",
                 columns: table => new
                 {
@@ -103,6 +73,24 @@ namespace Real_Estatae_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Addvertisements",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    publishDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    isDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    unitId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Addvertisements", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
@@ -115,12 +103,6 @@ namespace Real_Estatae_Project.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,12 +117,6 @@ namespace Real_Estatae_Project.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -159,12 +135,37 @@ namespace Real_Estatae_Project.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    firstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    lastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    isActive = table.Column<bool>(type: "bit", nullable: true),
+                    createdAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    communityId = table.Column<int>(type: "int", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -214,15 +215,15 @@ namespace Real_Estatae_Project.Migrations
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ownerId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Communities", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Communities_AspNetUsers_userId",
-                        column: x => x.userId,
+                        name: "FK_Communities_AspNetUsers_ownerId",
+                        column: x => x.ownerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
@@ -358,23 +359,31 @@ namespace Real_Estatae_Project.Migrations
                     area = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     flatNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     buildingNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    image1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    image2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    image3 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    renterSSN = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     electricityNum = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     waterNum = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     gasNum = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     isDeleted = table.Column<bool>(type: "bit", nullable: false),
                     communityId = table.Column<int>(type: "int", nullable: false),
-                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    renterId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ownerId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Units", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Units_AspNetUsers_userId",
-                        column: x => x.userId,
+                        name: "FK_Units_AspNetUsers_ownerId",
+                        column: x => x.ownerId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Units_AspNetUsers_renterId",
+                        column: x => x.renterId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Units_Communities_communityId",
                         column: x => x.communityId,
@@ -408,36 +417,6 @@ namespace Real_Estatae_Project.Migrations
                         name: "FK_Comments_CommunityPosts_communityPostId",
                         column: x => x.communityPostId,
                         principalTable: "CommunityPosts",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Addvertisements",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    publishDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    isDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    unitId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Addvertisements", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_Addvertisements_AspNetUsers_userId",
-                        column: x => x.userId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.NoAction);
-                    table.ForeignKey(
-                        name: "FK_Addvertisements_Units_unitId",
-                        column: x => x.unitId,
-                        principalTable: "Units",
                         principalColumn: "id",
                         onDelete: ReferentialAction.NoAction);
                 });
@@ -608,6 +587,11 @@ namespace Real_Estatae_Project.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_communityId",
+                table: "AspNetUsers",
+                column: "communityId");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -641,9 +625,10 @@ namespace Real_Estatae_Project.Migrations
                 column: "userId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Communities_userId",
+                name: "IX_Communities_ownerId",
                 table: "Communities",
-                column: "userId");
+                column: "ownerId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CommunityPosts_ApplicationUserId",
@@ -720,19 +705,75 @@ namespace Real_Estatae_Project.Migrations
                 column: "communityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Units_userId",
+                name: "IX_Units_ownerId",
                 table: "Units",
-                column: "userId");
+                column: "ownerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Units_renterId",
+                table: "Units",
+                column: "renterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VerificationCodes_userId",
                 table: "VerificationCodes",
                 column: "userId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Addvertisements_AspNetUsers_userId",
+                table: "Addvertisements",
+                column: "userId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.NoAction);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Addvertisements_Units_unitId",
+                table: "Addvertisements",
+                column: "unitId",
+                principalTable: "Units",
+                principalColumn: "id",
+                onDelete: ReferentialAction.NoAction);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                table: "AspNetUserClaims",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.NoAction);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                table: "AspNetUserLogins",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.NoAction);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                table: "AspNetUserRoles",
+                column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.NoAction);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUsers_Communities_communityId",
+                table: "AspNetUsers",
+                column: "communityId",
+                principalTable: "Communities",
+                principalColumn: "id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Communities_AspNetUsers_ownerId",
+                table: "Communities");
+
             migrationBuilder.DropTable(
                 name: "Addvertisements");
 
@@ -794,10 +835,10 @@ namespace Real_Estatae_Project.Migrations
                 name: "Units");
 
             migrationBuilder.DropTable(
-                name: "Communities");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Communities");
         }
     }
 }

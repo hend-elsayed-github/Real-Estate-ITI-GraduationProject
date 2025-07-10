@@ -43,6 +43,7 @@ namespace Real_Estatae_Project
 
             //services
             builder.Services.AddScoped<IUnitRepository, UnitRepository>();
+            builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
 
             builder.Services.AddAuthentication(options =>
             {

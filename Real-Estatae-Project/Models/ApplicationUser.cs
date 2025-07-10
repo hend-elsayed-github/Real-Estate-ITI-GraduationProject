@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Real_Estate_Project.Models
 {
@@ -43,6 +44,14 @@ namespace Real_Estate_Project.Models
 
         //BankAccount 1-m(BankAccount) -  renter-owner  -  has
         public virtual List<BankAccount>? BankAccounts { get; set; }
+
+        //Community(1-m)  m renters
+        [ForeignKey("RenterCommunity")]
+        public int? communityId { get; set; }
+        public virtual Community? RenterCommunity { get; set; }
+
+        //community 1- 1 owner >>>>>1 owner has one community
+        public virtual Community? OwnerCommunity { get; set; }
 
     }
 }

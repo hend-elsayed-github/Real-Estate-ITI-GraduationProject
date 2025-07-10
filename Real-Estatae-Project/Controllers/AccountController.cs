@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,13 +16,14 @@ namespace Real_Estatae_Project.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
-
+        public ICommunityRepository communityRepo;
         public IConfiguration Config { get; }
 
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config)
+        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config , ICommunityRepository _communityRepo)
         {
             this.userManager = userManager;
             this.Config = Config;
+            this.communityRepo = _communityRepo;
         }
 
 
@@ -44,6 +46,13 @@ namespace Real_Estatae_Project.Controllers
                 if (userFromRequest.role == "Owner")
                 {
                     await userManager.AddToRoleAsync(user, "Owner");
+                    // Get the newly created user's ID
+                    string userId = await userManager.GetUserIdAsync(user);
+                    Community newComm = new Community();
+                    newComm.name = "new community";
+                    newComm.ownerId = user.Id;
+                    communityRepo.Create(newComm);
+                    communityRepo.Save();
 
                 }
                 else if (userFromRequest.role == "Renter")
@@ -74,7 +83,7 @@ namespace Real_Estatae_Project.Controllers
 
                 if (reuslt.Succeeded)
                 {
-                    return Ok("Created");
+                    return Ok();
                 }
                 foreach (var error in reuslt.Errors)
                 {
@@ -95,14 +104,20 @@ namespace Real_Estatae_Project.Controllers
             if (ModelState.IsValid)
             {
                 //Check user in DB? 
-                ApplicationUser userFromDB = await userManager.FindByNameAsync(userFromRequest.userName);
+                
+               ApplicationUser userFromDB = await userManager.FindByNameAsync(userFromRequest.userName);
 
-                if (userFromDB != null)
+                if(userFromDB == null)
+                {
+                    userFromDB = await userManager.FindByEmailAsync(userFromRequest.email);
+                }
+                
+                if (userFromDB != null )
                 {
                     //Check Password 
                     bool Found = await userManager.CheckPasswordAsync(userFromDB, userFromRequest.password);
 
-                    if (Found == true)
+                    if (Found == true )
                     {
                         //Generate Token 
 
@@ -156,7 +171,7 @@ namespace Real_Estatae_Project.Controllers
                     }
 
                 }
-                ModelState.AddModelError("Password", "Invalid UserName OR Password");
+                ModelState.AddModelError("Error", "Invalid UserName OR Password");
 
             }
             return BadRequest(ModelState);

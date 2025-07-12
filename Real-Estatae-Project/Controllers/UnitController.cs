@@ -56,6 +56,7 @@ namespace Real_Estatae_Project.Controllers
                 description = unitDTO.description,
                 type = unitDTO.type,
                 street = unitDTO.street,
+                city=unitDTO.city,
                 image1 = imageFromReq1,
                 image2 = imageFromReq2,
                 image3 = imageFromReq3,

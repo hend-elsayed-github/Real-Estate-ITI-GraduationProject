@@ -7,7 +7,7 @@
         public double price { get; set; }
         public string description { get; set; }
         public string type { get; set; }
-
+        public string city { get; set; }
         public string street { get; set; }
         public string? area { get; set; }
         public string? flatNumber { get; set; }

@@ -111,6 +111,8 @@ namespace Real_Estatae_Project
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles();
+
             app.UseAuthorization();
 
             app.UseCors("FreePlan");

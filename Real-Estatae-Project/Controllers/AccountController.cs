@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -71,7 +72,7 @@ namespace Real_Estatae_Project.Controllers
                 if (imageFile != null && imageFile.Length > 0)
                 {
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", fileName);
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -180,6 +181,35 @@ namespace Real_Estatae_Project.Controllers
         #endregion
 
 
+
+        #region get user info
+        [Authorize]
+        [HttpGet("GetUserInfo")] //http://localhost:5267/api/Account/GetUserInfo
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                return Unauthorized();
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                user.firstName,
+                user.lastName,
+                user.image,
+                user.PhoneNumber
+                
+            });
+        }
+        #endregion
 
     }
 }

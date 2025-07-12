@@ -12,12 +12,14 @@ namespace Real_Estatae_Project.Repositories
         List<Unit> GetByStatus(string status, string? userId, string? role);
         Unit Add(Unit entity);
 
-        void Update(string ownerId, int id, UnitDTO entity);
+        Task Update(string ownerId, int id, UnitDTO UpdatingRef);
 
         bool Delete(string ownerId, int id);
 
         void Save();
         public int GetCommunityId(string ownerId);
+
+
 
     }
 }

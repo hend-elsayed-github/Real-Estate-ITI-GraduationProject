@@ -47,18 +47,54 @@ namespace Real_Estatae_Project.Repositories
 
 
         #region update a single unit
-        public void Update(string ownerId, int id, UnitDTO UpdatingRef)
+        public async Task Update(string ownerId, int id, UnitDTO UpdatingRef)
         {
             Unit unitFromDB = GetById(id, ownerId);
+
             unitFromDB.price = UpdatingRef.price;
             unitFromDB.description = UpdatingRef.description;
             unitFromDB.status = UpdatingRef.status;
             unitFromDB.type = UpdatingRef.type;
-            //unitFromDB.image1 = UpdatingRef.image1;
-            //unitFromDB.image2 = UpdatingRef.image2;
-            //unitFromDB.image3 = UpdatingRef.image3;
-            
+
+            List<IFormFile?> images = new() { UpdatingRef.image1, UpdatingRef.image2, UpdatingRef.image3 };
+            string?[] currentImagePaths = { unitFromDB.image1, unitFromDB.image2, unitFromDB.image3 };
+
+            for (int i = 0; i < images.Count; i++)
+            {
+                IFormFile? newImage = images[i];
+
+                if (newImage != null && newImage.Length > 0)
+                {
+                    // i need to delete the old image if exists
+                    if (!string.IsNullOrEmpty(currentImagePaths[i]))
+                    {
+                        string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", currentImagePaths[i]);
+                        if (File.Exists(oldFilePath))
+                        {
+                            File.Delete(oldFilePath);
+                        }
+                    }
+
+                    // Save new image 
+                    string newFileName = Guid.NewGuid().ToString() + Path.GetExtension(newImage.FileName);
+                    string newFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", newFileName);
+
+                    using (var stream = new FileStream(newFilePath, FileMode.Create))
+                    {
+                        await newImage.CopyToAsync(stream);
+                    }
+
+                    // update the path
+                    currentImagePaths[i] = newFileName;
+                }
+            }
+
+            // update the patshs in database
+            unitFromDB.image1 = currentImagePaths[0];
+            unitFromDB.image2 = currentImagePaths[1];
+            unitFromDB.image3 = currentImagePaths[2];
         }
+
         #endregion
 
 

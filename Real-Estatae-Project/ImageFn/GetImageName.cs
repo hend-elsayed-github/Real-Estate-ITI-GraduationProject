@@ -11,7 +11,7 @@ namespace Real_Estatae_Project.Images
             if (image != null && image.Length > 0)
             {
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwroot/Images", fileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {

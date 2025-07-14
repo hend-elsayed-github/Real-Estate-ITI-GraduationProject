@@ -8,7 +8,7 @@ namespace Real_Estate_Project.Models
 
         public string content { get; set; }
 
-        public bool isDeleted { get; set; }
+        public bool isDeleted { get; set; }=false;
 
         public DateTime publishDate { get; set; } = DateTime.Now;
 

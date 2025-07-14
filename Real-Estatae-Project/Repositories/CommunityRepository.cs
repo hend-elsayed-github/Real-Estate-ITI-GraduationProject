@@ -1,23 +1,32 @@
-﻿using Real_Estate_Project.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
 {
     public class CommunityRepository:ICommunityRepository
     {
-        private readonly ProjectContext Context;
+        private readonly ProjectContext _context;
         public CommunityRepository(ProjectContext _Context)
         {
-            Context = _Context;
+            _context = _Context;
         }
 
-        public void Create(Community community)
+
+
+        public async Task<int> Create(Community community)
         {
-            Context.Communities.Add(community);
+                _context.Communities.Add(community);
+                return community.id;
+
         }
 
+
+
+     
         public void Save()
         {
-            Context.SaveChanges();
+          _context.SaveChanges();
         }
     }
 }

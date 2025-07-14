@@ -20,7 +20,7 @@ namespace Real_Estatae_Project.Controllers
         public ICommunityRepository communityRepo;
         public IConfiguration Config { get; }
 
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config , ICommunityRepository _communityRepo)
+        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo)
         {
             this.userManager = userManager;
             this.Config = Config;
@@ -30,70 +30,67 @@ namespace Real_Estatae_Project.Controllers
 
 
         #region Registeration
-        [HttpPost("Register")] //api/Account/Register
-        public async Task<IActionResult> Register(RegisterDTO userFromRequest)
+        [HttpPost("Register")] // api/Account/Register
+        public async Task<IActionResult> Register([FromForm] RegisterDTO userFromRequest)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            ApplicationUser user = new ApplicationUser
             {
-                //Create user ==> save in DB 
-                ApplicationUser user = new ApplicationUser();
-                user.UserName = userFromRequest.userName;
-                user.Email = userFromRequest.email;
-                user.firstName = userFromRequest.firstName;
-                user.lastName = userFromRequest.lastName;
-                user.PhoneNumber = userFromRequest.phone;
-                IdentityResult reuslt = await userManager.CreateAsync(user, userFromRequest.password);
+                UserName = userFromRequest.userName,
+                Email = userFromRequest.email,
+                firstName = userFromRequest.firstName,
+                lastName = userFromRequest.lastName,
+                PhoneNumber = userFromRequest.phone
+            };
 
-                if (userFromRequest.role == "Owner")
-                {
-                    await userManager.AddToRoleAsync(user, "Owner");
-                    // Get the newly created user's ID
-                    string userId = await userManager.GetUserIdAsync(user);
-                    Community newComm = new Community();
-                    newComm.name = "new community";
-                    newComm.ownerId = user.Id;
-                    communityRepo.Create(newComm);
-                    communityRepo.Save();
+            IdentityResult result = await userManager.CreateAsync(user, userFromRequest.password);
 
-                }
-                else if (userFromRequest.role == "Renter")
-                {
-                    await userManager.AddToRoleAsync(user, "Renter");
-                }
-                else
-                {
-                    await userManager.AddToRoleAsync(user, "Visitor");
-
-                }
-
-                // image part
-                IFormFile? imageFile = userFromRequest.imageFile;
-
-                if (imageFile != null && imageFile.Length > 0)
-                {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await imageFile.CopyToAsync(stream);
-                    }
-
-                    user.image = fileName;
-                }
-
-                if (reuslt.Succeeded)
-                {
-                    return Ok();
-                }
-                foreach (var error in reuslt.Errors)
-                {
+          
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
                     ModelState.AddModelError("Errors", error.Description);
+
+                return BadRequest(ModelState);
+            }
+
+            if (userFromRequest.imageFile != null && userFromRequest.imageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userFromRequest.imageFile.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await userFromRequest.imageFile.CopyToAsync(stream);
                 }
 
+                user.image = fileName;
+                await userManager.UpdateAsync(user); 
             }
-            return BadRequest(ModelState);
+
+            string role = userFromRequest.role ?? "Visitor";
+            if (role != "Owner" && role != "Renter")
+                role = "Visitor";
+
+            await userManager.AddToRoleAsync(user, role);
+
+            if (role == "Owner")
+            {
+                Community newComm = new Community
+                {
+                    name = "new community",
+                    ownerId = user.Id 
+                };
+
+                communityRepo.Create(newComm);
+                communityRepo.Save(); 
+            }
+
+            return Ok("User registered successfully");
         }
+
         #endregion
 
 
@@ -105,20 +102,20 @@ namespace Real_Estatae_Project.Controllers
             if (ModelState.IsValid)
             {
                 //Check user in DB? 
-                
-               ApplicationUser userFromDB = await userManager.FindByNameAsync(userFromRequest.userName);
 
-                if(userFromDB == null)
+                ApplicationUser userFromDB = await userManager.FindByNameAsync(userFromRequest.userName);
+
+                if (userFromDB == null)
                 {
                     userFromDB = await userManager.FindByEmailAsync(userFromRequest.email);
                 }
-                
-                if (userFromDB != null )
+
+                if (userFromDB != null)
                 {
                     //Check Password 
                     bool Found = await userManager.CheckPasswordAsync(userFromDB, userFromRequest.password);
 
-                    if (Found == true )
+                    if (Found == true)
                     {
                         //Generate Token 
 
@@ -206,7 +203,7 @@ namespace Real_Estatae_Project.Controllers
                 user.lastName,
                 user.image,
                 user.PhoneNumber
-                
+
             });
         }
         #endregion

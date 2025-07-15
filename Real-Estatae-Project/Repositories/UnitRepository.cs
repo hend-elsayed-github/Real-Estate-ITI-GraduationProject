@@ -31,9 +31,7 @@ namespace Real_Estatae_Project.Repositories
                  .FirstOrDefault(u => u.id == id && u.ownerId == ownerId && !u.isDeleted);
         }
         #endregion
-        #region GetByType
 
-        #endregion
 
         #region AddUnit
         public Unit Add(Unit entity)

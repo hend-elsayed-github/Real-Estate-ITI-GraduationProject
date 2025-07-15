@@ -22,6 +22,8 @@ namespace Real_Estate_Project.Models
         public virtual DbSet<Review> Reviews { get; set; }
         public virtual DbSet<Unit> Units { get; set; }
         public virtual DbSet<VerificationCode> VerificationCodes { get; set; }
+        public virtual DbSet<React> Reacts { get; set; }
+
         public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
         {
 

@@ -121,35 +121,29 @@ namespace Real_Estatae_Project.Repositories
         }
         #endregion
 
-        #region GetbyType
-        public List<Unit> GetByType(string type, string? userId, string? role)
-        {
-            if (role == "Owner")
-            {
-                return [..Context.Units
-                    .Where(u => u.ownerId == userId && u.type.ToLower() == type.ToLower() && !u.isDeleted)];
-            }
-            return [..Context.Units
-                    .Where(u=> u.type.ToLower() == type.ToLower() && !u.isDeleted)];
-
-        }
-        #endregion
-
-
-        #region GetbyStatus
-        public List<Unit> GetByStatus(string status, string? userId, string? role)
-        {
-            if (role == "Owner")
-            {
-                return [..Context.Units
-                    .Where(u => u.ownerId == userId && u.status.ToLower() == status.ToLower() && !u.isDeleted)];
-            }
-            return [..Context.Units
-                    .Where(u=> u.status.ToLower() == status.ToLower() && !u.isDeleted)];
-
-        }
-        #endregion
-
+          
+    public List<Unit> Filter(string? type, string? status ,string userId)
+  {
+      var query = Context.Units.AsQueryable();
+ 
+      if (!string.IsNullOrEmpty(type))
+          query = query.Where(u => u.type.ToLower() == type.ToLower());
+ 
+      if (!string.IsNullOrEmpty(status))
+          query = query.Where(u => u.status.ToLower() == status.ToLower());
+ 
+      query = query.Where(u => u.ownerId==userId && !u.isDeleted);
+ 
+      return query.ToList();
+  }
+ 
+  #region Search
+  public List<Unit> Search(string searchTerm,string userId)
+  {
+      return [..Context.Units.Where(u=> u.description.ToLower().Contains(searchTerm.ToLower())
+&& u.ownerId== userId && !u.isDeleted )];
+  }
+  #endregion
 
         public int GetCommunityId(string ownerId)
         {

@@ -90,27 +90,29 @@ public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
 
 #endregion
 
-        #region filterbytype
-        [HttpGet("type")]
-        public IActionResult FilterByType([FromQuery] string type)
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            string role = User.FindFirstValue(ClaimTypes.Role);
-            List<Unit> units = unitRepo.GetByType(type, userId, role);
-            return Ok(units);
-        }
-        #endregion
+#region filterbytype and by status
+[HttpGet("filter")]
+public IActionResult FilterByType([FromQuery] string type, [FromQuery] string status)
+{
+     string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+     List<Unit> units=unitRepo.Filter(type,status,userId);
+     return Ok(units);
+}
+#endregion
+ 
+#region Search
+[HttpGet("Search")]
+public IActionResult Search([FromQuery] string searchTerm)
+{
+     string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+     List<Unit> units = unitRepo.Search(searchTerm, ownerId);
+     return Ok(units);
+ 
+}
+ 
+#endregion
 
-        #region filterbystatus
-        [HttpGet("status")]
-        public IActionResult FilterByStatus([FromQuery] string status)
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            string role = User.FindFirstValue(ClaimTypes.Role);
-            List<Unit> units = unitRepo.GetByType(status, userId, role);
-            return Ok(units);
-        }
-        #endregion
+       
 
         #region Update
         [HttpPut("{id:int}")]

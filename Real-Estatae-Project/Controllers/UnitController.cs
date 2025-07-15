@@ -38,49 +38,57 @@ namespace Real_Estatae_Project.Controllers
         }
         #endregion
 
-        #region AddUnit
-        [HttpPost]
-        public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
+       #region AddUnit
+[HttpPost]
+public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
+{
+    string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int _communityId = unitRepo.GetCommunityId(_ownerId);
+
+    if (ModelState.IsValid) {
+
+        string? imageFromReq1 = await GetImageName.GetImageNameFn(unitDTO.image1);
+        string? imageFromReq2 = await GetImageName.GetImageNameFn(unitDTO.image2);
+        string? imageFromReq3 = await GetImageName.GetImageNameFn(unitDTO.image3);
+
+        Unit unit = new Unit
         {
-            string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            int _communityId = unitRepo.GetCommunityId(_ownerId);
+            status = unitDTO.status,
+            price = unitDTO.price,
+            description = unitDTO.description,
+            type = unitDTO.type,
+            street = unitDTO.street,
+            city = unitDTO.city,
+            image1 = imageFromReq1,
+            image2 = imageFromReq2,
+            image3 = imageFromReq3,
+            area = unitDTO.area,
+            renterSSN = unitDTO.renterSSN,
+            buildingNumber = unitDTO.buildingNumber,
+            flatNumber = unitDTO.flatNumber,
+            electricityNum = unitDTO.electricityNum,
+            waterNum = unitDTO.waterNum,
+            gasNum = unitDTO.gasNum,
+            ownerId = _ownerId,
+            communityId = _communityId,
+            isDeleted = false,
 
-            string? imageFromReq1 = await GetImageName.GetImageNameFn(unitDTO.image1);
-            string? imageFromReq2 = await GetImageName.GetImageNameFn(unitDTO.image2);
-            string? imageFromReq3 = await GetImageName.GetImageNameFn(unitDTO.image3);
-
-            Unit unit = new Unit
-            {
-                status = unitDTO.status,
-                price = unitDTO.price,
-                description = unitDTO.description,
-                type = unitDTO.type,
-                street = unitDTO.street,
-                city=unitDTO.city,
-                image1 = imageFromReq1,
-                image2 = imageFromReq2,
-                image3 = imageFromReq3,
-                area = unitDTO.area,
-                buildingNumber = unitDTO.buildingNumber,
-                flatNumber = unitDTO.flatNumber,
-                electricityNum = unitDTO.electricityNum,
-                waterNum = unitDTO.waterNum,
-                gasNum = unitDTO.gasNum,
-                ownerId = _ownerId,
-                communityId = _communityId,
-                isDeleted = false,
-
-            };
-
-            
-
-            Unit result = unitRepo.Add(unit);
-
-            return CreatedAtAction("GetById", new { id = result.id }, result);
-        }
+        };
 
 
-        #endregion
+
+        Unit result = unitRepo.Add(unit);
+
+        return CreatedAtAction("GetById", new { id = result.id }, result);
+
+    }
+
+    return BadRequest("Invalid data");
+
+}
+
+
+#endregion
 
         #region filterbytype
         [HttpGet("type")]

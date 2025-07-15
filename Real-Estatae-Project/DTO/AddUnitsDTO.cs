@@ -12,7 +12,7 @@
         public string? area { get; set; }
         public string? flatNumber { get; set; }
         public string? buildingNumber { get; set; }
-
+        public string? renterSSN { get; set; }
         public IFormFile? image1 { get; set; }
         public IFormFile? image2 { get; set; }
         public IFormFile? image3 { get; set; }

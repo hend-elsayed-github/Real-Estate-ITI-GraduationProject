@@ -40,7 +40,7 @@ namespace Real_Estatae_Project.Controllers
 
         #region AddUnit
         [HttpPost]
-        public async Task<IActionResult> Add(AddUnitsDTO unitDTO)
+        public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
         {
             string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int _communityId = unitRepo.GetCommunityId(_ownerId);
@@ -106,7 +106,7 @@ namespace Real_Estatae_Project.Controllers
 
         #region Update
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, UnitDTO updatingRef)
+        public async Task<IActionResult> Update([FromForm] int id, UnitDTO updatingRef)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

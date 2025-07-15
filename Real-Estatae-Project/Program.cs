@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Real_Estatae_Project.Models;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.Text;
@@ -44,6 +45,11 @@ namespace Real_Estatae_Project
             //services
             builder.Services.AddScoped<IUnitRepository, UnitRepository>();
             builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
+            builder.Services.AddScoped<IReactRepository, ReactRepository>();
+            builder.Services.AddScoped<IPostRepository, PostRepository>();
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 
             builder.Services.AddAuthentication(options =>
             {

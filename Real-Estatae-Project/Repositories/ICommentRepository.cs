@@ -1,7 +1,6 @@
-﻿using Real_Estatae_Project.Repositories;
-using Real_Estate_Project.Models;
+﻿using Real_Estate_Project.Models;
 
-namespace Real_Estatae_Project.Models
+namespace Real_Estatae_Project.Repositories
 {
     public interface ICommentRepository:IRepository<Comment>
     {

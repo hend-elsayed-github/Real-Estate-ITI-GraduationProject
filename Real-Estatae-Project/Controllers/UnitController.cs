@@ -38,7 +38,7 @@ namespace Real_Estatae_Project.Controllers
         }
         #endregion
 
-       #region AddUnit
+        #region AddUnit
 [HttpPost]
 public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
 {
@@ -90,43 +90,45 @@ public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
 
 #endregion
 
-#region filterbytype and by status
-[HttpGet("filter")]
-public IActionResult FilterByType([FromQuery] string type, [FromQuery] string status)
-{
-     string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-     List<Unit> units=unitRepo.Filter(type,status,userId);
-     return Ok(units);
-}
-#endregion
+        #region filterbytype and by status
+        [HttpGet("filter")]
+        public IActionResult FilterByType([FromQuery] string type, [FromQuery] string status)
+        {
+             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+             List<Unit> units=unitRepo.Filter(type,status,userId);
+             return Ok(units);
+        }
+        #endregion
  
-#region Search
-[HttpGet("Search")]
-public IActionResult Search([FromQuery] string searchTerm)
-{
-     string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-     List<Unit> units = unitRepo.Search(searchTerm, ownerId);
-     return Ok(units);
+        #region Search
+        [HttpGet("Search")]
+        public IActionResult Search([FromQuery] string searchTerm)
+        {
+             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+             List<Unit> units = unitRepo.Search(searchTerm, ownerId);
+             return Ok(units);
  
-}
+        }
  
-#endregion
+        #endregion
 
        
 
         #region Update
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update([FromForm] int id, UnitDTO updatingRef)
+        public async Task<IActionResult> Update( int id, [FromForm] UnitDTO updatingRef)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (ModelState.IsValid)
             {
-                unitRepo.Update(ownerId, id, updatingRef);
-                unitRepo.Save();
-                return Ok("updated");
+                await unitRepo.Update(ownerId, id, updatingRef);
+               
+                return Ok(new { success = true });
             }
-            return BadRequest("Invalid data");
+
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+            return BadRequest(errors);
         }
 
 

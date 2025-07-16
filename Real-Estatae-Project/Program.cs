@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Real_Estatae_Project.Models;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.Text;

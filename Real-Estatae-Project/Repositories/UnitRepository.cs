@@ -53,6 +53,7 @@ namespace Real_Estatae_Project.Repositories
             unitFromDB.description = UpdatingRef.description;
             unitFromDB.status = UpdatingRef.status;
             unitFromDB.type = UpdatingRef.type;
+            unitFromDB.renterSSN = UpdatingRef.renterSSN;
 
             List<IFormFile?> images = new() { UpdatingRef.image1, UpdatingRef.image2, UpdatingRef.image3 };
             string?[] currentImagePaths = { unitFromDB.image1, unitFromDB.image2, unitFromDB.image3 };
@@ -91,6 +92,8 @@ namespace Real_Estatae_Project.Repositories
             unitFromDB.image1 = currentImagePaths[0];
             unitFromDB.image2 = currentImagePaths[1];
             unitFromDB.image3 = currentImagePaths[2];
+
+            await Context.SaveChangesAsync();
         }
 
         #endregion

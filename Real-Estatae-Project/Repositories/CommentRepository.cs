@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Real_Estatae_Project.Models;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories

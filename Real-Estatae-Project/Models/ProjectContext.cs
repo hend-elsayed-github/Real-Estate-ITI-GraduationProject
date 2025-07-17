@@ -24,6 +24,9 @@ namespace Real_Estate_Project.Models
         public virtual DbSet<VerificationCode> VerificationCodes { get; set; }
         public virtual DbSet<React> Reacts { get; set; }
 
+        public virtual DbSet<Appointment> Appointments { get; set; }
+        public virtual DbSet<Reservation> Reservations { get; set; }
+
         public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
         {
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Real_Estatae_Project.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Real_Estate_Project.Models
 {
@@ -22,6 +23,11 @@ namespace Real_Estate_Project.Models
         [ForeignKey("unit")]
         public int unitId { get; set; }
         public virtual Unit unit { get; set; }
+
+        // advertisement - appointment 1-m
+
+        public virtual List<Appointment> Appointments { get; set; } 
+
 
     }
 }

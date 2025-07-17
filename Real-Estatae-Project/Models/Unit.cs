@@ -20,7 +20,7 @@ namespace Real_Estate_Project.Models
         public string? image2 { get; set; }
         public string? image3 { get; set; }
 
-        public string? renterSSN { get; set; }  //to know it belongs to which renter so when renter enter his ssn, automatically the unit set to him
+        public string? renterSSN { get; set; }  //to know it belongs to which renter so when renter enters his ssn, automatically the unit set to him
 
         //need to be varcharr
         public string electricityNum { get; set; }

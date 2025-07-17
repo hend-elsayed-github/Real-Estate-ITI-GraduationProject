@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Real_Estate_Project.Models;
 
@@ -11,9 +12,11 @@ using Real_Estate_Project.Models;
 namespace Real_Estatae_Project.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20250717201559_remove-fk")]
+    partial class removefk
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,8 +166,11 @@ namespace Real_Estatae_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<int>("advertisementId")
+                    b.Property<int?>("Addvertisementid")
                         .HasColumnType("int");
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("appointmentDate")
                         .HasColumnType("datetime2");
@@ -172,15 +178,11 @@ namespace Real_Estatae_Project.Migrations
                     b.Property<bool>("isAvaliable")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ownerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("id");
 
-                    b.HasIndex("advertisementId");
+                    b.HasIndex("Addvertisementid");
 
-                    b.HasIndex("ownerId");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Appointments");
                 });
@@ -233,9 +235,6 @@ namespace Real_Estatae_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<int>("appointmentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -255,9 +254,6 @@ namespace Real_Estatae_Project.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("id");
-
-                    b.HasIndex("appointmentId")
-                        .IsUnique();
 
                     b.ToTable("Reservations");
                 });
@@ -935,21 +931,13 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estatae_Project.Models.Appointment", b =>
                 {
-                    b.HasOne("Real_Estate_Project.Models.Addvertisement", "advertisement")
+                    b.HasOne("Real_Estate_Project.Models.Addvertisement", null)
                         .WithMany("Appointments")
-                        .HasForeignKey("advertisementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Addvertisementid");
 
-                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "owner")
+                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", null)
                         .WithMany("Appointments")
-                        .HasForeignKey("ownerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("advertisement");
-
-                    b.Navigation("owner");
+                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("Real_Estatae_Project.Models.React", b =>
@@ -969,17 +957,6 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("Post");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Real_Estatae_Project.Models.Reservation", b =>
-                {
-                    b.HasOne("Real_Estatae_Project.Models.Appointment", "appointment")
-                        .WithOne("reservation")
-                        .HasForeignKey("Real_Estatae_Project.Models.Reservation", "appointmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("appointment");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Addvertisement", b =>
@@ -1227,11 +1204,6 @@ namespace Real_Estatae_Project.Migrations
                         .IsRequired();
 
                     b.Navigation("user");
-                });
-
-            modelBuilder.Entity("Real_Estatae_Project.Models.Appointment", b =>
-                {
-                    b.Navigation("reservation");
                 });
 
             modelBuilder.Entity("Real_Estatae_Project.Models.BillParent", b =>

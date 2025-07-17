@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
+using Real_Estatae_Project.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Real_Estate_Project.Models
@@ -52,6 +53,9 @@ namespace Real_Estate_Project.Models
 
         //community 1- 1 owner >>>>>1 owner has one community
         public virtual Community? OwnerCommunity { get; set; }
+
+        //owner 1-m(Appointments) -  owner  -  has
+        public virtual List<Appointment>? Appointments { get; set; }
 
     }
 }

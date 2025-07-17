@@ -31,7 +31,7 @@ namespace Real_Estatae_Project.Controllers
         //    var ownerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         //    if (string.IsNullOrEmpty(ownerId))
         //        return Unauthorized();
-           
+
         //    if (!ModelState.IsValid)
         //        return BadRequest(ModelState);
 
@@ -49,6 +49,43 @@ namespace Real_Estatae_Project.Controllers
 
 
         //#endregion
+
+        #region update
+        [HttpPut]
+        public IActionResult UpdateCommunity( CommunityInfoDTO communityInfoDTO)
+        {
+            var ownerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(ownerId))
+                return Unauthorized();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var isUpdated = _communityRepository.Update(ownerId, communityInfoDTO);
+            if (isUpdated)
+                return Ok(new { message = "Community updated successfully" });
+            return NotFound(new { message = "Community not found" });
+        }
+        #endregion
+
+
+        #region get name
+        [HttpGet]
+        public IActionResult GetCommunityName()
+        {
+            var ownerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(ownerId))
+                return Unauthorized();
+
+            var communityId = _communityRepository.GetCommunityId(ownerId);
+            if (communityId == 0)
+                return NotFound(new { message = "Community not found" });
+            string communityName = _communityRepository.GetName(communityId);
+            if (communityName == null)
+                return NotFound(new { message = "Community not found" });
+            return Ok(new { name = communityName });
+        }
+        #endregion
 
     }
 }

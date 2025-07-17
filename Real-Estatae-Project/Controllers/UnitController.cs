@@ -142,9 +142,9 @@ public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
             if (unitRepo.Delete(ownerId, id) == true)
             {
                 unitRepo.Save();
-                return Ok("Deleted");
+                return Ok(new { success = true, message="Deleted" });
             }
-            return BadRequest("Not Found");
+            return BadRequest(new { success = false, message="Bad Request" });
         }
         #endregion
     }

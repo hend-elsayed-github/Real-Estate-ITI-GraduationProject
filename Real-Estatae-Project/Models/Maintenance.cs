@@ -22,11 +22,9 @@ namespace Real_Estate_Project.Models
         public int unitId { get; set; }
         public virtual Unit unit { get; set; }
 
-        // billParent-maintenance 1-1
+        //payment
 
-        [ForeignKey("billParent")]
-        public int billId { get; set; }
-        public virtual BillParent billParent { get; set; }
+        
 
     }
 }

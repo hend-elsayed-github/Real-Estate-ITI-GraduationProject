@@ -9,8 +9,7 @@ namespace Real_Estate_Project.Models
     {
         public virtual DbSet<Addvertisement> Addvertisements { get; set; }
         public virtual DbSet<BankAccount> BankAccounts { get; set; }
-        public virtual DbSet<BillParent> BillParents { get; set; }
-        public virtual DbSet<Bill> Bills { get; set; }
+      
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<Community> Communities { get; set; }
         public virtual DbSet<CommunityPost> CommunityPosts { get; set; }
@@ -23,6 +22,9 @@ namespace Real_Estate_Project.Models
         public virtual DbSet<Unit> Units { get; set; }
         public virtual DbSet<VerificationCode> VerificationCodes { get; set; }
         public virtual DbSet<React> Reacts { get; set; }
+
+        public virtual DbSet<Appointment> Appointments { get; set; }
+        public virtual DbSet<Reservation> Reservations { get; set; }
 
         public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
         {

@@ -14,9 +14,9 @@ namespace Real_Estate_Project.Models
         [ForeignKey("paymentMethod")]
         public int paymentMethodId { get; set; }
         public virtual  PaymentMethod paymentMethod { get; set; }
-
+        public DateOnly PaymentDate {  get; set; }
         //bankAccount-payment 1-m(payment)
-        [ForeignKey("bankAccount ")]
+        [ForeignKey("bankAccount")]
         public int bankAccountId { get; set; }
         public virtual BankAccount bankAccount { get; set; }
 
@@ -24,10 +24,13 @@ namespace Real_Estate_Project.Models
         public string userId { get; set; }
         public virtual ApplicationUser user { get; set; }
 
-        // billParent-payment 1-1
+        // rent-payment 1-1
 
-        [ForeignKey("billParent")]
-        public int billId { get; set; }
-        public virtual BillParent billParent { get; set; }
+       
+
+        public int RentId { get; set; }
+
+      
+        public virtual Rent Rent { get; set; }
     }
 }

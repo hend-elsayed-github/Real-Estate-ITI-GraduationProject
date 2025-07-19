@@ -4,26 +4,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Real_Estate_Project.Models
 {
     public class Rent 
-    {
+    {//   status
         public int id { get; set; }
-        public double value { get; set; }
+     
 
-        public DateOnly paymentDate { get; set; }
 
         public DateOnly dueDate { get; set; }
 
         //need enum
-        public string status { get; set; }
+        //public string status { get; set; }
+        public bool IsPaid { get; set; }=false;
+        public double Rentvalue { get; set; }
 
         // unit -rent 1-1
         [ForeignKey("unit")]
         public int unitId { get; set; }
         public virtual Unit unit { get; set; }
 
-        // billParent-rent 1-1
+       
+        public virtual Payment? Payment { get; set; }
 
-        [ForeignKey("billParent")]
-        public int billId { get; set; }
-        public virtual BillParent billParent { get; set; }
     }
 }

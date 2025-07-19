@@ -1,11 +1,14 @@
-﻿using Real_Estate_Project.Models;
+﻿using Real_Estatae_Project.DTO;
+using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
 {
     public interface ICommunityRepository:IRepository<Community>
     {
         Task<int> Create(Community community);
-
+        int GetCommunityId(string ownerId);
+        string GetName(int commId);
+        bool Update(string ownerId, CommunityInfoDTO newName);
         void Save();
     }
 }

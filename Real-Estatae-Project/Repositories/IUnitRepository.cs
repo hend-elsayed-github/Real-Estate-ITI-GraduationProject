@@ -8,8 +8,10 @@ namespace Real_Estatae_Project.Repositories
         List<Unit> GetAll(string ownerId);
         Unit GetById(int id, string ownerId);
 
-        List<Unit> GetByType(string type, string? userId, string? role);
-        List<Unit> GetByStatus(string status, string? userId, string? role);
+        List<Unit> Filter(string? type, string? status,string userId);
+
+        List<Unit> Search(string searchTerm, string userId);
+ 
         Unit Add(Unit entity);
 
         Task Update(string ownerId, int id, UnitDTO UpdatingRef);

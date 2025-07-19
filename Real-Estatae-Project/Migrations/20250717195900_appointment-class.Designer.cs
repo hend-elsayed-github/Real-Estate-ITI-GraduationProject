@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Real_Estate_Project.Models;
 
@@ -11,9 +12,11 @@ using Real_Estate_Project.Models;
 namespace Real_Estatae_Project.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20250717195900_appointment-class")]
+    partial class appointmentclass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,6 +186,22 @@ namespace Real_Estatae_Project.Migrations
                     b.HasIndex("ownerId");
 
                     b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("Real_Estatae_Project.Models.BillParent", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<double>("value")
+                        .HasColumnType("float");
+
+                    b.HasKey("id");
+
+                    b.ToTable("BillParents");
                 });
 
             modelBuilder.Entity("Real_Estatae_Project.Models.React", b =>
@@ -399,6 +418,44 @@ namespace Real_Estatae_Project.Migrations
                     b.ToTable("BankAccounts");
                 });
 
+            modelBuilder.Entity("Real_Estate_Project.Models.Bill", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<int>("billId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("expirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("unitId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("value")
+                        .HasColumnType("float");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("billId")
+                        .IsUnique();
+
+                    b.HasIndex("unitId");
+
+                    b.ToTable("Bills");
+                });
+
             modelBuilder.Entity("Real_Estate_Project.Models.Comment", b =>
                 {
                     b.Property<int>("id")
@@ -501,6 +558,9 @@ namespace Real_Estatae_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
+                    b.Property<int>("billId")
+                        .HasColumnType("int");
+
                     b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -526,6 +586,9 @@ namespace Real_Estatae_Project.Migrations
                         .HasColumnType("float");
 
                     b.HasKey("id");
+
+                    b.HasIndex("billId")
+                        .IsUnique();
 
                     b.HasIndex("unitId");
 
@@ -577,16 +640,13 @@ namespace Real_Estatae_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<DateOnly>("PaymentDate")
-                        .HasColumnType("date");
-
-                    b.Property<int>("RentId")
-                        .HasColumnType("int");
-
                     b.Property<double>("amount")
                         .HasColumnType("float");
 
                     b.Property<int>("bankAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("billId")
                         .HasColumnType("int");
 
                     b.Property<int>("paymentMethodId")
@@ -602,10 +662,10 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasKey("id");
 
-                    b.HasIndex("RentId")
-                        .IsUnique();
-
                     b.HasIndex("bankAccountId");
+
+                    b.HasIndex("billId")
+                        .IsUnique();
 
                     b.HasIndex("paymentMethodId");
 
@@ -639,21 +699,32 @@ namespace Real_Estatae_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("Rentvalue")
-                        .HasColumnType("float");
+                    b.Property<int>("billId")
+                        .HasColumnType("int");
 
                     b.Property<DateOnly>("dueDate")
                         .HasColumnType("date");
 
+                    b.Property<DateOnly>("paymentDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("unitId")
                         .HasColumnType("int");
 
+                    b.Property<double>("value")
+                        .HasColumnType("float");
+
                     b.HasKey("id");
 
-                    b.HasIndex("unitId");
+                    b.HasIndex("billId")
+                        .IsUnique();
+
+                    b.HasIndex("unitId")
+                        .IsUnique();
 
                     b.ToTable("Rents");
                 });
@@ -953,6 +1024,25 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("user");
                 });
 
+            modelBuilder.Entity("Real_Estate_Project.Models.Bill", b =>
+                {
+                    b.HasOne("Real_Estatae_Project.Models.BillParent", "billParent")
+                        .WithOne("bill")
+                        .HasForeignKey("Real_Estate_Project.Models.Bill", "billId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Real_Estate_Project.Models.Unit", "unit")
+                        .WithMany("Bills")
+                        .HasForeignKey("unitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("billParent");
+
+                    b.Navigation("unit");
+                });
+
             modelBuilder.Entity("Real_Estate_Project.Models.Comment", b =>
                 {
                     b.HasOne("Real_Estate_Project.Models.CommunityPost", "communityPost")
@@ -1004,11 +1094,19 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estate_Project.Models.Maintenance", b =>
                 {
+                    b.HasOne("Real_Estatae_Project.Models.BillParent", "billParent")
+                        .WithOne("maintenance")
+                        .HasForeignKey("Real_Estate_Project.Models.Maintenance", "billId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Real_Estate_Project.Models.Unit", "unit")
                         .WithMany("Maintenances")
                         .HasForeignKey("unitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("billParent");
 
                     b.Navigation("unit");
                 });
@@ -1026,15 +1124,15 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estate_Project.Models.Payment", b =>
                 {
-                    b.HasOne("Real_Estate_Project.Models.Rent", "Rent")
-                        .WithOne("Payment")
-                        .HasForeignKey("Real_Estate_Project.Models.Payment", "RentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Real_Estate_Project.Models.BankAccount", "bankAccount")
                         .WithMany("Payments")
                         .HasForeignKey("bankAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Real_Estatae_Project.Models.BillParent", "billParent")
+                        .WithOne("payment")
+                        .HasForeignKey("Real_Estate_Project.Models.Payment", "billId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1050,9 +1148,9 @@ namespace Real_Estatae_Project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Rent");
-
                     b.Navigation("bankAccount");
+
+                    b.Navigation("billParent");
 
                     b.Navigation("paymentMethod");
 
@@ -1061,11 +1159,19 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estate_Project.Models.Rent", b =>
                 {
-                    b.HasOne("Real_Estate_Project.Models.Unit", "unit")
-                        .WithMany("Rents")
-                        .HasForeignKey("unitId")
+                    b.HasOne("Real_Estatae_Project.Models.BillParent", "billParent")
+                        .WithOne("rent")
+                        .HasForeignKey("Real_Estate_Project.Models.Rent", "billId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Real_Estate_Project.Models.Unit", "unit")
+                        .WithOne("rent")
+                        .HasForeignKey("Real_Estate_Project.Models.Rent", "unitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("billParent");
 
                     b.Navigation("unit");
                 });
@@ -1131,6 +1237,21 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("reservation");
                 });
 
+            modelBuilder.Entity("Real_Estatae_Project.Models.BillParent", b =>
+                {
+                    b.Navigation("bill")
+                        .IsRequired();
+
+                    b.Navigation("maintenance")
+                        .IsRequired();
+
+                    b.Navigation("payment")
+                        .IsRequired();
+
+                    b.Navigation("rent")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Real_Estate_Project.Models.Addvertisement", b =>
                 {
                     b.Navigation("Appointments");
@@ -1189,20 +1310,17 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("Payments");
                 });
 
-            modelBuilder.Entity("Real_Estate_Project.Models.Rent", b =>
-                {
-                    b.Navigation("Payment");
-                });
-
             modelBuilder.Entity("Real_Estate_Project.Models.Unit", b =>
                 {
-                    b.Navigation("Maintenances");
+                    b.Navigation("Bills");
 
-                    b.Navigation("Rents");
+                    b.Navigation("Maintenances");
 
                     b.Navigation("Reviews");
 
                     b.Navigation("addvertisement");
+
+                    b.Navigation("rent");
                 });
 #pragma warning restore 612, 618
         }

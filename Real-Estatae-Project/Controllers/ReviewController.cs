@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Review;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.Security.Claims;

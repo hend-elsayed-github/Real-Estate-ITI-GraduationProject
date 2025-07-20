@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Real_Estate_Project.Models;
 
@@ -11,9 +12,11 @@ using Real_Estate_Project.Models;
 namespace Real_Estatae_Project.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20250719223458_add rent")]
+    partial class addrent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -666,9 +669,6 @@ namespace Real_Estatae_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<int>("communityId")
-                        .HasColumnType("int");
-
                     b.Property<string>("content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -683,13 +683,16 @@ namespace Real_Estatae_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("unitId")
+                        .HasColumnType("int");
+
                     b.Property<string>("userId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("id");
 
-                    b.HasIndex("communityId");
+                    b.HasIndex("unitId");
 
                     b.HasIndex("userId");
 
@@ -1072,21 +1075,21 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estate_Project.Models.Review", b =>
                 {
-                    b.HasOne("Real_Estate_Project.Models.Community", "community")
+                    b.HasOne("Real_Estate_Project.Models.Unit", "unit")
                         .WithMany("Reviews")
-                        .HasForeignKey("communityId")
+                        .HasForeignKey("unitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "renter")
+                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
                         .WithMany("Reviews")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("community");
+                    b.Navigation("unit");
 
-                    b.Navigation("renter");
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Unit", b =>
@@ -1172,8 +1175,6 @@ namespace Real_Estatae_Project.Migrations
                 {
                     b.Navigation("CommunityPosts");
 
-                    b.Navigation("Reviews");
-
                     b.Navigation("Units");
 
                     b.Navigation("renters");
@@ -1201,6 +1202,8 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("Maintenances");
 
                     b.Navigation("Rents");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("addvertisement");
                 });

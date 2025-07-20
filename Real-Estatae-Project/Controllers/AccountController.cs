@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Auth;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.IdentityModel.Tokens.Jwt;

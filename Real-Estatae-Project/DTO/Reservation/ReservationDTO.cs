@@ -3,7 +3,7 @@ using Real_Estatae_Project.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Real_Estatae_Project.DTO
+namespace Real_Estatae_Project.DTO.Reservation
 {
     public class ReservationDTO
     {

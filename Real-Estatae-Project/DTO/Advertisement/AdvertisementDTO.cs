@@ -2,7 +2,7 @@
 using Real_Estate_Project.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Real_Estatae_Project.DTO
+namespace Real_Estatae_Project.DTO.Advertisement
 {
     public class AdvertisementDTO
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.React;
 using Real_Estatae_Project.Models;
 using Real_Estatae_Project.Repositories;
 using System.Security.Claims;

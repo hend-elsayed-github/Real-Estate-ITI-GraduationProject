@@ -13,12 +13,13 @@ namespace Real_Estatae_Project.Repositories
         {
             Context = _Context;
         }
+
+
         #region GetAll
         public List<Unit> GetAll(string ownerId)
         {
             return [.. Context.Units
                 .Include(u => u.Bills)
-                .Include(u => u.Reviews)
                 .Include(u => u.Maintenances)
                 .Where(u => u.ownerId == ownerId && !u.isDeleted)];
         }

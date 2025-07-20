@@ -32,6 +32,10 @@ namespace Real_Estate_Project.Models
 
         }
 
+        public ProjectContext()
+        {
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

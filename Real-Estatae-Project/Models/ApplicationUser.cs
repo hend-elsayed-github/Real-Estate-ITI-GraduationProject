@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Hosting;
 using Real_Estatae_Project.Models;
+using Real_Estate_Project.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Real_Estate_Project.Models

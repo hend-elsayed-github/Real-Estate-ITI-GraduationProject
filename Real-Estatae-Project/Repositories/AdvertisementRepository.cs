@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Advertisement;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories

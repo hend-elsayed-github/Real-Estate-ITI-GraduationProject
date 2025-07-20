@@ -29,8 +29,7 @@ namespace Real_Estate_Project.Models
 
         public string gasNum { get; set; }
 
-        public bool isDeleted { get; set; }
-
+        public bool isDeleted { get; set; }=false;
         // maintenance-unit 1-m(maintenance)
         public virtual List<Maintenance>? Maintenances { get; set; }
 
@@ -39,13 +38,14 @@ namespace Real_Estate_Project.Models
         public int communityId { get; set; }
         public virtual Community community { get; set; }
 
-        // bill-unit 1-m(bill)
-        public virtual List<Bill>? Bills  { get; set; }
+        //// bill-unit 1-m(bill)
+        //public virtual List<Bill>? Bills  { get; set; }
 
         // review-unit 1-m(review)
         //public virtual List<Review>? Reviews { get; set; }
 
         // user 1-m       (renter )
+        [ForeignKey("renter")]
         public string? renterId { get; set; }
         public virtual ApplicationUser? renter { get; set; }
 
@@ -56,9 +56,8 @@ namespace Real_Estate_Project.Models
         //  unit -addvirtisement 1-1
         public virtual Addvertisement? addvertisement { get; set; }
 
-        // unit - rent 1-1
-        public virtual Rent? rent { get; set; }
-
+        // unit - rent 1-m
+        public virtual List<Rent>? Rents { get; set; }
 
     }
 }

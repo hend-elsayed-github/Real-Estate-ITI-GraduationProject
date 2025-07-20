@@ -1,4 +1,4 @@
-﻿namespace Real_Estatae_Project.DTO
+﻿namespace Real_Estatae_Project.DTO.React
 {
     public class ReactDTO
     {

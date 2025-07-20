@@ -1,4 +1,5 @@
 
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -48,8 +49,12 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRentRepositories, RentRepositories>();
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+            builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
+
 
 
 
@@ -106,7 +111,11 @@ namespace Real_Estatae_Project
                 // Disable automatic response for validation errors
                 options.SuppressMapClientErrors = true;
             });
+            builder.Services.AddHangfire(config =>
+            config.UseSqlServerStorage(builder.Configuration.GetConnectionString("cs")));
+            
 
+            builder.Services.AddHangfireServer();
 
 
             var app = builder.Build();
@@ -125,10 +134,16 @@ namespace Real_Estatae_Project
             app.UseAuthorization();
 
             app.UseCors("FreePlan");
-
+            app.UseHangfireDashboard(); // dashboard  +Authorization
             app.MapControllers();
 
             app.Run();
+
+            RecurringJob.AddOrUpdate<IRentRepositories>(
+           "generate-monthly-rents",
+            x => x.GenerateMonthlyRentsAsync(),
+            Cron.Monthly);
+
         }
     }
 }

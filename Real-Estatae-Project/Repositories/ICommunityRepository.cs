@@ -1,4 +1,4 @@
-﻿using Real_Estatae_Project.DTO;
+﻿using Real_Estatae_Project.DTO.Community;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories

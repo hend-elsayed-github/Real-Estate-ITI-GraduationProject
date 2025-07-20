@@ -50,6 +50,7 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRentRepositories, RentRepositories>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 
             builder.Services.AddAuthentication(options =>

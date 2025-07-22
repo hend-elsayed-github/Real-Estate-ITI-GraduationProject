@@ -9,9 +9,9 @@ namespace Real_Estate_Project.Models
         public string title { get; set; }
         public string message { get; set; }
 
-        public string type { get; set; }
+        //public string type { get; set; }
 
-        public bool isRead { get; set; }
+        public bool isRead { get; set; } = false;
 
         public DateTime createAt { get; set; }=DateTime.Now;
 

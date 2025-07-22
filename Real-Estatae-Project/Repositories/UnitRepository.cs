@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Unit;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -13,12 +13,12 @@ namespace Real_Estatae_Project.Repositories
         {
             Context = _Context;
         }
+
+
         #region GetAll
         public List<Unit> GetAll(string ownerId)
         {
             return [.. Context.Units
-               
-                .Include(u => u.Reviews)
                 .Include(u => u.Maintenances)
                 .Where(u => u.ownerId == ownerId && !u.isDeleted)];
         }

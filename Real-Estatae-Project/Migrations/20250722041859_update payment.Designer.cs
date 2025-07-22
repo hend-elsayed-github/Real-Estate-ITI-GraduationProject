@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Real_Estate_Project.Models;
 
@@ -11,9 +12,11 @@ using Real_Estate_Project.Models;
 namespace Real_Estatae_Project.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20250722041859_update payment")]
+    partial class updatepayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -849,13 +852,13 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.CommunityPost", "Post")
                         .WithMany("React")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Post");
@@ -868,7 +871,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estatae_Project.Models.Appointment", "appointment")
                         .WithOne("reservation")
                         .HasForeignKey("Real_Estatae_Project.Models.Reservation", "appointmentId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("appointment");
@@ -879,13 +882,13 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.Unit", "unit")
                         .WithOne("addvertisement")
                         .HasForeignKey("Real_Estate_Project.Models.Addvertisement", "unitId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
                         .WithMany("Addvertisements")
                         .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("unit");
@@ -907,13 +910,13 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.CommunityPost", "communityPost")
                         .WithMany("Comments")
                         .HasForeignKey("communityPostId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
                         .WithMany("Comments")
                         .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("communityPost");
@@ -926,7 +929,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "Owner")
                         .WithOne("OwnerCommunity")
                         .HasForeignKey("Real_Estate_Project.Models.Community", "ownerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Owner");
@@ -937,13 +940,13 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.Community", "community")
                         .WithMany("CommunityPosts")
                         .HasForeignKey("communityId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "ApplicationUser")
                         .WithMany("CommunityPosts")
                         .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -956,7 +959,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.Unit", "unit")
                         .WithMany("Maintenances")
                         .HasForeignKey("unitId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("unit");
@@ -967,7 +970,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
                         .WithMany("Notifications")
                         .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("user");
@@ -978,13 +981,13 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.Rent", "Rent")
                         .WithOne("Payment")
                         .HasForeignKey("Real_Estate_Project.Models.Payment", "RentId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
                         .WithMany("Payments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Rent");
@@ -997,7 +1000,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.Unit", "unit")
                         .WithMany("Rents")
                         .HasForeignKey("unitId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("unit");
@@ -1008,13 +1011,13 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.Community", "community")
                         .WithMany("Reviews")
                         .HasForeignKey("communityId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "renter")
                         .WithMany("Reviews")
                         .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("community");
@@ -1027,7 +1030,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.Community", "community")
                         .WithMany("Units")
                         .HasForeignKey("communityId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "owner")
@@ -1053,7 +1056,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
                         .WithMany("VerificationCodes")
                         .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("user");

@@ -26,8 +26,5 @@ namespace Real_Estatae_Project.DTO.Advertisement
 
         public string communityName { get; set; } 
 
-
-
-
     }
 }

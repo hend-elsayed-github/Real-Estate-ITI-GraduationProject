@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Real_Estatae_Project.DTO
+namespace Real_Estatae_Project.DTO.Auth
 {
     public class RegisterDTO
     {

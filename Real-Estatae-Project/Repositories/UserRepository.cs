@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Unit;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -37,15 +37,15 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
-        public async Task<Unit> getUnitBySSN(RenterSSNDTO renterSSN)
+        public async Task< List<Unit>> getUnitBySSN(RenterSSNDTO renterSSN)
         {
-            Unit unit = await _Context.Units.Where(u => u.status == "busy" && u.isDeleted == false)
-                .FirstOrDefaultAsync(u => u.renterSSN == renterSSN.SSN);
-            if (unit == null)
+            List<Unit> units = _Context.Units.Where(u => u.status == "busy" && u.isDeleted == false && u.renterSSN == renterSSN.SSN)
+                .ToList();
+            if (units == null)
             {
                 return null;
             }
-            return unit;
+            return  units;
         }
 
 

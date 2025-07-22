@@ -10,7 +10,6 @@ namespace Real_Estatae_Project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   // [Authorize(Roles = "renter")]
     [Authorize]
 
     public class RentController : ControllerBase
@@ -75,7 +74,7 @@ namespace Real_Estatae_Project.Controllers
 
         #region Owner
         [HttpGet("MonthRents")]
-        [Authorize(Roles = "AllRents")]
+        [Authorize(Roles = "Owner")]
         public async Task<ActionResult<IEnumerable<RentInfoDTO>>> MonthRents(int month,  int year)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

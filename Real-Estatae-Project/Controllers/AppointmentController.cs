@@ -88,7 +88,7 @@ namespace Real_Estatae_Project.Controllers
         /////////////////////
 
         #region addappointment
-        [HttpGet]
+        [HttpPost]
         [Authorize(Roles = "Owner")]
         public IActionResult Add(AppointmentDTO appointmentDTO)
         {

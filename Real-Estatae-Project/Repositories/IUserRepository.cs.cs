@@ -1,4 +1,5 @@
-﻿using Real_Estatae_Project.DTO.Unit;
+﻿using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Unit;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -10,6 +11,9 @@ namespace Real_Estatae_Project.Repositories
 
         Task setRenterCommunity(string renterId, Unit renterUnit);
         Task setRenterUnit(string renterId, int renterUnitId);
+
+        Task<UserCommunityDTO> GetUserCommunity(string userId);
+        Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId);
 
 
     }

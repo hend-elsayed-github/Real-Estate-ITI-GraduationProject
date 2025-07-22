@@ -5,7 +5,7 @@ namespace Real_Estatae_Project.Repositories
 {
     public interface IAdvertisementRepository:IRepository<Addvertisement>
     {
-        Task<Addvertisement> Add(Addvertisement newAd);
+        Task<AdvertisementDTO> Add(int id , string ownerID);
         Task<bool> Edit(int id, AdvertisementDTO updatedAd);
 
         List<Addvertisement> GetAll();

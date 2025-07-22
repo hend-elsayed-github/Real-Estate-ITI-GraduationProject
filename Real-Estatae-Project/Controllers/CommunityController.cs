@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Real_Estatae_Project.DTO;
 using Real_Estatae_Project.DTO.Community;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
@@ -18,9 +19,11 @@ namespace Real_Estatae_Project.Controllers
 
     {
         private readonly ICommunityRepository _communityRepository;
-        public CommunityController(ICommunityRepository communityRepository)
+        private readonly IUserRepository userRepository;
+        public CommunityController(ICommunityRepository communityRepository,IUserRepository _userRepository)
         {
             _communityRepository = communityRepository;
+            userRepository = _userRepository;
         }
 
 
@@ -85,6 +88,49 @@ namespace Real_Estatae_Project.Controllers
             if (communityName == null)
                 return NotFound(new { message = "Community not found" });
             return Ok(new { name = communityName });
+        }
+        #endregion
+
+
+        /////////////////////////
+        #region usercommunity
+        [HttpGet("usercommunity")]
+
+        public async Task<IActionResult> GetUserCommunity()
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            UserCommunityDTO user = await userRepository.GetUserCommunity(userId);
+            if (user == null)
+            {
+                return NotFound();
+
+            }
+            return Ok(user);
+
+        }
+
+        #endregion
+        #region Top5
+        [HttpGet("topActive")]
+        public async Task<ActionResult<List<TopUserDTO>>> GetTopActiveUsersInCommunity()
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<UserCommunityDTO> users = await userRepository.GetTopActiveUsersByCommunityAsync(userId);
+
+            List<TopUserDTO> topUsers = new List<TopUserDTO>();
+            foreach (var user in users)
+            {
+                TopUserDTO top = new TopUserDTO
+                {
+                    Image = user.Image,
+                    Name = user.Name
+                };
+                topUsers.Add(top);
+            }
+
+
+            return topUsers;
+
         }
         #endregion
 

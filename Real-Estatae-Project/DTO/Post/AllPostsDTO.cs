@@ -16,6 +16,7 @@
         public string? UserImage { get; set; }
 
         public string? userRole { get; set; }
+        public int commentCount {get; set;}
 
     
 

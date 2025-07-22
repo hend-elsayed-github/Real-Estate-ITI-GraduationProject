@@ -42,7 +42,7 @@ namespace Real_Estate_Project.Models
         //public virtual List<Bill>? Bills  { get; set; }
 
         // review-unit 1-m(review)
-        public virtual List<Review>? Reviews { get; set; }
+        //public virtual List<Review>? Reviews { get; set; }
 
         // user 1-m       (renter )
         [ForeignKey("renter")]

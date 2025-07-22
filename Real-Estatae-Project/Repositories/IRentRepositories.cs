@@ -1,4 +1,5 @@
-﻿using Real_Estate_Project.Models;
+﻿using Microsoft.Extensions.Logging;
+using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
 {
@@ -10,6 +11,7 @@ namespace Real_Estatae_Project.Repositories
 
         public Task<IEnumerable<Rent>> MonthRentsAsync(string ownerid, int month, int year);
 
-
+        public Task <Rent?> GetRentByIdAsync(int rentId, string? renterId=null);
+        public Task  UpdateRentAsync(int rentId);
     }
 }

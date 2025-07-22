@@ -24,5 +24,8 @@ namespace Real_Estate_Project.Models
         [ForeignKey("Owner")]
         public string ownerId { get; set; }
         public virtual ApplicationUser Owner { get; set; }
+
+        // review-community 1-m(review)
+        public virtual List<Review>? Reviews { get; set; }
     }
 }

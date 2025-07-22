@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Real_Estatae_Project.ViewModels;
+using Real_Estatae_Project.DTO.Auth;
 
 namespace Real_Estatae_Project.Controllers
 {

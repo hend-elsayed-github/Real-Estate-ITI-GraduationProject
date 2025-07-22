@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using Real_Estatae_Project.CustomAttributes;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Real_Estatae_Project.Models
@@ -26,8 +28,12 @@ namespace Real_Estatae_Project.Models
         public string email { get; set; }
 
         //1-1 appointment
+        
         [ForeignKey("appointment")]
+
+        [Unique(ErrorMessage = "This appointment is already reserved")] 
         public int appointmentId { get; set; }
+        
         public virtual Appointment appointment { get; set; }
 
     }

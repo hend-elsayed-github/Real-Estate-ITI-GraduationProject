@@ -1,13 +1,15 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Unit;
 using Real_Estatae_Project.Images;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class UnitController : ControllerBase
@@ -39,13 +41,14 @@ namespace Real_Estatae_Project.Controllers
         #endregion
 
         #region AddUnit
-[HttpPost]
-public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
-{
-    string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    int _communityId = unitRepo.GetCommunityId(_ownerId);
+        [HttpPost]
+        public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
+        {
+            string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int _communityId = unitRepo.GetCommunityId(_ownerId);
 
-    if (ModelState.IsValid) {
+
+            if (ModelState.IsValid) {
 
         string? imageFromReq1 = await GetImageName.GetImageNameFn(unitDTO.image1);
         string? imageFromReq2 = await GetImageName.GetImageNameFn(unitDTO.image2);

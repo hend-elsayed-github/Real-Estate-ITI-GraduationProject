@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Real_Estatae_Project.ViewModels
+namespace Real_Estatae_Project.DTO.Auth
 {
     public class RoleDTO
     {

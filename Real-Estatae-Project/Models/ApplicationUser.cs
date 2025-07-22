@@ -14,7 +14,7 @@ namespace Real_Estate_Project.Models
         public string? image {  get; set; }
 
         public bool? isActive {  get; set; }
-
+        public string StripeAccountId { get; set; }
         public DateTime createdAt { get; set; }= DateTime.Now;
 
         //verificationCode 1-m(verificationCode) -  all  - has
@@ -44,8 +44,6 @@ namespace Real_Estate_Project.Models
         //Addvertisement 1-m(Addvertisement) -  owner  -  add,  [visitor & renter m-m  see]----------???
         public virtual List<Addvertisement>? Addvertisements { get; set; }
 
-        //BankAccount 1-m(BankAccount) -  renter-owner  -  has
-        public virtual List<BankAccount>? BankAccounts { get; set; }
 
         //Community(1-m)  m renters
         [ForeignKey("RenterCommunity")]

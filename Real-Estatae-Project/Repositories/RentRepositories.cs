@@ -95,6 +95,35 @@ namespace Real_Estatae_Project.Repositories
         }
         #endregion
 
+
+        public async Task<Rent?> GetRentByIdAsync(int rentId, string? renterId)
+        {
+
+            if (!string.IsNullOrEmpty(renterId))
+            {
+                return await _context.Rents
+              
+               .Where(r => r.id == rentId && !r.IsPaid)
+                // .Include(r => r.unit)
+               .FirstOrDefaultAsync();
+            }
+                return await _context.Rents
+                .Where(r => r.id == rentId && !r.IsPaid ).FirstOrDefaultAsync();
+
+        }
+
+
+
+        public async Task UpdateRentAsync(int rentId)
+        {
+            var rent = await GetRentByIdAsync(rentId,null);
+            if(rent != null){
+                rent.IsPaid = true;
+                await _context.SaveChangesAsync();
+
+            }
+        }
+
     }
 
 

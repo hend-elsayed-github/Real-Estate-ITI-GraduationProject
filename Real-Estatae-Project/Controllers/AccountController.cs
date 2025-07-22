@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Real_Estatae_Project.DTO.Auth;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
+using Stripe;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -78,6 +79,16 @@ namespace Real_Estatae_Project.Controllers
 
             if (role == "Owner")
             {
+                var accountService = new AccountService();
+                var stripeAccount = await accountService.CreateAsync(new AccountCreateOptions
+                {
+                    Type = "standard"
+                });
+
+              
+                user.StripeAccountId = stripeAccount.Id;
+
+                await userManager.UpdateAsync(user);
                 Community newComm = new Community
                 {
                     name = "new community",

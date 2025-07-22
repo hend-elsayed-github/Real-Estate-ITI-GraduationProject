@@ -22,6 +22,7 @@ namespace Real_Estatae_Project.Controllers
 
 
         #region add advertisement
+
         [HttpPost("{id}")]
         public async Task<IActionResult> AddAdvertisement(int id )
         {
@@ -48,6 +49,7 @@ namespace Real_Estatae_Project.Controllers
                 message = "Advertisement added successfully.",
                 data=addedAd
             });
+
         }
 
         #endregion

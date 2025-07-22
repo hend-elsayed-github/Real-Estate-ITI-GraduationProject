@@ -52,7 +52,9 @@ namespace Real_Estatae_Project.Controllers
                 reactCount=p.React.Count(),
                 UserName = p.ApplicationUser.firstName + " " + p.ApplicationUser.lastName,
                 userRole = userRole,
-                UserImage = p.ApplicationUser.image
+                UserImage = p.ApplicationUser.image,
+                commentCount=p.Comments.Where(c =>  !c.isDeleted).Count()
+ 
 
 
             }).ToList();

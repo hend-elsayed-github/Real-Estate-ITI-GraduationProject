@@ -52,14 +52,6 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRentRepositories, RentRepositories>();
-            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-            builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-            builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
-
-
-
-
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();

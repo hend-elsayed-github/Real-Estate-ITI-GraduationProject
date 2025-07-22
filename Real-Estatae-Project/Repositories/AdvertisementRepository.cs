@@ -15,16 +15,53 @@ namespace Real_Estatae_Project.Repositories
 
         #region add advertisement
 
-        public async Task<Addvertisement> Add(Addvertisement newAd)
+        public async Task<AdvertisementDTO> Add(int unitID, string ownerID)
         {
-            if (newAd == null)
+            Unit unitFromDB = await context.Units.FirstOrDefaultAsync(u => u.id == unitID && !u.isDeleted && u.status=="embty");
+            if (unitFromDB == null)
             {
-                return null;
+                return null; // Unit not found or is deleted
             }
-            await context.Addvertisements.AddAsync(newAd);
+            if (unitFromDB.ownerId != ownerID)
+            {
+                return null; // User does not own this unit
+            }
+            Addvertisement newAd = new Addvertisement
+            {
+                title = unitFromDB.type + " in " + unitFromDB.city,
+                description = "Available " + unitFromDB.type + ": " + unitFromDB.description,
+                isDeleted=unitFromDB.isDeleted,
+                userId = ownerID,
+                unitId = unitFromDB.id
+
+            };
+
+            context.Addvertisements.Add(newAd);
             await context.SaveChangesAsync();
 
-            return newAd;
+            AdvertisementDTO newAdInfo = new AdvertisementDTO
+            {
+                AdID=newAd.id,
+                title = unitFromDB.type + " in " + unitFromDB.city,
+                description = "Available "+unitFromDB.type+": " + unitFromDB.description,
+                publishDate = DateTime.Now,
+                price = unitFromDB.price,   
+                type = unitFromDB.type,
+                city = unitFromDB.city,
+                street = unitFromDB.street,
+                area = unitFromDB.area,
+                flatNumber = unitFromDB.flatNumber,
+                buildingNumber = unitFromDB.buildingNumber,
+                image1 = unitFromDB.image1,
+                image2 = unitFromDB.image2,
+                image3 = unitFromDB.image3,
+                unitId = unitFromDB.id,
+                communityName = unitFromDB.community.name 
+
+            };
+
+            return newAdInfo; // Successfully added advertisement
+
         }
         #endregion
 

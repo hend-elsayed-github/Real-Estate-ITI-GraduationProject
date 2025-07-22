@@ -213,7 +213,10 @@ namespace Real_Estatae_Project.Controllers
                 user.firstName,
                 user.lastName,
                 user.image,
-                user.PhoneNumber
+                user.PhoneNumber,
+                user.communityId,
+                
+
 
             });
         }

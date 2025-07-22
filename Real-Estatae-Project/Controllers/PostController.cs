@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Real_Estatae_Project.DTO;
 using Real_Estatae_Project.DTO.Post;
 using Real_Estatae_Project.Images;
 using Real_Estatae_Project.Repositories;
@@ -142,8 +143,7 @@ namespace Real_Estatae_Project.Controllers
      
 
             string? imageFromReq = await GetImageName.GetImageNameFn(postdto.image);
-            string? imageUrl = imageFromReq != null ? "/Images/" + imageFromReq : existingPost.image;
-
+            string? imageUrl = imageFromReq != null ? imageFromReq : existingPost.image;
             var updatedpost = new CommunityPost
             {
                 content = postdto.content,
@@ -160,6 +160,30 @@ namespace Real_Estatae_Project.Controllers
 
         }
 
-            #endregion
+        #endregion
+
+
+        #region
+        [HttpGet("{id}")]
+        public async Task<ActionResult<PostByIdDTO>> getbyId(int id)
+        {
+            string OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (OwnerId == null)
+                return Unauthorized();
+
+            CommunityPost Post = await _postRepository.GetById(id);
+            if (Post.userId != OwnerId || Post == null)
+            {
+                return NotFound();
+            }
+            PostByIdDTO updatePost = new PostByIdDTO
+            {
+                Content = Post.content,
+                Image = Post.image
+            };
+            return Ok(updatePost);
+
         }
+        #endregion
     }
+}

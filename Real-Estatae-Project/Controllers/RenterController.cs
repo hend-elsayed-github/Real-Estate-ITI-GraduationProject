@@ -19,7 +19,7 @@ namespace Real_Estatae_Project.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> startUse([FromBody] RenterSSNDTO renterSSN)
+        public async Task<IActionResult> startUse([FromForm] RenterSSNDTO renterSSN)
         {
             string renterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

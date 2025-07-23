@@ -14,7 +14,7 @@ namespace Real_Estate_Project.Models
         public string? image {  get; set; }
 
         public bool? isActive {  get; set; }
-        public string StripeAccountId { get; set; }
+        public string? StripeAccountId { get; set; }
         public DateTime createdAt { get; set; }= DateTime.Now;
 
         //verificationCode 1-m(verificationCode) -  all  - has

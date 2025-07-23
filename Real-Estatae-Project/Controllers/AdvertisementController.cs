@@ -33,6 +33,7 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized();
             }
 
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -48,7 +49,7 @@ namespace Real_Estatae_Project.Controllers
             {
                 success = true,
                 message = "Advertisement added successfully.",
-                data=addedAd
+               
             });
 
         }

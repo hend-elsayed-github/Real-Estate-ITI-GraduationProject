@@ -40,7 +40,8 @@ namespace Real_Estatae_Project.Repositories
                         unitId = unit.id,
                         Rentvalue = unit.price, 
                         dueDate = new DateOnly(today.Year, today.Month, 1),
-                        //status = RentStatus.Pending
+
+
                         IsPaid=false,
 
                     };
@@ -104,7 +105,10 @@ namespace Real_Estatae_Project.Repositories
                 return await _context.Rents
               
                .Where(r => r.id == rentId && !r.IsPaid)
-                // .Include(r => r.unit)
+
+                .Include(r => r.unit)
+                .ThenInclude(u => u.owner)
+
                .FirstOrDefaultAsync();
             }
                 return await _context.Rents

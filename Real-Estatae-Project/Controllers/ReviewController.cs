@@ -23,7 +23,9 @@ namespace Real_Estatae_Project.Controllers
 
         #region Add review : renter only
         [HttpPost]
+
         public async Task<IActionResult> AddReview([FromForm] ReviewDTO reviewDTO)
+
         {
             string renterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

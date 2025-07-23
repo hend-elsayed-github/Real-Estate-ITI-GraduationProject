@@ -4,15 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Real_Estate_Project.Models
 {
     public class Rent 
-    {//   status
+    {   
+
         public int id { get; set; }
      
 
 
         public DateOnly dueDate { get; set; }
 
-        //need enum
-        //public string status { get; set; }
+        
+
         public bool IsPaid { get; set; }=false;
         public double Rentvalue { get; set; }
 

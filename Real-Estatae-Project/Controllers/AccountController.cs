@@ -196,6 +196,7 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> GetUserInfo()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var Role = User.FindFirst(ClaimTypes.Role)?.Value;              
 
             if (userId == null)
                 return Unauthorized();
@@ -215,7 +216,8 @@ namespace Real_Estatae_Project.Controllers
                 user.image,
                 user.PhoneNumber,
                 user.communityId,
-                
+                Role
+
 
 
             });

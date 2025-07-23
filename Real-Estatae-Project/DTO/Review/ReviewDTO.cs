@@ -6,8 +6,7 @@
 
         public string content { get; set; }
 
-        public int communityId { get; set; }
+ 
 
-        public string renterId { get; set; } 
     }
 }

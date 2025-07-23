@@ -5,6 +5,7 @@ namespace Real_Estate_Project.Models
 {
     public class Rent 
     {   
+
         public int id { get; set; }
      
 
@@ -12,6 +13,7 @@ namespace Real_Estate_Project.Models
         public DateOnly dueDate { get; set; }
 
         
+
         public bool IsPaid { get; set; }=false;
         public double Rentvalue { get; set; }
 

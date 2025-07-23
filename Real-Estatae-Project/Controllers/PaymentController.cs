@@ -17,14 +17,17 @@ namespace Real_Estatae_Project.Controllers
     {
         IRentRepositories _rentRepository;
         IPaymentRepository _paymentRepository;
+
         IUserRepository _userRepository;
         private readonly ILogger<PaymentController> _logger;
 
         public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository ,ILogger<PaymentController> logger)
+
         {
             _rentRepository = rentRepository;
             _paymentRepository = paymentRepository;
             _logger = logger;
+
             _userRepository = userRepository;
         }
         [Authorize(Roles = "Owner")]
@@ -76,6 +79,7 @@ namespace Real_Estatae_Project.Controllers
         
 
         [Authorize(Roles="Renter")]
+
         [HttpPost("Payment")]
         public async Task<IActionResult> CreatePaymentIntent( int rentId)
         {
@@ -86,11 +90,13 @@ namespace Real_Estatae_Project.Controllers
             var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
 
 
+
             if (rent == null)
                 return BadRequest("Invalid  rent");
 
             if( rent.IsPaid)
                 return BadRequest("  already paid rent");
+
 
             var owner = rent.unit.owner; 
             if (string.IsNullOrEmpty(owner.StripeAccountId))
@@ -125,7 +131,9 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> StripeWebhook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+
             _logger.LogInformation("Webhook received: " + json);
+
 
             try
             {

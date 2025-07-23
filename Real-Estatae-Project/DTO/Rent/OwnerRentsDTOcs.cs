@@ -9,5 +9,6 @@
 
         public string RenterName { get; set; }
         public DateOnly? PaymentDate { get; set; }
+
     }
 }

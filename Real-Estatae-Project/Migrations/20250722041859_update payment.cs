@@ -107,7 +107,8 @@ namespace Real_Estatae_Project.Migrations
                 column: "UserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
+
         }
 
         /// <inheritdoc />
@@ -196,7 +197,7 @@ namespace Real_Estatae_Project.Migrations
                         column: x => x.userId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -233,7 +234,7 @@ namespace Real_Estatae_Project.Migrations
                 column: "userId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Payments_BankAccounts_bankAccountId",
@@ -241,7 +242,7 @@ namespace Real_Estatae_Project.Migrations
                 column: "bankAccountId",
                 principalTable: "BankAccounts",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Payments_PaymentMethods_paymentMethodId",
@@ -249,7 +250,7 @@ namespace Real_Estatae_Project.Migrations
                 column: "paymentMethodId",
                 principalTable: "PaymentMethods",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction);
         }
     }
 }

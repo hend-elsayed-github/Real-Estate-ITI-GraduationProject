@@ -22,8 +22,9 @@ namespace Real_Estatae_Project.Controllers
 
 
         #region add advertisement
-        [HttpPost]
-        public async Task<IActionResult> AddAdvertisement([FromBody] AdvertisementDTO newAd)
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> AddAdvertisement(int id )
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -31,27 +32,26 @@ namespace Real_Estatae_Project.Controllers
             {
                 return Unauthorized();
             }
+
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            Addvertisement newOne = new Addvertisement
-            {
-                title = newAd.title,
-                description = newAd.description,
-                userId = ownerId,
-                unitId = newAd.unitId,
-                isDeleted = false
-            };
-            var addedAd = await adsRepository.Add(newOne);
+            var addedAd = await adsRepository.Add(id, ownerId);
 
             if (addedAd == null)
             {
-                return BadRequest(new { message = "Failed to add advertisement." });
+                return NotFound(new { message = "Unit not found or you do not have permission to add an advertisement." });
             }
+            return Ok(new
+            {
+                success = true,
+                message = "Advertisement added successfully.",
+               
+            });
 
-            return Ok(new  { message="new ad is added" , AdId=addedAd.id});
         }
 
         #endregion

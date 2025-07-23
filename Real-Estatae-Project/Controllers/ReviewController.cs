@@ -23,7 +23,9 @@ namespace Real_Estatae_Project.Controllers
 
         #region Add review : renter only
         [HttpPost]
-        public async Task<IActionResult> AddReview([FromBody] ReviewDTO reviewDTO)
+
+        public async Task<IActionResult> AddReview([FromForm] ReviewDTO reviewDTO)
+
         {
             string renterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -35,6 +37,11 @@ namespace Real_Estatae_Project.Controllers
 
             int? communityID = await userRepository.GetCommunityId(renterId, "Renter");
             int communityId = communityID ?? 0;
+
+            if(communityId==0 || communityId==null)
+            {
+                  return Unauthorized(new { message = "You don't have a community" });
+            }
 
             if (!ModelState.IsValid)
             {

@@ -32,6 +32,7 @@ namespace Real_Estatae_Project.Controllers
             {
                 return Unauthorized();
             }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

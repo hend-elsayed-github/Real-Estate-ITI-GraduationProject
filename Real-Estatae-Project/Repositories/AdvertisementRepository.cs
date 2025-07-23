@@ -17,7 +17,7 @@ namespace Real_Estatae_Project.Repositories
 
         public async Task<AdvertisementDTO> Add(int unitID, string ownerID)
         {
-            Unit unitFromDB = await context.Units.FirstOrDefaultAsync(u => u.id == unitID && !u.isDeleted && u.status=="embty");
+            Unit unitFromDB = await context.Units.FirstOrDefaultAsync(u => u.id == unitID && !u.isDeleted && u.status=="empty");
             if (unitFromDB == null)
             {
                 return null; // Unit not found or is deleted

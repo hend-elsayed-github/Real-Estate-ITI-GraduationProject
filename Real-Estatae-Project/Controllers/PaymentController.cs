@@ -17,52 +17,65 @@ namespace Real_Estatae_Project.Controllers
     {
         IRentRepositories _rentRepository;
         IPaymentRepository _paymentRepository;
+        IUserRepository _userRepository;
         private readonly ILogger<PaymentController> _logger;
 
-        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, ILogger<PaymentController> logger)
+        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository ,ILogger<PaymentController> logger)
         {
             _rentRepository = rentRepository;
             _paymentRepository = paymentRepository;
             _logger = logger;
+            _userRepository = userRepository;
         }
         [Authorize(Roles = "Owner")]
         [HttpGet("Stripe/Onboarding")]
-        //public async Task<IActionResult> CreateStripeAccountLink()
-        //{
-        //    // جيب بيانات المستخدم الحالي
-        //    var user = await _userManager.GetUserAsync(User);
-        //    if (user == null)
-        //        return Unauthorized();
+        public async Task<IActionResult> CreateStripeAccountLink()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
-        //    // لو المستخدم مالوش Stripe Account، نعمل واحد
-        //    if (string.IsNullOrEmpty(user.StripeAccountId))
-        //    {
-        //        var accountService = new AccountService();
-        //        var account = await accountService.CreateAsync(new AccountCreateOptions
-        //        {
-        //            Type = "standard"
-        //        });
+            var user = await _userRepository.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found");
 
-        //        user.StripeAccountId = account.Id;
-        //        await _userManager.UpdateAsync(user);
-        //    }
+            // 2. Create account if not exists
+            if (string.IsNullOrEmpty(user.StripeAccountId))
+            {
+                var accountService = new AccountService();
+                var account = await accountService.CreateAsync(new AccountCreateOptions
+                {
+                    Type = "standard"
+                });
 
-        //    // نعمل رابط Onboarding
-        //    var accountLinkService = new AccountLinkService();
-        //    var accountLink = await accountLinkService.CreateAsync(new AccountLinkCreateOptions
-        //    {
-        //        Account = user.StripeAccountId!,
-        //        RefreshUrl = "https://localhost:4200/reauth",  // لو فشل
-        //        ReturnUrl = "https://localhost:4200/complete", // لو نجح
-        //        Type = "account_onboarding"
-        //    });
+                user.StripeAccountId = account.Id;
+                await _userRepository.Update(user);
+            }
 
-        //    // ارجعي الرابط للفرونت إند (بدل ما تعملي Redirect ممكن ترجعيه JSON)
-        //    return Ok(new { url = accountLink.Url });
-        //}
+            // 3. Check if account is already completed
+            var accountCheck = new AccountService();
+            var accountStatus = await accountCheck.GetAsync(user.StripeAccountId);
 
+            if (accountStatus.ChargesEnabled && accountStatus.PayoutsEnabled)
+            {
+                return Ok("Your Stripe account is already activated ✅");
+            }
 
-        [Authorize(Roles="renter")]
+            // 4. Create onboarding link
+            var accountLinkService = new AccountLinkService();
+            var accountLink = await accountLinkService.CreateAsync(new AccountLinkCreateOptions
+            {
+                Account = user.StripeAccountId,
+                RefreshUrl = "https://localhost:4200/reauth",
+                ReturnUrl = "https://localhost:4200/complete",
+                Type = "account_onboarding"
+            });
+
+            return Ok(accountLink.Url);
+        }
+        
+
+        [Authorize(Roles="Renter")]
         [HttpPost("Payment")]
         public async Task<IActionResult> CreatePaymentIntent( int rentId)
         {
@@ -71,8 +84,13 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized();
 
             var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
-            if (rent == null || rent.IsPaid)
-                return BadRequest("Invalid or already paid rent");
+
+
+            if (rent == null)
+                return BadRequest("Invalid  rent");
+
+            if( rent.IsPaid)
+                return BadRequest("  already paid rent");
 
             var owner = rent.unit.owner; 
             if (string.IsNullOrEmpty(owner.StripeAccountId))
@@ -107,6 +125,7 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> StripeWebhook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            _logger.LogInformation("Webhook received: " + json);
 
             try
             {

@@ -11,6 +11,7 @@ namespace Real_Estatae_Project.Repositories
         Task setRenterCommunity(string renterId, Unit renterUnit);
         Task setRenterUnit(string renterId, int renterUnitId);
 
-
+        Task<ApplicationUser> FindByIdAsync(string userId);
+        Task Update(ApplicationUser user);
     }
 }

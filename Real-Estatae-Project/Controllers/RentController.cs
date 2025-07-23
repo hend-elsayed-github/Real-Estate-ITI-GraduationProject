@@ -29,7 +29,7 @@ namespace Real_Estatae_Project.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-           
+
             var unpaidrents = await _rentRepository.UnpaidRentsAsync(userId);
 
             var rentInfoDTOs = unpaidrents.Select(r => new RentInfoDTO

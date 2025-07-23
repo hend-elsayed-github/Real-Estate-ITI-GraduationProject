@@ -2,12 +2,16 @@
 {
     public class RentHistoryfoDTO
     {
-       // public int RentId;
-        public double RentValue;
-        public string RentStatus;
-        public DateOnly DueDate;
-        public DateOnly? PaymentDate;
+     
+       
+        public double RentValue { get; set; }
+        public string RentStatus { get; set; }
+        public DateOnly DueDate { get; set; }
+        public DateOnly? PaymentDate { get; set; }
+
+    
+
 
     }
-    
+
 }

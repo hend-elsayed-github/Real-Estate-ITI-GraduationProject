@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
+using Stripe;
 using System.Text;
 
 namespace Real_Estatae_Project
@@ -50,7 +52,16 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRentRepositories, RentRepositories>();
+
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+            builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
+            builder.Services.AddSignalR();
+
+
+
 
 
             builder.Services.AddAuthentication(options =>
@@ -111,8 +122,11 @@ namespace Real_Estatae_Project
 
             builder.Services.AddHangfireServer();
 
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
 
             var app = builder.Build();
+           
 
 
 
@@ -124,20 +138,23 @@ namespace Real_Estatae_Project
             }
 
             app.UseStaticFiles();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
             app.UseCors("FreePlan");
             app.UseHangfireDashboard(); // dashboard  +Authorization
             app.MapControllers();
+            RecurringJob.AddOrUpdate<IRentRepositories>(
+         "generate-monthly-rents",
+          x => x.GenerateMonthlyRentsAsync(),
+          // Cron.Monthly
+          Cron.Minutely);
+            app.MapHub<NotificationHub>("/hubs/notification");
 
             app.Run();
 
-            RecurringJob.AddOrUpdate<IRentRepositories>(
-           "generate-monthly-rents",
-            x => x.GenerateMonthlyRentsAsync(),
-            Cron.Monthly);
-
+          
         }
     }
 }

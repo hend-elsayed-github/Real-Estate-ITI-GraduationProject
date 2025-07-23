@@ -6,6 +6,7 @@ namespace Real_Estatae_Project.DTO.Advertisement
 {
     public class AdvertisementDTO
     {
+
         public int AdID { get; set; }
         public string title { get; set; }
         public double price { get; set; }
@@ -25,6 +26,7 @@ namespace Real_Estatae_Project.DTO.Advertisement
         public int unitId { get; set; } 
 
         public string communityName { get; set; } 
+
 
     }
 }

@@ -1,3 +1,6 @@
+
+﻿
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO;
 
@@ -9,6 +12,7 @@ namespace Real_Estatae_Project.Repositories
     public class UserRepository : IUserRepository
 
     {
+
         private readonly ProjectContext _Context;
 
         public UserRepository(ProjectContext Context)
@@ -73,6 +77,21 @@ namespace Real_Estatae_Project.Repositories
                 await _Context.SaveChangesAsync();
             }
         }
+
+
+       
+
+        public async Task<ApplicationUser> FindByIdAsync(string userId)
+        {
+            return await _Context.Users.FindAsync(userId);
+        }
+
+        public async Task Update(ApplicationUser user)
+        {
+            _Context.Users.Update(user);
+            await _Context.SaveChangesAsync();
+        }
+
 
         ///////////////////////////////////
         public async Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId)
@@ -161,6 +180,7 @@ namespace Real_Estatae_Project.Repositories
             return user;
 
         }
+
 
 
     }

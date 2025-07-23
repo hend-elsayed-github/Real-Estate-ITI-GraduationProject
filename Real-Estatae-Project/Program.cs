@@ -52,6 +52,9 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRentRepositories, RentRepositories>();
+
+
+
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
@@ -147,7 +150,10 @@ namespace Real_Estatae_Project
             RecurringJob.AddOrUpdate<IRentRepositories>(
          "generate-monthly-rents",
           x => x.GenerateMonthlyRentsAsync(),
-          Cron.Monthly);
+
+          // Cron.Monthly
+          Cron.Minutely);
+
             app.MapHub<NotificationHub>("/hubs/notification");
 
             app.Run();

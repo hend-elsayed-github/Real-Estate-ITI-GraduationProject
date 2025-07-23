@@ -62,6 +62,7 @@ namespace Real_Estatae_Project.Repositories
 
             return newAdInfo; // Successfully added advertisement
 
+
         }
         #endregion
 

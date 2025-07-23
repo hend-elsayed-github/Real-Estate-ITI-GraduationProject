@@ -92,6 +92,7 @@ namespace Real_Estatae_Project.Controllers
         #endregion
 
 
+
         /////////////////////////
         #region usercommunity
         [HttpGet("usercommunity")]
@@ -133,6 +134,7 @@ namespace Real_Estatae_Project.Controllers
 
         }
         #endregion
+
 
     }
 }

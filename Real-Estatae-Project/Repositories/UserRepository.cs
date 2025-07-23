@@ -1,6 +1,7 @@
 ﻿
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Real_Estatae_Project.DTO;
+using Real_Estatae_Project.DTO.Unit;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -8,6 +9,7 @@ namespace Real_Estatae_Project.Repositories
     public class UserRepository : IUserRepository
 
     {
+
         private readonly ProjectContext _Context;
 
         public UserRepository(ProjectContext Context)
@@ -37,15 +39,15 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
-        public async Task<Unit> getUnitBySSN(RenterSSNDTO renterSSN)
+        public async Task< List<Unit>> getUnitBySSN(RenterSSNDTO renterSSN)
         {
-            Unit unit = await _Context.Units.Where(u => u.status == "busy" && u.isDeleted == false)
-                .FirstOrDefaultAsync(u => u.renterSSN == renterSSN.SSN);
-            if (unit == null)
+            List<Unit> units = _Context.Units.Where(u => u.status == "busy" && u.isDeleted == false && u.renterSSN == renterSSN.SSN)
+                .ToList();
+            if (units == null)
             {
                 return null;
             }
-            return unit;
+            return  units;
         }
 
 
@@ -72,5 +74,19 @@ namespace Real_Estatae_Project.Repositories
                 await _Context.SaveChangesAsync();
             }
         }
+
+       
+
+        public async Task<ApplicationUser> FindByIdAsync(string userId)
+        {
+            return await _Context.Users.FindAsync(userId);
+        }
+
+        public async Task Update(ApplicationUser user)
+        {
+            _Context.Users.Update(user);
+            await _Context.SaveChangesAsync();
+        }
+
     }
 }

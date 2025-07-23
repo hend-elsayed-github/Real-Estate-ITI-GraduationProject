@@ -330,6 +330,9 @@ namespace Real_Estatae_Project.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StripeAccountId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -370,33 +373,6 @@ namespace Real_Estatae_Project.Migrations
                     b.HasIndex("communityId");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Real_Estate_Project.Models.BankAccount", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("accountNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("bankName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("userId");
-
-                    b.ToTable("BankAccounts");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Comment", b =>
@@ -554,10 +530,6 @@ namespace Real_Estatae_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("userId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -571,11 +543,20 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estate_Project.Models.Payment", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CardBrand")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CardLast4")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("PaymentDate")
                         .HasColumnType("date");
@@ -583,52 +564,30 @@ namespace Real_Estatae_Project.Migrations
                     b.Property<int>("RentId")
                         .HasColumnType("int");
 
-                    b.Property<double>("amount")
-                        .HasColumnType("float");
+                    b.Property<string>("StripePaymentIntentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("bankAccountId")
-                        .HasColumnType("int");
+                    b.Property<string>("StripePaymentMethodId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("paymentMethodId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("paymentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.HasIndex("RentId")
                         .IsUnique();
 
-                    b.HasIndex("bankAccountId");
-
-                    b.HasIndex("paymentMethodId");
-
-                    b.HasIndex("userId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("Real_Estate_Project.Models.PaymentMethod", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("id");
-
-                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Rent", b =>
@@ -666,6 +625,9 @@ namespace Real_Estatae_Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
+                    b.Property<int>("communityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -680,16 +642,13 @@ namespace Real_Estatae_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("unitId")
-                        .HasColumnType("int");
-
                     b.Property<string>("userId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("id");
 
-                    b.HasIndex("unitId");
+                    b.HasIndex("communityId");
 
                     b.HasIndex("userId");
 
@@ -942,17 +901,6 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("RenterCommunity");
                 });
 
-            modelBuilder.Entity("Real_Estate_Project.Models.BankAccount", b =>
-                {
-                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
-                        .WithMany("BankAccounts")
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("user");
-                });
-
             modelBuilder.Entity("Real_Estate_Project.Models.Comment", b =>
                 {
                     b.HasOne("Real_Estate_Project.Models.CommunityPost", "communityPost")
@@ -1032,29 +980,13 @@ namespace Real_Estatae_Project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Real_Estate_Project.Models.BankAccount", "bankAccount")
-                        .WithMany("Payments")
-                        .HasForeignKey("bankAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Real_Estate_Project.Models.PaymentMethod", "paymentMethod")
-                        .WithMany("Payments")
-                        .HasForeignKey("paymentMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
                         .WithMany("Payments")
-                        .HasForeignKey("userId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Rent");
-
-                    b.Navigation("bankAccount");
-
-                    b.Navigation("paymentMethod");
 
                     b.Navigation("user");
                 });
@@ -1072,21 +1004,21 @@ namespace Real_Estatae_Project.Migrations
 
             modelBuilder.Entity("Real_Estate_Project.Models.Review", b =>
                 {
-                    b.HasOne("Real_Estate_Project.Models.Unit", "unit")
+                    b.HasOne("Real_Estate_Project.Models.Community", "community")
                         .WithMany("Reviews")
-                        .HasForeignKey("unitId")
+                        .HasForeignKey("communityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "user")
+                    b.HasOne("Real_Estate_Project.Models.ApplicationUser", "renter")
                         .WithMany("Reviews")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("unit");
+                    b.Navigation("community");
 
-                    b.Navigation("user");
+                    b.Navigation("renter");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Unit", b =>
@@ -1142,8 +1074,6 @@ namespace Real_Estatae_Project.Migrations
 
                     b.Navigation("Appointments");
 
-                    b.Navigation("BankAccounts");
-
                     b.Navigation("Comments");
 
                     b.Navigation("CommunityPosts");
@@ -1163,14 +1093,11 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("VerificationCodes");
                 });
 
-            modelBuilder.Entity("Real_Estate_Project.Models.BankAccount", b =>
-                {
-                    b.Navigation("Payments");
-                });
-
             modelBuilder.Entity("Real_Estate_Project.Models.Community", b =>
                 {
                     b.Navigation("CommunityPosts");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("Units");
 
@@ -1184,11 +1111,6 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("React");
                 });
 
-            modelBuilder.Entity("Real_Estate_Project.Models.PaymentMethod", b =>
-                {
-                    b.Navigation("Payments");
-                });
-
             modelBuilder.Entity("Real_Estate_Project.Models.Rent", b =>
                 {
                     b.Navigation("Payment");
@@ -1199,8 +1121,6 @@ namespace Real_Estatae_Project.Migrations
                     b.Navigation("Maintenances");
 
                     b.Navigation("Rents");
-
-                    b.Navigation("Reviews");
 
                     b.Navigation("addvertisement");
                 });

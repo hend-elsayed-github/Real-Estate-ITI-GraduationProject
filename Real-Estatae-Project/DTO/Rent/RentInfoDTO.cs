@@ -2,10 +2,10 @@
 {
     public class RentInfoDTO
     {
-        public int RentId;
-        public double RentValue;
-        public string RentStatus;
-        public DateOnly DueDate;
+        public int RentId { get; set; }
+        public double RentValue { get; set; }
+        public string RentStatus { get; set; }
+        public DateOnly DueDate { get; set; }
 
 
     }

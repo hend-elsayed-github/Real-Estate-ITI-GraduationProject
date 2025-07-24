@@ -19,14 +19,18 @@ namespace Real_Estatae_Project.Controllers
         IPaymentRepository _paymentRepository;
         IUserRepository _userRepository;
         private readonly ILogger<PaymentController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository ,ILogger<PaymentController> logger)
+        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository , IConfiguration configuration,ILogger<PaymentController> logger)
         {
             _rentRepository = rentRepository;
             _paymentRepository = paymentRepository;
             _logger = logger;
             _userRepository = userRepository;
+            _configuration = configuration;
         }
+
+       
         [Authorize(Roles = "Owner")]
         [HttpGet("Stripe/Onboarding")]
         public async Task<IActionResult> CreateStripeAccountLink()
@@ -124,14 +128,17 @@ namespace Real_Estatae_Project.Controllers
     
         public async Task<IActionResult> StripeWebhook()
         {
+
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             _logger.LogInformation("Webhook received: " + json);
+            var endpointSecret = _configuration["Stripe:WebhookSecret"];
 
             try
             {
                 var stripeEvent = EventUtility.ConstructEvent(
                     json,
-                    Request.Headers["Stripe-Signature"], "whsec_v1pMEnScasI5tcS8nvEmscPISjUEVSIG"
+                    Request.Headers["Stripe-Signature"], endpointSecret
+
                 );
 
                 if (stripeEvent.Type == "payment_intent.succeeded")
@@ -194,7 +201,7 @@ namespace Real_Estatae_Project.Controllers
             catch (StripeException ex)
             {
                 _logger.LogWarning(ex, "Stripe webhook signature or Stripe-related error.");
-                return BadRequest();
+                return BadRequest("Stripe webhook signature or Stripe-related error");
             }
             catch (Exception ex)
             {

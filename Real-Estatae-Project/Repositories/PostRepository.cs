@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Real_Estatae_Project.Hubs;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -7,7 +9,9 @@ namespace Real_Estatae_Project.Repositories
     {
 
         private readonly ProjectContext _context;
-
+        private readonly IUserRepository _userRepository;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
         public PostRepository(ProjectContext context)
         {
             _context = context;

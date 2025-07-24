@@ -2,18 +2,22 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.AspNetCore.SignalR;
+using Real_Estatae_Project.Hubs;
 
 
 namespace Real_Estatae_Project.Repositories
 {
     public class RentRepositories: IRentRepositories
     {
-
-
         private readonly ProjectContext _context;
-        public RentRepositories(ProjectContext _Context)
+        private readonly IHubContext<NotificationHub> _hubContext;
+
+        public RentRepositories(ProjectContext _Context, IHubContext<NotificationHub> hubContext)
         {
             _context = _Context;
+            _hubContext = hubContext;
+
         }
 
 
@@ -45,6 +49,30 @@ namespace Real_Estatae_Project.Repositories
                     };
 
                     _context.Rents.Add(rent);
+
+                    //notification
+                    string renterId = unit.renterId;
+
+                    string message = $"New rent of {unit.price} EGP is due on {rent.dueDate:yyyy-MM-dd}.";
+
+                    var notification = new Notification
+                    {
+                        userId = renterId,
+                        message = message,
+                        sender="rent",
+                        
+
+                    };
+                    _context.Notifications.Add(notification);
+
+                    //  SignalR
+                    await _hubContext.Clients.User(renterId)
+                        .SendAsync("ReceiveNotification", new
+                        {
+                            message = message,
+                            sender = "rent",
+                            createdAt = DateTime.UtcNow
+                        });
                 }
             }
 

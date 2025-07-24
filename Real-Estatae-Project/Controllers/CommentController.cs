@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO.Comment;
+using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.Security.Claims;
@@ -16,10 +19,19 @@ namespace Real_Estatae_Project.Controllers
 
         private readonly ICommentRepository _commentRepository;
         private readonly IPostRepository _postRepository;
-        public CommentController(ICommentRepository CommentRepository,  IPostRepository postRepository )
+        private readonly IUserRepository _userRepository;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
+
+
+        public CommentController(ICommentRepository CommentRepository,  IPostRepository postRepository, IUserRepository UserRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext)
         {
             _commentRepository = CommentRepository;
             _postRepository = postRepository;
+           
+            _userRepository = UserRepository;
+            _notificationRepository = NotificationRepository;
+            _hubContext = hubContext;
         }
 
 
@@ -31,7 +43,7 @@ namespace Real_Estatae_Project.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
-            //var userId = "1";
+           
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -51,6 +63,35 @@ namespace Real_Estatae_Project.Controllers
             };
             
             var CreatedCommentId = await _commentRepository.Add(comment);
+
+            //notification
+           
+            var post = await _postRepository.GetById(commentinfo.PostId);
+            string postOwnerId = post.userId;
+
+            var commenter = await _userRepository.FindByIdAsync(userId);
+            string commenterName = commenter.firstName + " " + commenter.lastName;
+
+          
+            string message = $"{commenterName} commented on your post";
+
+           
+            var notification = new Notification
+            {
+                userId = postOwnerId,
+                message = message,
+                sender= commenterName
+            };
+            await _notificationRepository.AddAsync(notification);
+
+            //  SignalR
+            await _hubContext.Clients.User(postOwnerId)
+                .SendAsync("ReceiveNotification", new
+                {
+                    message = message,
+                    sender = commenterName,
+                    createdAt = DateTime.UtcNow
+                });
 
             return Ok(new
             {

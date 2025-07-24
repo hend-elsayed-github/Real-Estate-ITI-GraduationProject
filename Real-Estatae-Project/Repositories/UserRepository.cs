@@ -88,5 +88,14 @@ namespace Real_Estatae_Project.Repositories
             await _Context.SaveChangesAsync();
         }
 
+        public async Task<List<string>> GetUserIdsInCommunity(int communityId)
+        {
+            return await _Context.Users
+                .Where(u => u.communityId == communityId)
+                .Select(u => u.Id)
+                .ToListAsync();
+        }
+
+
     }
 }

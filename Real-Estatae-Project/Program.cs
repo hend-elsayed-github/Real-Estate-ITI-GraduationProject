@@ -1,4 +1,3 @@
-
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +7,7 @@ using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using Stripe;
+using System.Security.Claims;
 using System.Text;
 
 namespace Real_Estatae_Project
@@ -18,33 +18,26 @@ namespace Real_Estatae_Project
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
+            // Add services to the container
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddDbContext<ProjectContext>(optionBuilder =>
+            builder.Services.AddDbContext<ProjectContext>(options =>
             {
-                optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
             });
 
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequiredLength = 8;
+            }).AddEntityFrameworkStores<ProjectContext>();
 
-
-            //builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ProjectContext>();
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
-               options =>
-               {
-                   options.Password.RequireNonAlphanumeric = true;
-                   options.Password.RequireLowercase = true;
-                   options.Password.RequireUppercase = true;
-                   options.Password.RequireDigit = true;
-                   options.Password.RequiredLength = 8;
-               })
-               .AddEntityFrameworkStores<ProjectContext>();
-
-            //services
+            // Repositories
             builder.Services.AddScoped<IUnitRepository, UnitRepository>();
             builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
             builder.Services.AddScoped<IReactRepository, ReactRepository>();
@@ -52,87 +45,86 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRentRepositories, RentRepositories>();
-
-
-
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
             builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
-            builder.Services.AddSignalR();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
+            // SignalR
+            builder.Services.AddSignalR().AddHubOptions<NotificationHub>(options =>
+            {
+                options.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+            });
 
-
-
-
+            // JWT Authentication
             builder.Services.AddAuthentication(options =>
             {
-                //Search Bearer Keyword for ==>  JWT in Header 
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-
-                //To Change from Route of Cookie ==> Account/Login
-                //To JWT => UnAuth.
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-                //For Any other behaviours ==> Auth. Filter search JWT 
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            })
+            .AddJwtBearer(options =>
             {
-                //How to check if Token Valid 
-                options.SaveToken = true; //Not Expired
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
 
-                options.RequireHttpsMetadata = false; //specific protocole 
-
-                options.TokenValidationParameters = new TokenValidationParameters()
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidIssuer = builder.Configuration["JWT:IssuerIP"],
+
                     ValidateAudience = true,
                     ValidAudience = builder.Configuration["JWT:AudienceIP"],
 
-                    //Check Signature 
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"])),
+
+                    NameClaimType = ClaimTypes.NameIdentifier
                 };
 
+                // SignalR support: accept token in query string
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/notification"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
 
-            });;
-
-
-            //corse policy
-
+            // CORS
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FreePlan", policy =>
                 {
-                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });
 
-
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
             {
-                // Disable automatic model state validation
                 options.SuppressModelStateInvalidFilter = true;
-
-                // Disable automatic response for validation errors
                 options.SuppressMapClientErrors = true;
             });
-            builder.Services.AddHangfire(config =>
-            config.UseSqlServerStorage(builder.Configuration.GetConnectionString("cs")));
-            
 
+            // Hangfire
+            builder.Services.AddHangfire(config =>
+                config.UseSqlServerStorage(builder.Configuration.GetConnectionString("cs")));
             builder.Services.AddHangfireServer();
 
+            // Stripe
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-
             var app = builder.Build();
-           
 
-
-
-            // Configure the HTTP request pipeline.
+            // Swagger
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -140,25 +132,23 @@ namespace Real_Estatae_Project
             }
 
             app.UseStaticFiles();
+
             app.UseAuthentication();
-
             app.UseAuthorization();
-
             app.UseCors("FreePlan");
-            app.UseHangfireDashboard(); // dashboard  +Authorization
-            app.MapControllers();
+
+            app.UseHangfireDashboard();
+
+            // Repeating jobs
             RecurringJob.AddOrUpdate<IRentRepositories>(
-         "generate-monthly-rents",
-          x => x.GenerateMonthlyRentsAsync(),
+                "generate-monthly-rents",
+                x => x.GenerateMonthlyRentsAsync(),
+                Cron.Monthly);
 
-          // Cron.Monthly
-          Cron.Minutely);
-
+            app.MapControllers();
             app.MapHub<NotificationHub>("/hubs/notification");
 
             app.Run();
-
-          
         }
     }
 }

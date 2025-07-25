@@ -1,13 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Real_Estatae_Project.Hubs;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
 {
-    public class PostRepository :IPostRepository
+    public class PostRepository : IPostRepository
     {
 
         private readonly ProjectContext _context;
-
+        private readonly IUserRepository _userRepository;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
         public PostRepository(ProjectContext context)
         {
             _context = context;
@@ -23,9 +27,9 @@ namespace Real_Estatae_Project.Repositories
         }
         #endregion
         #region Delete post
-        public async Task<bool> Delete(int id,string userId)
+        public async Task<bool> Delete(int id, string userId)
         {
-            var post = await _context.CommunityPosts.FirstOrDefaultAsync(p => p.id == id && !p.isDeleted&& p.userId == userId);
+            var post = await _context.CommunityPosts.FirstOrDefaultAsync(p => p.id == id && !p.isDeleted && p.userId == userId);
 
             if (post == null)
                 return false;
@@ -41,44 +45,44 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region update post
-        public async Task<int> Update(int id,CommunityPost updatedPost, string userId)
+        public async Task<int> Update(int id, CommunityPost updatedPost, string userId)
         {
 
-           
-           var post = await _context.CommunityPosts.FirstOrDefaultAsync(p => p.id == id && !p.isDeleted && p.userId == userId);
 
-                if (post == null)
-                    return 0 ;
+            var post = await _context.CommunityPosts.FirstOrDefaultAsync(p => p.id == id && !p.isDeleted && p.userId == userId);
 
-                post.content = updatedPost.content;
-                post.image=updatedPost.image;
-                
-                await _context.SaveChangesAsync();
+            if (post == null)
+                return 0;
 
-                return post.id;
+            post.content = updatedPost.content;
+            post.image = updatedPost.image;
 
-            
+            await _context.SaveChangesAsync();
+
+            return post.id;
+
+
         }
 
 
         #endregion
 
         #region get all posts
-        public async Task<IEnumerable<CommunityPost>> GetAllPosts(string userId ,int? communityId)
+        public async Task<IEnumerable<CommunityPost>> GetAllPosts(string userId, int? communityId)
         {
 
             var user = await _context.Users
                     .Include(u => u.RenterCommunity)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
-              if (user == null || communityId == null)
+            if (user == null || communityId == null)
                 return new List<CommunityPost>();
 
 
             var posts = await _context.CommunityPosts
                 .Where(p => p.communityId == communityId && !p.isDeleted)
                 .Include(p => p.ApplicationUser)
-                .Include(p=>p.React)
+                .Include(p => p.React)
                 .OrderByDescending(c => c.publishDate)
                 .ToListAsync();
 
@@ -99,11 +103,11 @@ namespace Real_Estatae_Project.Repositories
 
 
         #region GetById
-        public async Task<CommunityPost> GetById( int postId )
+        public async Task<CommunityPost> GetById(int postId)
         {
-            
+
             return await _context.CommunityPosts
-                 .FirstOrDefaultAsync(p => p.id == postId  && !p.isDeleted);
+                 .FirstOrDefaultAsync(p => p.id == postId && !p.isDeleted);
         }
 
         #endregion

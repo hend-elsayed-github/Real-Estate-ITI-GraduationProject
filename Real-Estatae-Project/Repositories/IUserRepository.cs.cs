@@ -19,5 +19,7 @@ namespace Real_Estatae_Project.Repositories
 
         Task<ApplicationUser> FindByIdAsync(string userId);
         Task Update(ApplicationUser user);
+        Task<List<string>> GetUserIdsInCommunity(int communityId);
+       
     }
 }

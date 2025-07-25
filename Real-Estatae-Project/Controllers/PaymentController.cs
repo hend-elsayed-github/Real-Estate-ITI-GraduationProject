@@ -273,6 +273,8 @@ namespace Real_Estatae_Project.Controllers
 
 
         #region teast endpoint
+
+      
         [Authorize(Roles = "Renter")]
         [HttpPost("Payment")]
         public async Task<IActionResult> Payment([FromBody] PaymentDTO PaymentDTO)
@@ -280,8 +282,8 @@ namespace Real_Estatae_Project.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
-          int rentId= PaymentDTO.RentId;
-             var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
+            int rentId = PaymentDTO.RentId;
+            var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
 
             if (rent == null)
                 return BadRequest("Invalid  rent");
@@ -319,10 +321,10 @@ namespace Real_Estatae_Project.Controllers
 
             var payment = new Payment
             {
-                Amount = rent.unit.price,    
+                Amount = rent.unit.price,
                 RentId = rentId,
                 UserId = rent.unit.renterId,
-                StripePaymentIntentId ="paymentIntent.Id",
+                StripePaymentIntentId = "paymentIntent.Id",
                 paymentType = "card",
                 CardBrand = "cardBrand",
                 CardLast4 = "CardLast4",
@@ -334,7 +336,6 @@ namespace Real_Estatae_Project.Controllers
 
             return Ok(new { clientSecret = intent.ClientSecret });
         }
-
         #endregion
     }
 }

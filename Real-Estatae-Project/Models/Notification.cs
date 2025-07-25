@@ -6,14 +6,14 @@ namespace Real_Estate_Project.Models
     {
         public int id { get; set; }
 
-        public string title { get; set; }
+        public string sender { get; set; }
+
         public string message { get; set; }
 
-        //public string type { get; set; }
 
         public bool isRead { get; set; } = false;
 
-        public DateTime createAt { get; set; }=DateTime.Now;
+        public DateTime createAt { get; set; } = DateTime.Now;
 
         // user-notifications 1-m
         [ForeignKey("user")]

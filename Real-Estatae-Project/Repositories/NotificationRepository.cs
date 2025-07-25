@@ -1,8 +1,9 @@
 ﻿using Real_Estate_Project.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Real_Estatae_Project.Repositories
 {
-    public class NotificationRepository: INotificationRepository
+    public class NotificationRepository : INotificationRepository
     {
         private readonly ProjectContext _context;
         public NotificationRepository(ProjectContext _Context)
@@ -10,19 +11,28 @@ namespace Real_Estatae_Project.Repositories
             _context = _Context;
         }
 
-        public Task AddAsync(Notification notification)
+        public async Task AddAsync(Notification notification)
         {
-            throw new NotImplementedException();
+            _context.Notifications.Add(notification);
+            await _context.SaveChangesAsync();
         }
 
-        public Task<List<Notification>> GetUserNotifications(string userId)
+        public async Task<List<Notification>> GetUserNotifications(string userId)
         {
-            throw new NotImplementedException();
+            return await _context.Notifications
+                    .Where(n => n.userId == userId)
+                    .OrderByDescending(n => n.createAt)
+                    .ToListAsync();
         }
 
-        public Task MarkAsRead(int notificationId)
+        public async Task MarkAsRead(int notificationId)
         {
-            throw new NotImplementedException();
+            var notification = await _context.Notifications.FindAsync(notificationId);
+            if (notification == null)
+                return;
+
+            notification.isRead = true;
+            await _context.SaveChangesAsync();
         }
     }
 }

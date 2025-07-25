@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO;
@@ -9,14 +10,12 @@ namespace Real_Estatae_Project.Repositories
     public class UserRepository : IUserRepository
 
     {
-        private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly ProjectContext _Context;
 
-        public UserRepository(UserManager<ApplicationUser> userManager, ProjectContext Context)
+        public UserRepository(ProjectContext Context)
         {
             _Context = Context;
-            _userManager = userManager;
         }
         public async Task<int?> GetCommunityId(string userId, string role)
         {
@@ -60,10 +59,11 @@ namespace Real_Estatae_Project.Repositories
             if (renter != null)
             {
                 renter.communityId = renterUnit.communityId;
-                await _userManager.UpdateAsync(renter);
-
+                _Context.SaveChangesAsync();
             }
+
         }
+
         public async Task setRenterUnit(string renterId, int renterUnitId)
         {
             Unit unit = await _Context.Units
@@ -85,9 +85,20 @@ namespace Real_Estatae_Project.Repositories
 
         public async Task Update(ApplicationUser user)
         {
-            await _userManager.UpdateAsync(user);
+            _Context.Users.Update(user);
+            await _Context.SaveChangesAsync();
         }
+
+        public async Task<List<string>> GetUserIdsInCommunity(int communityId)
+        {
+            return await _Context.Users
+                .Where(u => u.communityId == communityId)
+                .Select(u => u.Id)
+                .ToListAsync();
+        }
+
         //need update
+
         public Task<UserCommunityDTO> GetUserCommunity(string userId)
         {
             throw new NotImplementedException();

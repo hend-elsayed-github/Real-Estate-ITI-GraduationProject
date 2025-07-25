@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Real_Estatae_Project.DTO;
 using Real_Estatae_Project.DTO.Post;
 using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Images;

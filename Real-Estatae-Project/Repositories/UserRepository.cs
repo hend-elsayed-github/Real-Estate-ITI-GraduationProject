@@ -13,11 +13,14 @@ namespace Real_Estatae_Project.Repositories
 
     {
 
+        private readonly UserManager<ApplicationUser> _userManager;
+
         private readonly ProjectContext _Context;
 
-        public UserRepository(ProjectContext Context)
+        public UserRepository(UserManager<ApplicationUser> userManager, ProjectContext Context)
         {
             _Context = Context;
+            _userManager = userManager;
         }
         public async Task<int?> GetCommunityId(string userId, string role)
         {
@@ -91,9 +94,9 @@ namespace Real_Estatae_Project.Repositories
 
         public async Task Update(ApplicationUser user)
         {
-            _Context.Users.Update(user);
-            await _Context.SaveChangesAsync();
+            await _userManager.UpdateAsync(user);
         }
+
 
 
         public async Task<List<string>> GetUserIdsInCommunity(int communityId)

@@ -1,23 +1,28 @@
-
-using Microsoft.EntityFrameworkCore;
-using Real_Estatae_Project.DTO;
+﻿using Real_Estatae_Project.DTO;
 using Real_Estatae_Project.DTO.Unit;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
 {
-    public interface IUserRepository :IRepository<ApplicationUser>
+    public interface IUserRepository:IRepository<ApplicationUser>       
     {
-        Task<int?> GetCommunityId(string userId,string role );
+        Task<int?> GetCommunityId(string userId, string role);
         Task<List<Unit>> getUnitBySSN(RenterSSNDTO renterSSN);
 
         Task setRenterCommunity(string renterId, Unit renterUnit);
         Task setRenterUnit(string renterId, int renterUnitId);
 
-        Task<UserCommunityDTO> GetUserCommunity(string userId);
-        Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId);
-
         Task<ApplicationUser> FindByIdAsync(string userId);
+        Task<List<string>> GetUserIdsInCommunity(int communityId);
+
+        Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId);
+        Task<UserCommunityDTO> GetUserCommunity(string userId);
+
         Task Update(ApplicationUser user);
+
+
+
+
+
     }
 }

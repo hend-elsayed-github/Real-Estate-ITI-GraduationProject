@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Real_Estatae_Project.DTO.payment;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using Stripe;
@@ -274,15 +275,13 @@ namespace Real_Estatae_Project.Controllers
         #region teast endpoint
         [Authorize(Roles = "Renter")]
         [HttpPost("Payment")]
-        public async Task<IActionResult> Payment(int rentId)
+        public async Task<IActionResult> Payment([FromBody] PaymentDTO PaymentDTO)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
-
-            var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
-
-
+          int rentId= PaymentDTO.RentId;
+             var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
 
             if (rent == null)
                 return BadRequest("Invalid  rent");

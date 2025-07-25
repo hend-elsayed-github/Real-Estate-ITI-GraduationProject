@@ -97,13 +97,14 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
 
+
         public async Task<Rent?> GetRentByIdAsync(int rentId, string? renterId)
         {
 
             if (!string.IsNullOrEmpty(renterId))
             {
                 return await _context.Rents
-              
+
                .Where(r => r.id == rentId && !r.IsPaid)
 
                 .Include(r => r.unit)
@@ -111,12 +112,10 @@ namespace Real_Estatae_Project.Repositories
 
                .FirstOrDefaultAsync();
             }
-                return await _context.Rents
-                .Where(r => r.id == rentId && !r.IsPaid ).FirstOrDefaultAsync();
+            return await _context.Rents
+            .Where(r => r.id == rentId && !r.IsPaid).FirstOrDefaultAsync();
 
         }
-
-
 
         public async Task UpdateRentAsync(int rentId)
         {

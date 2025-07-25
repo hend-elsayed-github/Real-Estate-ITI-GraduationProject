@@ -1,4 +1,5 @@
-﻿
+
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO;
@@ -41,7 +42,9 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
+
         public async Task< List<Unit>> getUnitBySSN(RenterSSNDTO renterSSN)
+
         {
             List<Unit> units = _Context.Units.Where(u => u.status == "busy" && u.isDeleted == false && u.renterSSN == renterSSN.SSN)
                 .ToList();
@@ -49,7 +52,9 @@ namespace Real_Estatae_Project.Repositories
             {
                 return null;
             }
+
             return  units;
+
         }
 
 
@@ -78,7 +83,6 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
-       
 
         public async Task<ApplicationUser> FindByIdAsync(string userId)
         {
@@ -89,6 +93,15 @@ namespace Real_Estatae_Project.Repositories
         {
             _Context.Users.Update(user);
             await _Context.SaveChangesAsync();
+        }
+
+
+        public async Task<List<string>> GetUserIdsInCommunity(int communityId)
+        {
+            return await _Context.Users
+                .Where(u => u.communityId == communityId)
+                .Select(u => u.Id)
+                .ToListAsync();
         }
 
 
@@ -184,3 +197,4 @@ namespace Real_Estatae_Project.Repositories
 
     }
 }
+

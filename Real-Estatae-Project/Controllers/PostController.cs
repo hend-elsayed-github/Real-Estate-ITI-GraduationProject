@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Real_Estatae_Project.DTO;
-
+using Microsoft.AspNetCore.SignalR;
 using Real_Estatae_Project.DTO.Post;
+using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Images;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
@@ -14,16 +14,21 @@ namespace Real_Estatae_Project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   [Authorize]
+
+    [Authorize]
     public class PostController : ControllerBase
     {
         private readonly IPostRepository _postRepository;
-        private readonly IUserRepository _IUserRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public PostController(IPostRepository postRepository, IUserRepository UserRepository)
+        public PostController(IPostRepository postRepository, IUserRepository UserRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext)
         {
             _postRepository = postRepository;
-            _IUserRepository = UserRepository;
+            _userRepository = UserRepository;
+            _notificationRepository = NotificationRepository;
+            _hubContext = hubContext;
         }
 
 
@@ -36,10 +41,12 @@ namespace Real_Estatae_Project.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-             string userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            string userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             int? communityId;
 
-            communityId = await _IUserRepository.GetCommunityId(userId, userRole);
+            communityId = await _userRepository.GetCommunityId(userId, userRole);
+
             if (communityId == null)
                 return BadRequest(new { message = "User not assigned to a community." });
 
@@ -55,7 +62,7 @@ namespace Real_Estatae_Project.Controllers
                 userRole = userRole,
                 UserImage = p.ApplicationUser.image,
                 commentCount=p.Comments.Where(c =>  !c.isDeleted).Count()
- 
+
 
 
             }).ToList();
@@ -75,13 +82,14 @@ namespace Real_Estatae_Project.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
-            
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             string userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             int? communityId;
 
-             communityId =  await _IUserRepository.GetCommunityId(userId, userRole);
+            communityId = await _userRepository.GetCommunityId(userId, userRole);
+
             if (communityId == null)
                 return BadRequest(new { message = "User not assigned to a community." });
 
@@ -89,20 +97,51 @@ namespace Real_Estatae_Project.Controllers
             var post = new CommunityPost
             {
                 content = postinfo.content,
-               communityId=(int) communityId,
-                    image = imageFromReq,
-                    userId = userId
+                communityId = (int)communityId,
+                image = imageFromReq,
+                userId = userId
 
             };
 
             var createdPostid = await _postRepository.Add(post);
+
+            //INotification
+
+            var user = await _userRepository.FindByIdAsync(userId);
+            string userName = user.firstName + " " + user.lastName;
+
+            var userIdsInCommunity = await _userRepository.GetUserIdsInCommunity((int)communityId);
+            var otherUsers = userIdsInCommunity.Where(id => id != userId);
+
+            string notificationMessage = $"{userName} posted in the community";
+
+            foreach (var uid in otherUsers)
+            {
+
+                var notification = new Notification
+                {
+                    userId = uid,
+                    sender = userName,
+                    message = notificationMessage,
+
+                };
+                await _notificationRepository.AddAsync(notification);
+
+                // signlR
+                await _hubContext.Clients.User(uid).SendAsync("ReceiveNotification", new
+                {
+                    message = notificationMessage,
+                    sender = userName,
+                    createdAt = DateTime.UtcNow
+                });
+
+            }
 
             return Ok(new
             {
                 message = "post added successfully.",
                 PostId = createdPostid
             });
-
 
         }
         #endregion
@@ -142,11 +181,11 @@ namespace Real_Estatae_Project.Controllers
             var existingPost = await _postRepository.GetById(id);
             if (existingPost == null || existingPost.userId != userId)
                 return NotFound(new { message = "Post not found or access denied." });
-
      
 
             string? imageFromReq = await GetImageName.GetImageNameFn(postdto.image);
             string? imageUrl = imageFromReq != null ? imageFromReq : existingPost.image;
+
             var updatedpost = new CommunityPost
             {
                 content = postdto.content,
@@ -190,3 +229,4 @@ namespace Real_Estatae_Project.Controllers
         #endregion
     }
 }
+

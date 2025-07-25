@@ -69,6 +69,7 @@ namespace Real_Estatae_Project.Controllers
                 {
                     await userFromRequest.imageFile.CopyToAsync(stream);
                 }
+
                 // Upload to Cloudinary
                 //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
                 user.image = fileName;
@@ -83,14 +84,16 @@ namespace Real_Estatae_Project.Controllers
 
             if (role == "Owner")
             {
-                var accountService = new AccountService();
-                var stripeAccount = await accountService.CreateAsync(new AccountCreateOptions
-                {
-                    Type = "standard"
-                });
+
+                //var accountService = new AccountService();
+                //var stripeAccount = await accountService.CreateAsync(new AccountCreateOptions
+                //{
+                //    Type = "standard"
+                //});
 
               
-                user.StripeAccountId = stripeAccount.Id;
+                //user.StripeAccountId = stripeAccount.Id;
+                user.StripeAccountId = "acct_1RnAYNIgZmVK93tC";
 
                 await userManager.UpdateAsync(user);
                 Community newComm = new Community
@@ -112,7 +115,9 @@ namespace Real_Estatae_Project.Controllers
         #region login
 
         [HttpPost("Login")]  //api/Account/Login
-        public async Task<IActionResult> Login( LoginDTO userFromRequest)
+
+        public async Task<IActionResult> Login(LoginDTO userFromRequest)
+
         {
             if (ModelState.IsValid)
             {
@@ -123,6 +128,7 @@ namespace Real_Estatae_Project.Controllers
                 if (userFromDB == null )
                 {
                     userFromDB = await userManager.FindByEmailAsync(userFromRequest?.email);
+
                 }
 
                 if (userFromDB != null)
@@ -179,6 +185,7 @@ namespace Real_Estatae_Project.Controllers
                         return Ok(new
                         {
                             token = new JwtSecurityTokenHandler().WriteToken(myToken),// gereate & Make it string
+
                             expiration = DateTime.Now.AddHours(72), // OR myTokn.expires
                             //role= UserRoles.FirstOrDefault()      
                         });
@@ -201,7 +208,9 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> GetUserInfo()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var Role = User.FindFirst(ClaimTypes.Role)?.Value;
+
 
             if (userId == null)
                 return Unauthorized();
@@ -220,7 +229,9 @@ namespace Real_Estatae_Project.Controllers
                 user.lastName,
                 user.image,
                 user.PhoneNumber,
+                user.communityId,
                 Role
+
 
 
             });

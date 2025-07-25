@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO.Reservation;
+using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Models;
 using Real_Estatae_Project.Repositories;
+using Real_Estate_Project.Models;
 using System.Security.Claims;
 
 namespace Real_Estatae_Project.Controllers
@@ -13,10 +17,14 @@ namespace Real_Estatae_Project.Controllers
     public class ReservationController : ControllerBase
     {
         private readonly IReservationRepository reservationRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationRepository _notificationRepository;
 
-        public ReservationController(IReservationRepository reservationRepository)
+        public ReservationController(IReservationRepository reservationRepository , INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext)
         {
             this.reservationRepository = reservationRepository;
+            _notificationRepository = NotificationRepository;
+            _hubContext = hubContext;
         }
 
         #region GetAll
@@ -84,6 +92,32 @@ namespace Real_Estatae_Project.Controllers
             {
                 return BadRequest(new { message = "Failed to add reservation." });
             }
+
+            //INotification
+
+            string userName = reservationDTO.name;
+  
+            var ownerid = reservation.appointment.ownerId;
+
+            string notificationMessage = $"{userName} booked an appointment for {reservation.reservationDate}";
+
+            var notification = new Notification
+            {
+                userId = ownerid,
+                sender = userName,
+                message = notificationMessage,
+
+            };
+            await _notificationRepository.AddAsync(notification);
+
+            // signlR
+            await _hubContext.Clients.User(ownerid).SendAsync("ReceiveNotification", new
+            {
+                message = notificationMessage,
+                sender = userName,
+                createdAt = DateTime.UtcNow
+            });
+
             return Ok(new { success = true, message = "Reservation added successfully.", data = addedReservation });
         }
         #endregion

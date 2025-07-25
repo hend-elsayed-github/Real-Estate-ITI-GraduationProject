@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO.Unit;
+using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using System.Security.Claims;
@@ -12,10 +15,14 @@ namespace Real_Estatae_Project.Controllers
     public class RenterController : ControllerBase
 
     {
-            IUserRepository _userRepository;
-        public RenterController(IUserRepository userRepository)
+        private readonly IUserRepository _userRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly INotificationRepository _notificationRepository;
+        public RenterController(IUserRepository userRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext)
             {
             _userRepository = userRepository;
+            _notificationRepository = NotificationRepository;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -43,8 +50,40 @@ namespace Real_Estatae_Project.Controllers
             await _userRepository.setRenterCommunity(renterId, renterUnit[0]);
             await _userRepository.setRenterUnit(renterId, renterUnit[0].id);
 
+
+
+            //INotification
+
+            var user = await _userRepository.FindByIdAsync(renterId);
+            string userName = user.firstName + " " + user.lastName;
             
-            
+            var renter = await _userRepository.FindByIdAsync(renterId);
+
+            var ownerid = renter.RenterUnits.FirstOrDefault()?.ownerId;
+            if (ownerid == null) return NotFound("Owner not found.");
+
+
+            string notificationMessage = $"{userName} registered his unit  using SSN";
+
+
+
+            var notification = new Notification
+            {
+                userId = ownerid,
+                sender = userName,
+                message = notificationMessage,
+
+            };
+            await _notificationRepository.AddAsync(notification);
+
+            // signlR
+            await _hubContext.Clients.User(ownerid).SendAsync("ReceiveNotification", new
+            {
+                message = notificationMessage,
+                sender = userName,
+                createdAt = DateTime.UtcNow
+            });
+
             return Ok(new
             {
                 message = "Renter is now using the unit.",

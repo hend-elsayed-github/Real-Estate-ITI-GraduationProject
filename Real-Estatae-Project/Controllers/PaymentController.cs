@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Real_Estatae_Project.DTO.payment;
+using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using Stripe;
@@ -19,20 +21,22 @@ namespace Real_Estatae_Project.Controllers
     //[Authorize]
     public class PaymentController : ControllerBase
     {
-        IRentRepositories _rentRepository;
-        IPaymentRepository _paymentRepository;
-
-        IUserRepository _userRepository;
+        private readonly IRentRepositories _rentRepository;
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly  IUserRepository _userRepository;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
         private readonly ILogger<PaymentController> _logger;
 
-        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository ,ILogger<PaymentController> logger)
+        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext, ILogger<PaymentController> logger)
 
         {
             _rentRepository = rentRepository;
             _paymentRepository = paymentRepository;
             _logger = logger;
-
             _userRepository = userRepository;
+            _notificationRepository = NotificationRepository;
+            _hubContext = hubContext;
         }
         #region owner account
         [Authorize(Roles = "Owner")]
@@ -333,8 +337,33 @@ namespace Real_Estatae_Project.Controllers
             };
 
             var result = await _paymentRepository.createPayment(payment);
+            //INotification
 
-            return Ok(new { clientSecret = intent.ClientSecret });
+            var user = await _userRepository.FindByIdAsync(userId);
+            string userName = user.firstName + " " + user.lastName;
+            var ownerid = rent.unit.ownerId;
+
+            string notificationMessage = $"{userName} Paying rent for {rent.dueDate}";
+
+            
+
+                var notification = new Notification
+                {
+                    userId = ownerid,
+                    sender = userName,
+                    message = notificationMessage,
+
+                };
+                await _notificationRepository.AddAsync(notification);
+
+                // signlR
+                await _hubContext.Clients.User(ownerid).SendAsync("ReceiveNotification", new
+                {
+                    message = notificationMessage,
+                    sender = userName,
+                    createdAt = DateTime.UtcNow
+                });
+                return Ok(new { clientSecret = intent.ClientSecret });
         }
         #endregion
     }

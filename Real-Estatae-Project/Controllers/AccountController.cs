@@ -19,16 +19,14 @@ namespace Real_Estatae_Project.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         public ICommunityRepository communityRepo;
-        public IConfiguration Config { get; }
+        public IConfiguration Config { get; }   
 
-        private readonly ICloudinaryRepository cloudinaryRepository;    
-
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo, ICloudinaryRepository cloudinaryRepository)
+        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo)
         {
             this.userManager = userManager;
             this.Config = Config;
             this.communityRepo = _communityRepo;
-            this.cloudinaryRepository = cloudinaryRepository;
+            
         }
 
 

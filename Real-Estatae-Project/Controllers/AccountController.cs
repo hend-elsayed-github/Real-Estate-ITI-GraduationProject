@@ -79,14 +79,15 @@ namespace Real_Estatae_Project.Controllers
 
             if (role == "Owner")
             {
-                var accountService = new AccountService();
-                var stripeAccount = await accountService.CreateAsync(new AccountCreateOptions
-                {
-                    Type = "standard"
-                });
+                //var accountService = new AccountService();
+                //var stripeAccount = await accountService.CreateAsync(new AccountCreateOptions
+                //{
+                //    Type = "standard"
+                //});
 
               
-                user.StripeAccountId = stripeAccount.Id;
+                //user.StripeAccountId = stripeAccount.Id;
+                user.StripeAccountId = "acct_1RnAYNIgZmVK93tC";
 
                 await userManager.UpdateAsync(user);
                 Community newComm = new Community

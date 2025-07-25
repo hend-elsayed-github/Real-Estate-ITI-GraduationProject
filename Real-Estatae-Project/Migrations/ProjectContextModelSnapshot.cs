@@ -526,7 +526,9 @@ namespace Real_Estatae_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+
                     b.Property<string>("sender")
+
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

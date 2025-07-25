@@ -43,7 +43,7 @@ namespace Real_Estatae_Project.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
-
+                
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -149,9 +149,11 @@ namespace Real_Estatae_Project.Controllers
             var deleted = await _commentRepository.Delete(id, userId);
 
             if (deleted == false)
+
                 return NotFound(new { message = "comment not found or already deleted." });
 
             return Ok(new { message = "comment deleted successfully" });
+
         }
 
         #endregion
@@ -189,4 +191,6 @@ namespace Real_Estatae_Project.Controllers
         #endregion
 
     }
+
 }
+

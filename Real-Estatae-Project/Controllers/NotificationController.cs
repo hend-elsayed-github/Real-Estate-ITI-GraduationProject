@@ -5,6 +5,7 @@ using Real_Estatae_Project.DTO.Notification;
 using Real_Estatae_Project.Repositories;
 using System.Security.Claims;
 
+
 namespace Real_Estatae_Project.Controllers
 {
     [Route("api/[controller]")]
@@ -17,6 +18,7 @@ namespace Real_Estatae_Project.Controllers
         {
             _NotificationRepository = NotificationRepository;
         }
+
 
         [HttpGet]
 
@@ -53,3 +55,4 @@ namespace Real_Estatae_Project.Controllers
 
     }
 }
+

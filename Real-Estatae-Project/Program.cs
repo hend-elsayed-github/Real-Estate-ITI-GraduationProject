@@ -1,13 +1,16 @@
+
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Real_Estatae_Project.DTO.Cloudinary;
 using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using Stripe;
 using System.Security.Claims;
+
 using System.Text;
 
 namespace Real_Estatae_Project
@@ -18,26 +21,34 @@ namespace Real_Estatae_Project
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container
+            // Add services to the container.
+
             builder.Services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddDbContext<ProjectContext>(options =>
+            builder.Services.AddDbContext<ProjectContext>(optionBuilder =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
+                optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
             });
 
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequiredLength = 8;
-            }).AddEntityFrameworkStores<ProjectContext>();
 
-            // Repositories
+
+            //builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ProjectContext>();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
+               options =>
+               {
+                   options.Password.RequireNonAlphanumeric = true;
+                   options.Password.RequireLowercase = true;
+                   options.Password.RequireUppercase = true;
+                   options.Password.RequireDigit = true;
+                   options.Password.RequiredLength = 8;
+               })
+               .AddEntityFrameworkStores<ProjectContext>();
+
+            //services
+
             builder.Services.AddScoped<IUnitRepository, UnitRepository>();
             builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
             builder.Services.AddScoped<IReactRepository, ReactRepository>();
@@ -45,11 +56,13 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRentRepositories, RentRepositories>();
+
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
             builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
+
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
             // SignalR
@@ -100,10 +113,12 @@ namespace Real_Estatae_Project
             });
 
             // CORS
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FreePlan", policy =>
                 {
+
                     policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });
@@ -121,10 +136,18 @@ namespace Real_Estatae_Project
 
             // Stripe
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+          
+            //cloudinary
+            builder.Services.Configure<CloudinarySettings>(
+            builder.Configuration.GetSection("CloudinarySettings"));
+
+            builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
+
 
             var app = builder.Build();
 
             // Swagger
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -132,6 +155,7 @@ namespace Real_Estatae_Project
             }
 
             app.UseStaticFiles();
+
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -152,3 +176,4 @@ namespace Real_Estatae_Project
         }
     }
 }
+

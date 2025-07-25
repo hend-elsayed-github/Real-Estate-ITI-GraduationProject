@@ -2,12 +2,15 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
+
 using Microsoft.AspNetCore.SignalR;
 using Real_Estatae_Project.Hubs;
 
 
+
 namespace Real_Estatae_Project.Repositories
 {
+
     public class RentRepositories : IRentRepositories
     {
         private readonly ProjectContext _context;
@@ -42,6 +45,7 @@ namespace Real_Estatae_Project.Repositories
                     var rent = new Rent
                     {
                         unitId = unit.id,
+
                         Rentvalue = unit.price,
                         dueDate = new DateOnly(today.Year, today.Month, 1),
                         IsPaid = false,
@@ -73,6 +77,7 @@ namespace Real_Estatae_Project.Repositories
                             sender = "rent",
                             createdAt = DateTime.UtcNow
                         });
+
                 }
             }
 
@@ -84,7 +89,9 @@ namespace Real_Estatae_Project.Repositories
         {
 
             var UnpaidRents = await _context.Rents
+
               .Where(r => r.unit.renterId == renterid && !r.IsPaid)
+
               .Include(r => r.unit)
              .OrderByDescending(r => r.dueDate)
              .ToListAsync();
@@ -94,7 +101,9 @@ namespace Real_Estatae_Project.Repositories
         public async Task<IEnumerable<Rent>> HistoryRentsAsync(string renterid)
         {
             var UnpaidRents = await _context.Rents
+
             .Where(r => r.unit.renterId == renterid)
+
            .Include(r => r.unit)
           .OrderByDescending(r => r.dueDate)
            .ToListAsync();
@@ -104,7 +113,6 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region Owner  
-
 
 
 
@@ -138,15 +146,18 @@ namespace Real_Estatae_Project.Repositories
             return await _context.Rents
             .Where(r => r.id == rentId && !r.IsPaid).FirstOrDefaultAsync();
 
+
         }
 
 
 
         public async Task UpdateRentAsync(int rentId)
         {
+
             var rent = await GetRentByIdAsync(rentId, null);
             if (rent != null)
             {
+
                 rent.IsPaid = true;
                 await _context.SaveChangesAsync();
 
@@ -157,3 +168,4 @@ namespace Real_Estatae_Project.Repositories
 
 
 }
+

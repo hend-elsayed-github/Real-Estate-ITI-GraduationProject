@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ namespace Real_Estatae_Project.Controllers
     //[Authorize]
     public class PaymentController : ControllerBase
     {
+
         private readonly IRentRepositories _rentRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly  IUserRepository _userRepository;
@@ -39,6 +41,7 @@ namespace Real_Estatae_Project.Controllers
             _hubContext = hubContext;
         }
         #region owner account
+
         [Authorize(Roles = "Owner")]
         [HttpGet("Stripe/Onboarding")]
         public async Task<IActionResult> CreateStripeAccountLink()
@@ -70,7 +73,7 @@ namespace Real_Estatae_Project.Controllers
 
             if (accountStatus.ChargesEnabled && accountStatus.PayoutsEnabled)
             {
-                return Ok("Your Stripe account is already activated ✅");
+                return Ok("Your Stripe account is already activated");
             }
 
             // 4. Create onboarding link
@@ -86,10 +89,12 @@ namespace Real_Estatae_Project.Controllers
             return Ok(accountLink.Url);
         }
 
+
         #endregion
         #region Payment Intent
         [Authorize(Roles="Renter")]
         [HttpPost("PaymentIntent")]
+
         public async Task<IActionResult> CreatePaymentIntent( int rentId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -104,7 +109,9 @@ namespace Real_Estatae_Project.Controllers
                 return BadRequest("Invalid  rent");
 
             if( rent.IsPaid)
+
                 return BadRequest("already paid rent");
+
 
 
             var owner = rent.unit.owner; 
@@ -131,6 +138,7 @@ namespace Real_Estatae_Project.Controllers
 
             return Ok(new { clientSecret = intent.ClientSecret });
         }
+
 
         #endregion
 
@@ -189,6 +197,7 @@ namespace Real_Estatae_Project.Controllers
         #endregion
 
         #region webhook
+
         [HttpPost("webhooks/stripe")]
     
         public async Task<IActionResult> StripeWebhook()
@@ -273,6 +282,7 @@ namespace Real_Estatae_Project.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
         #endregion
 
 
@@ -366,5 +376,6 @@ namespace Real_Estatae_Project.Controllers
                 return Ok(new { clientSecret = intent.ClientSecret });
         }
         #endregion
+
     }
 }

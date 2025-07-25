@@ -92,7 +92,6 @@ namespace Real_Estatae_Project.Controllers
             {
                 return BadRequest(new { message = "Failed to add reservation." });
             }
-            
 
             //INotification
 

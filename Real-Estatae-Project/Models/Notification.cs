@@ -20,4 +20,6 @@ namespace Real_Estate_Project.Models
         public string userId { get; set; }
         public virtual ApplicationUser user { get; set; }
     }
+
 }
+

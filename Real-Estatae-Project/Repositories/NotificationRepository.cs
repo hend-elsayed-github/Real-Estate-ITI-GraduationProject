@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Real_Estatae_Project.Repositories
 {
     public class NotificationRepository : INotificationRepository
+
     {
         private readonly ProjectContext _context;
         public NotificationRepository(ProjectContext _Context)
@@ -36,3 +37,4 @@ namespace Real_Estatae_Project.Repositories
         }
     }
 }
+

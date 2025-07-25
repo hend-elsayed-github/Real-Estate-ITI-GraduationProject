@@ -1,3 +1,4 @@
+
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.Hubs;
@@ -5,6 +6,7 @@ using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
 {
+
     public class PostRepository : IPostRepository
     {
 
@@ -12,6 +14,7 @@ namespace Real_Estatae_Project.Repositories
         private readonly IUserRepository _userRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IHubContext<NotificationHub> _hubContext;
+
         public PostRepository(ProjectContext context)
         {
             _context = context;
@@ -27,9 +30,11 @@ namespace Real_Estatae_Project.Repositories
         }
         #endregion
         #region Delete post
+
         public async Task<bool> Delete(int id, string userId)
         {
             var post = await _context.CommunityPosts.FirstOrDefaultAsync(p => p.id == id && !p.isDeleted && p.userId == userId);
+
 
             if (post == null)
                 return false;
@@ -45,6 +50,7 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region update post
+
         public async Task<int> Update(int id, CommunityPost updatedPost, string userId)
         {
 
@@ -68,7 +74,9 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region get all posts
+
         public async Task<IEnumerable<CommunityPost>> GetAllPosts(string userId, int? communityId)
+
         {
 
             var user = await _context.Users
@@ -76,13 +84,16 @@ namespace Real_Estatae_Project.Repositories
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null || communityId == null)
+
                 return new List<CommunityPost>();
 
 
             var posts = await _context.CommunityPosts
                 .Where(p => p.communityId == communityId && !p.isDeleted)
                 .Include(p => p.ApplicationUser)
+
                 .Include(p => p.React)
+
                 .OrderByDescending(c => c.publishDate)
                 .ToListAsync();
 
@@ -103,11 +114,13 @@ namespace Real_Estatae_Project.Repositories
 
 
         #region GetById
+
         public async Task<CommunityPost> GetById(int postId)
         {
 
             return await _context.CommunityPosts
                  .FirstOrDefaultAsync(p => p.id == postId && !p.isDeleted);
+
         }
 
         #endregion
@@ -116,4 +129,6 @@ namespace Real_Estatae_Project.Repositories
 
 
     }
+
 }
+

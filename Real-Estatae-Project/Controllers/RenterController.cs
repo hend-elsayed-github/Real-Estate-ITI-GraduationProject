@@ -15,6 +15,7 @@ namespace Real_Estatae_Project.Controllers
     public class RenterController : ControllerBase
 
     {
+
         private readonly IUserRepository _userRepository;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly INotificationRepository _notificationRepository;
@@ -50,8 +51,6 @@ namespace Real_Estatae_Project.Controllers
             await _userRepository.setRenterCommunity(renterId, renterUnit[0]);
             await _userRepository.setRenterUnit(renterId, renterUnit[0].id);
 
-
-
             //INotification
 
             var user = await _userRepository.FindByIdAsync(renterId);
@@ -83,7 +82,7 @@ namespace Real_Estatae_Project.Controllers
                 sender = userName,
                 createdAt = DateTime.UtcNow
             });
-
+            
             return Ok(new
             {
                 message = "Renter is now using the unit.",

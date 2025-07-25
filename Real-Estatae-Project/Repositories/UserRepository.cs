@@ -1,7 +1,9 @@
 
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO;
+
 using Real_Estatae_Project.DTO.Unit;
 using Real_Estate_Project.Models;
 
@@ -40,7 +42,9 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
-        public async Task<List<Unit>> getUnitBySSN(RenterSSNDTO renterSSN)
+
+        public async Task< List<Unit>> getUnitBySSN(RenterSSNDTO renterSSN)
+
         {
             List<Unit> units = _Context.Units.Where(u => u.status == "busy" && u.isDeleted == false && u.renterSSN == renterSSN.SSN)
                 .ToList();
@@ -48,7 +52,9 @@ namespace Real_Estatae_Project.Repositories
             {
                 return null;
             }
-            return units;
+
+            return  units;
+
         }
 
 
@@ -89,6 +95,7 @@ namespace Real_Estatae_Project.Repositories
             await _Context.SaveChangesAsync();
         }
 
+
         public async Task<List<string>> GetUserIdsInCommunity(int communityId)
         {
             return await _Context.Users
@@ -97,16 +104,97 @@ namespace Real_Estatae_Project.Repositories
                 .ToListAsync();
         }
 
-        //need update
 
-        public Task<UserCommunityDTO> GetUserCommunity(string userId)
+        ///////////////////////////////////
+        public async Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId)
+
         {
-            throw new NotImplementedException();
+
+            int? communityId = await _Context.Users.Where(u => u.Id == userId).Select(c => c.communityId).FirstOrDefaultAsync();
+
+            if (communityId == null)
+
+                communityId = await _Context.Communities.Where(u => u.ownerId == userId).Select(c => c.id).FirstOrDefaultAsync();
+
+            if (communityId == null)
+
+                return new List<UserCommunityDTO>();
+
+            var users = await _Context.Users
+
+        .Select(user => new UserCommunityDTO
+
+        {
+
+            Name = user.firstName + " " + user.lastName,
+
+            Email = user.Email,
+
+            Image = user.image,
+
+            PostCount = _Context.CommunityPosts
+
+                            .Count(p => p.userId == user.Id && p.communityId == communityId && !p.isDeleted),
+
+            CommentCount = _Context.Comments
+
+                            .Count(c => c.userId == user.Id && c.communityPost.communityId == communityId && !c.isDeleted),
+
+            ReactCount = _Context.Reacts
+
+                            .Count(r => r.UserId == user.Id && r.Post.communityId == communityId)
+
+        })
+
+        .ToListAsync();
+
+            var topUsers = users
+
+                .OrderByDescending(u => u.PostCount + u.CommentCount + u.ReactCount)
+
+                .Take(5)
+
+                .ToList();
+
+            return topUsers;
+
         }
 
-        public Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId)
+
+        public async Task<UserCommunityDTO> GetUserCommunity(string userId)
+
         {
-            throw new NotImplementedException();
+
+            UserCommunityDTO user = await _Context.Users.Where(u => u.Id == userId)
+
+                .Select(user =>
+
+                new UserCommunityDTO
+
+                {
+
+                    Name = user.firstName + ' ' + user.lastName,
+
+                    Email = user.Email,
+
+                    Image = user.image,
+
+                    UserName = user.UserName,
+
+                    PostCount = _Context.CommunityPosts.Count(p => p.userId == userId && !p.isDeleted),
+
+                    CommentCount = _Context.Comments.Count(c => c.userId == userId && !c.isDeleted),
+
+                    ReactCount = _Context.Reacts.Count(r => r.UserId == userId)
+
+                }).FirstOrDefaultAsync();
+
+            return user;
+
         }
+
+
+
     }
 }
+

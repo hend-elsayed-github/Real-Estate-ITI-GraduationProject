@@ -14,6 +14,7 @@ namespace Real_Estatae_Project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     [Authorize]
     public class PostController : ControllerBase
     {
@@ -40,10 +41,12 @@ namespace Real_Estatae_Project.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+
             string userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             int? communityId;
 
             communityId = await _userRepository.GetCommunityId(userId, userRole);
+
             if (communityId == null)
                 return BadRequest(new { message = "User not assigned to a community." });
 
@@ -54,10 +57,12 @@ namespace Real_Estatae_Project.Controllers
                 content = p.content,
                 publishDate = p.publishDate,
                 PostImage = p.image,
-                reactCount = p.React.Count(),
+                reactCount=p.React.Count(),
                 UserName = p.ApplicationUser.firstName + " " + p.ApplicationUser.lastName,
                 userRole = userRole,
-                UserImage = p.ApplicationUser.image
+                UserImage = p.ApplicationUser.image,
+                commentCount=p.Comments.Where(c =>  !c.isDeleted).Count()
+
 
 
             }).ToList();
@@ -78,13 +83,13 @@ namespace Real_Estatae_Project.Controllers
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             string userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             int? communityId;
 
             communityId = await _userRepository.GetCommunityId(userId, userRole);
+
             if (communityId == null)
                 return BadRequest(new { message = "User not assigned to a community." });
 
@@ -131,13 +136,12 @@ namespace Real_Estatae_Project.Controllers
                 });
 
             }
+
             return Ok(new
             {
                 message = "post added successfully.",
                 PostId = createdPostid
             });
-
-
 
         }
         #endregion
@@ -177,11 +181,10 @@ namespace Real_Estatae_Project.Controllers
             var existingPost = await _postRepository.GetById(id);
             if (existingPost == null || existingPost.userId != userId)
                 return NotFound(new { message = "Post not found or access denied." });
-
-
+     
 
             string? imageFromReq = await GetImageName.GetImageNameFn(postdto.image);
-            string? imageUrl = imageFromReq != null ? "/Images/" + imageFromReq : existingPost.image;
+            string? imageUrl = imageFromReq != null ? imageFromReq : existingPost.image;
 
             var updatedpost = new CommunityPost
             {
@@ -200,5 +203,30 @@ namespace Real_Estatae_Project.Controllers
         }
 
         #endregion
+
+
+        #region
+        [HttpGet("{id}")]
+        public async Task<ActionResult<PostByIdDTO>> getbyId(int id)
+        {
+            string OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (OwnerId == null)
+                return Unauthorized();
+
+            CommunityPost Post = await _postRepository.GetById(id);
+            if (Post.userId != OwnerId || Post == null)
+            {
+                return NotFound();
+            }
+            PostByIdDTO updatePost = new PostByIdDTO
+            {
+                Content = Post.content,
+                Image = Post.image
+            };
+            return Ok(updatePost);
+
+        }
+        #endregion
     }
 }
+

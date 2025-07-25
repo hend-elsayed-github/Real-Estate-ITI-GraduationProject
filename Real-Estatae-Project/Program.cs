@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Real_Estatae_Project.DTO.Cloudinary;
 using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
@@ -125,6 +126,12 @@ namespace Real_Estatae_Project
             builder.Services.AddHangfireServer();
 
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+            //cloudinary
+            builder.Services.Configure<CloudinarySettings>(
+            builder.Configuration.GetSection("CloudinarySettings"));
+
+            builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
 
 
             var app = builder.Build();

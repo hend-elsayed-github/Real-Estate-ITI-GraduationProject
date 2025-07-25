@@ -21,11 +21,14 @@ namespace Real_Estatae_Project.Controllers
         public ICommunityRepository communityRepo;
         public IConfiguration Config { get; }
 
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo)
+        private readonly ICloudinaryRepository cloudinaryRepository;    
+
+        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo, ICloudinaryRepository cloudinaryRepository)
         {
             this.userManager = userManager;
             this.Config = Config;
             this.communityRepo = _communityRepo;
+            this.cloudinaryRepository = cloudinaryRepository;
         }
 
 
@@ -66,7 +69,8 @@ namespace Real_Estatae_Project.Controllers
                 {
                     await userFromRequest.imageFile.CopyToAsync(stream);
                 }
-
+                // Upload to Cloudinary
+                //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
                 user.image = fileName;
                 await userManager.UpdateAsync(user); 
             }
@@ -108,17 +112,17 @@ namespace Real_Estatae_Project.Controllers
         #region login
 
         [HttpPost("Login")]  //api/Account/Login
-        public async Task<IActionResult> Login(LoginDTO userFromRequest)
+        public async Task<IActionResult> Login( LoginDTO userFromRequest)
         {
             if (ModelState.IsValid)
             {
                 //Check user in DB? 
+                
+                ApplicationUser userFromDB = await userManager.FindByNameAsync(userFromRequest?.userName);
 
-                ApplicationUser userFromDB = await userManager.FindByNameAsync(userFromRequest.userName);
-
-                if (userFromDB == null)
+                if (userFromDB == null )
                 {
-                    userFromDB = await userManager.FindByEmailAsync(userFromRequest.email);
+                    userFromDB = await userManager.FindByEmailAsync(userFromRequest?.email);
                 }
 
                 if (userFromDB != null)
@@ -175,7 +179,8 @@ namespace Real_Estatae_Project.Controllers
                         return Ok(new
                         {
                             token = new JwtSecurityTokenHandler().WriteToken(myToken),// gereate & Make it string
-                            expiration = DateTime.Now.AddHours(24) // OR myTokn.expires
+                            expiration = DateTime.Now.AddHours(72), // OR myTokn.expires
+                            //role= UserRoles.FirstOrDefault()      
                         });
                     }
 
@@ -196,7 +201,7 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> GetUserInfo()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var Role = User.FindFirst(ClaimTypes.Role)?.Value;              
+            var Role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (userId == null)
                 return Unauthorized();
@@ -215,9 +220,7 @@ namespace Real_Estatae_Project.Controllers
                 user.lastName,
                 user.image,
                 user.PhoneNumber,
-                user.communityId,
                 Role
-
 
 
             });

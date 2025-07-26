@@ -182,10 +182,12 @@ namespace Real_Estatae_Project.Controllers
                         //Send in Response 
                         return Ok(new
                         {
+                            
                             token = new JwtSecurityTokenHandler().WriteToken(myToken),// gereate & Make it string
-
                             expiration = DateTime.Now.AddHours(72), // OR myTokn.expires
-                            //role= UserRoles.FirstOrDefault()      
+                            role= UserRoles.FirstOrDefault(),
+                            userName=userFromDB.UserName
+                            
                         });
                     }
 

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Real_Estatae_Project.DTO.Cloudinary;
 using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
+using Real_Estatae_Project.Services;
 using Real_Estate_Project.Models;
 using Stripe;
 using System.Security.Claims;
@@ -64,6 +65,10 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<IAdvertisementRepository, AdvertisementRepository>();
 
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+            builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+            builder.Services.AddScoped<IImportFile, ImportFile>();
+
+            builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
             // SignalR
             builder.Services.AddSignalR().AddHubOptions<NotificationHub>(options =>

@@ -24,6 +24,7 @@ namespace Real_Estate_Project.Models
         public virtual DbSet<Appointment> Appointments { get; set; }
         public virtual DbSet<Reservation> Reservations { get; set; }
 
+        public DbSet<KnowledgeEntry> KnowledgeEntries { get; set; }
         public ProjectContext(DbContextOptions<ProjectContext> options) : base(options)
         {
 
@@ -66,9 +67,21 @@ namespace Real_Estate_Project.Models
             .WithOne(e => e.Owner)
             .HasForeignKey<Community>(e => e.ownerId)
             .IsRequired();
+
+
+            //////////////
+            modelBuilder.Entity<KnowledgeEntry>()
+                .Property(e => e.Embedding)
+                .HasConversion(
+                v => string.Join(",", v),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(float.Parse).ToArray()
+                );
+
         }
 
-            
+
+
+
     }
 }
 

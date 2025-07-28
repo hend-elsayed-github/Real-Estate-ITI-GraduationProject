@@ -16,7 +16,7 @@ namespace Real_Estatae_Project.Controllers
 
         public AdvertisementController(IAdvertisementRepository _adsRepository)
         {
-            this.adsRepository = adsRepository;
+            this.adsRepository = _adsRepository;
         }
 
 

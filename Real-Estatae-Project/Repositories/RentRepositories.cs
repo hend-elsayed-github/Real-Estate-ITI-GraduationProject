@@ -119,13 +119,15 @@ namespace Real_Estatae_Project.Repositories
         public async Task<IEnumerable<Rent>> MonthRentsAsync(string ownerId, int month, int year)
         {
             return await _context.Rents
+
                 .Include(r => r.unit)
-                .Where(r =>
-                r.unit.ownerId == ownerId &&
-                    r.dueDate.Month == month &&
-                    r.dueDate.Year == year
-                )
-                .ToListAsync();
+                .ThenInclude(u => u.renter).Include(r => r.Payment)
+               .Where(r =>
+               r.unit.ownerId == ownerId &&
+                   r.dueDate.Month == month &&
+                   r.dueDate.Year == year
+               )
+               .ToListAsync();
 
         }
         #endregion

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Real_Estatae_Project.Custom_Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Real_Estatae_Project.DTO.Auth
 {
@@ -23,6 +24,7 @@ namespace Real_Estatae_Project.DTO.Auth
         [Display(Name = "Confirm Password")]
         public string confirmPassword { get; set; }
 
+        [ValidImage(ErrorMessage = "Only image files (.jpg, .png, etc.) are allowed.")]
         public IFormFile? imageFile {  get; set; }
 
         public string role { get; set; }

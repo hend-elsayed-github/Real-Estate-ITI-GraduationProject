@@ -77,25 +77,25 @@ namespace Real_Estatae_Project.Controllers
         #region Owner
         [HttpGet("MonthRents")]
         [Authorize(Roles = "Owner")]
-        public async Task<ActionResult<IEnumerable<RentInfoDTO>>> MonthRents(int month,  int year)
+        public async Task<ActionResult<IEnumerable<OwnerRentsDTOcs>>> MonthRents(int month, int year)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
 
-            var AllRents = await _rentRepository.MonthRentsAsync(userId,  month,  year);
+            var AllRents = await _rentRepository.MonthRentsAsync(userId, month, year);
 
             var OwnerRentsDTO = AllRents.Select(r => new OwnerRentsDTOcs
             {
-                
-                
-               RenterName= r.unit.renter?.firstName + r.unit.renter?.lastName,
+
+                RentId = r.id,
+                RenterName = r.unit.renter?.firstName + " " + r.unit.renter?.lastName,
                 RentStatus = r.IsPaid ? "paid" : "unpaid",
                 RentValue = r.Rentvalue,
                 DueDate = r.dueDate,
                 PaymentDate = r.Payment?.PaymentDate,
-                
+
 
             }).ToList();
 

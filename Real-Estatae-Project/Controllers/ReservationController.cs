@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Real_Estatae_Project.DTO.Reservation;
 using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Models;
 using Real_Estatae_Project.Repositories;
+using Real_Estatae_Project.Services;
 using Real_Estate_Project.Models;
 using System.Security.Claims;
 
@@ -19,13 +21,19 @@ namespace Real_Estatae_Project.Controllers
         private readonly IReservationRepository reservationRepository;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IEmailService _emailService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ReservationController(IReservationRepository reservationRepository , INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext)
+        public ReservationController(IReservationRepository reservationRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext, IEmailService emailService, UserManager<ApplicationUser> userManager)
         {
             this.reservationRepository = reservationRepository;
             _notificationRepository = NotificationRepository;
             _hubContext = hubContext;
+            _emailService = emailService;
+            _userManager = userManager;
+
         }
+
 
         #region GetAll
         [HttpGet]
@@ -117,6 +125,15 @@ namespace Real_Estatae_Project.Controllers
                 sender = userName,
                 createdAt = DateTime.UtcNow
             });
+
+            //   email 
+            var ownerUser = await _userManager.FindByIdAsync(ownerid);
+            if (ownerUser != null && !string.IsNullOrEmpty(ownerUser.Email))
+            {
+                string subject = "Appointment Confirmed";
+                string message = $"An appointment has been booked for {reservation.appointment} by {reservationDTO.name} his email {reservationDTO.email} phone {reservationDTO.phoneNumber}";
+                await _emailService.SendEmailAsync(ownerUser.Email, subject, message);
+            }
 
             return Ok(new { success = true, message = "Reservation added successfully.", data = addedReservation });
         }

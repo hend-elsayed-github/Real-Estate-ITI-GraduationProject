@@ -24,7 +24,7 @@ namespace Real_Estatae_Project.Controllers
         public IActionResult GetAll()
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<Unit> uniits = unitRepo.GetAll(ownerId);
+            List<AllUnit> uniits = unitRepo.GetAll(ownerId);
             return Ok(uniits);
 
         }

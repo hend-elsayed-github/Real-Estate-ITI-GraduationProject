@@ -41,8 +41,8 @@ namespace Real_Estatae_Project.Controllers
         public IActionResult GetAll()
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<Reservation> reservations = reservationRepository.GetAll(ownerId);
-            return Ok(new { success = true, messsage = "returned successfully", data = reservations });
+            List<AllReservationDTO> reservations = reservationRepository.GetAll(ownerId);
+            return Ok(reservations);
         }
         #endregion
 
@@ -141,7 +141,7 @@ namespace Real_Estatae_Project.Controllers
 
         #region edit a reservation by editing its status to confirmed by the owner 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, [FromQuery] string status)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -150,10 +150,10 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized(new { message = "Unauthorized access." });
 
             }
-            bool isValied=await reservationRepository.Edit(id, ownerId);
+            bool isValied = await reservationRepository.Edit(id, ownerId, status);
             if (!isValied)
             {
-                return NotFound(new { message = "Reservation not found or already confirmed." });
+                return NotFound(new { success = false, message = "Reservation not found or already confirmed." });
             }
             return Ok(new { success = true, message = "Reservation confirmed successfully." });
 

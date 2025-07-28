@@ -16,11 +16,36 @@ namespace Real_Estatae_Project.Repositories
 
 
         #region GetAll
-        public List<Unit> GetAll(string ownerId)
+        public List<AllUnit> GetAll(string ownerId)
         {
-            return [.. Context.Units
+            List<Unit> units = Context.Units
                 .Include(u => u.Maintenances)
-                .Where(u => u.ownerId == ownerId && !u.isDeleted)];
+                .Include(u => u.addvertisement)
+                .Where(u => u.ownerId == ownerId && !u.isDeleted).ToList();
+
+            var result = units.Select(u => new AllUnit
+            {
+                id = u.id,
+                status = u.status,
+                type = u.type,
+                street = u.street,
+                area = u.area,
+                gasNum = u.gasNum,
+                waterNum = u.waterNum,
+                electricityNum = u.electricityNum,
+                flatNumber = u.flatNumber,
+                buildingNumber = u.buildingNumber,
+                city = u.city,
+                image1 = u.image1,
+                image2 = u.image2,
+                image3 = u.image3,
+                price = u.price,
+                description = u.description,
+                renterSSN = u.renterSSN,
+                isAds = u.addvertisement != null
+            }).ToList();
+
+            return result;
         }
         #endregion
 
@@ -122,29 +147,29 @@ namespace Real_Estatae_Project.Repositories
         }
         #endregion
 
-          
-    public List<Unit> Filter(string? type, string? status ,string userId)
-  {
-      var query = Context.Units.AsQueryable();
- 
-      if (!string.IsNullOrEmpty(type))
-          query = query.Where(u => u.type.ToLower() == type.ToLower());
- 
-      if (!string.IsNullOrEmpty(status))
-          query = query.Where(u => u.status.ToLower() == status.ToLower());
- 
-      query = query.Where(u => u.ownerId==userId && !u.isDeleted);
- 
-      return query.ToList();
-  }
- 
-  #region Search
-  public List<Unit> Search(string searchTerm,string userId)
-  {
-      return [..Context.Units.Where(u=> u.description.ToLower().Contains(searchTerm.ToLower())
+
+        public List<Unit> Filter(string? type, string? status, string userId)
+        {
+            var query = Context.Units.AsQueryable();
+
+            if (!string.IsNullOrEmpty(type))
+                query = query.Where(u => u.type.ToLower() == type.ToLower());
+
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(u => u.status.ToLower() == status.ToLower());
+
+            query = query.Where(u => u.ownerId == userId && !u.isDeleted);
+
+            return query.ToList();
+        }
+
+        #region Search
+        public List<Unit> Search(string searchTerm, string userId)
+        {
+            return [..Context.Units.Where(u=> u.description.ToLower().Contains(searchTerm.ToLower())
 && u.ownerId== userId && !u.isDeleted )];
-  }
-  #endregion
+        }
+        #endregion
 
         public int GetCommunityId(string ownerId)
         {
@@ -153,6 +178,5 @@ namespace Real_Estatae_Project.Repositories
                 .Select(c => c.id)
                 .FirstOrDefault();
         }
-
     }
 }

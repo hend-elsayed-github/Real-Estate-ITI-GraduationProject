@@ -67,6 +67,7 @@ namespace Real_Estatae_Project
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<IOpenAIService, OpenAIService>();
             builder.Services.AddScoped<IImportFile, ImportFile>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 

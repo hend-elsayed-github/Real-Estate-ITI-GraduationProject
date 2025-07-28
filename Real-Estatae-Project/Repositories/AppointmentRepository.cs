@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Real_Estatae_Project.DTO.Appointment;
 using Real_Estatae_Project.Models;
 using Real_Estate_Project.Models;
 
@@ -18,18 +19,28 @@ namespace Real_Estatae_Project.Repositories
         {
             return await context.Appointments
                 .Include(a => a.advertisement)
-                .Where(a => a.ownerId==id)
+                .Where(a => a.ownerId == id)
                 .ToListAsync();
         }
         #endregion
 
         #region Get all available appointments
-        public async Task<List<Appointment>> GetAllAvailable(int _id)
+        public async Task<List<AppointmentAvDTO>> GetAllAvailable(int _id)
         {
-            return await context.Appointments
+            List<Appointment> appointments = await context.Appointments
                 .Include(a => a.advertisement)
-                .Where(a => a.isAvaliable ==true && a.advertisement.id==_id)
+                .Where(a => a.isAvaliable == true && a.advertisement.id == _id)
                 .ToListAsync();
+            var result = appointments.Select(app => new AppointmentAvDTO
+            {
+                id = app.id,
+                ownerId = app.ownerId,
+                advertisementId = app.advertisementId,
+                appointmentDate = app.appointmentDate,
+                isAvaliable = app.isAvaliable,
+            }).ToList();
+
+            return result;
         }
         #endregion
 
@@ -99,7 +110,29 @@ namespace Real_Estatae_Project.Repositories
         {
             context.SaveChanges();
         }
+
+        public List<AllAppointmentDTO> GetAllByOwner(string ownerId)
+        {
+            List<Appointment> appointments = context.Appointments
+                 .Where(ap => ap.ownerId == ownerId && ap.appointmentDate >= DateTime.Today)
+                 .Include(ap => ap.advertisement)
+                 .ThenInclude(ad => ad.unit).ToList();
+
+            var result = appointments.Select(ap => new AllAppointmentDTO
+            {
+                id = ap.id,
+                dateTime = ap.appointmentDate,
+                city = ap.advertisement.unit.city,
+                area = ap.advertisement.unit.area,
+                buildingNumber = ap.advertisement.unit.buildingNumber,
+                street = ap.advertisement.unit.street,
+                flatNumber = ap.advertisement.unit.flatNumber
+
+            }).ToList();
+            return result;
+        }
         #endregion
+
 
 
     }

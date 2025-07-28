@@ -6,16 +6,16 @@ namespace Real_Estatae_Project.Repositories
     public interface IAdvertisementRepository:IRepository<Addvertisement>
     {
 
-        Task<AdvertisementDTO> Add(int id , string ownerID);
-
+        Task<Addvertisement> Add(int id, string ownerID);
         Task<bool> Edit(int id, AdvertisementDTO updatedAd);
 
-        List<Addvertisement> GetAll();
+        List<AdvertisementDTO> GetAll();
         Addvertisement GetById(int id);
 
         bool DeleteAds(int id, string userId);
 
-        List<Addvertisement> GetLastTwoAdsByCommunityOwner(int communityId);
+        List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(int communityId);
+        List<AdsByOwner> GetAllByOwner(string ownerId);
         void Save();
     }
 }

@@ -110,59 +110,36 @@ namespace Real_Estatae_Project.Repositories
 
         ///////////////////////////////////
         public async Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId)
-
         {
-
             int? communityId = await _Context.Users.Where(u => u.Id == userId).Select(c => c.communityId).FirstOrDefaultAsync();
-
             if (communityId == null)
-
                 communityId = await _Context.Communities.Where(u => u.ownerId == userId).Select(c => c.id).FirstOrDefaultAsync();
 
             if (communityId == null)
-
                 return new List<UserCommunityDTO>();
 
             var users = await _Context.Users
-
         .Select(user => new UserCommunityDTO
-
         {
-
             Name = user.firstName + " " + user.lastName,
-
             Email = user.Email,
-
             Image = user.image,
-
             PostCount = _Context.CommunityPosts
-
                             .Count(p => p.userId == user.Id && p.communityId == communityId && !p.isDeleted),
-
             CommentCount = _Context.Comments
-
                             .Count(c => c.userId == user.Id && c.communityPost.communityId == communityId && !c.isDeleted),
-
             ReactCount = _Context.Reacts
-
                             .Count(r => r.UserId == user.Id && r.Post.communityId == communityId)
-
         })
-
         .ToListAsync();
 
             var topUsers = users
-
                 .OrderByDescending(u => u.PostCount + u.CommentCount + u.ReactCount)
-
                 .Take(5)
-
                 .ToList();
 
             return topUsers;
-
         }
-
 
         public async Task<UserCommunityDTO> GetUserCommunity(string userId)
 

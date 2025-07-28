@@ -1,14 +1,13 @@
-﻿using Real_Estatae_Project.Models;
-using Real_Estate_Project.Models;
+﻿using Real_Estate_Project.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Real_Estatae_Project.DTO.Advertisement
+namespace Real_Estatae_Project.DTO.Unit
 {
-    public class AdvertisementDTO
+    public class AllUnit
     {
 
-        public int AdID { get; set; }
-        public string title { get; set; }
+        public int id { get; set; }
+        public string status { get; set; }
         public double price { get; set; }
         public string description { get; set; }
         public string type { get; set; }
@@ -21,12 +20,13 @@ namespace Real_Estatae_Project.DTO.Advertisement
         public string? image1 { get; set; }
         public string? image2 { get; set; }
         public string? image3 { get; set; }
-        public DateTime publishDate { get; set; }
+        public string? renterSSN { get; set; }
+        public string electricityNum { get; set; }
 
-        public int unitId { get; set; }
+        public string waterNum { get; set; }
 
-        public string communityName { get; set; }
-        public string userName { get; set; }
-        public bool hasAppointment { get; set; } = false;
+        public string gasNum { get; set; }
+        public bool isAds { get; set; } = false;
+
     }
 }

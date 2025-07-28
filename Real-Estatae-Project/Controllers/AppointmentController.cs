@@ -39,7 +39,7 @@ namespace Real_Estatae_Project.Controllers
             {
                 return NotFound(new { message = "No appointments found." });
             }
-            
+
             return Ok(appointments);
 
         }
@@ -52,7 +52,7 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> GetAllAvailable(int id)
         {
 
-            List<Appointment> appointments = await appointmentRepository.GetAllAvailable(id);
+            List<AppointmentAvDTO> appointments = await appointmentRepository.GetAllAvailable(id);
             if (appointments == null || appointments.Count == 0)
             {
                 return NotFound(new { message = "No appointments found." });
@@ -78,9 +78,9 @@ namespace Real_Estatae_Project.Controllers
 
             if (!isDeleted)
             {
-                return NotFound(new { message = "Appointment not found or you do not have permission to delete it." });
+                return NotFound(new { message = "Appointment not found or you do not have permission to delete it.", success = false });
             }
-            return Ok(new { message = "Appointment deleted successfully." });
+            return Ok(new { message = "Appointment deleted successfully.", success = true });
         }
 
         #endregion
@@ -94,7 +94,7 @@ namespace Real_Estatae_Project.Controllers
         {
             string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -142,5 +142,26 @@ namespace Real_Estatae_Project.Controllers
         }
         #endregion
 
+        #region
+        [HttpGet("get")]
+        public IActionResult GetAllAppointment()
+        {
+            string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(ownerId) || !User.IsInRole("Owner"))
+            {
+                return Unauthorized(new { message = "Unauthorized access." });
+            }
+
+            List<AllAppointmentDTO> appointments = appointmentRepository.GetAllByOwner(ownerId);
+            if (appointments == null || appointments.Count == 0)
+            {
+                return NotFound(new { message = "No appointments found." });
+            }
+
+            return Ok(appointments);
+
+        }
+        #endregion
     }
 }

@@ -7,30 +7,31 @@ namespace Real_Estatae_Project.Repositories
     public class AdvertisementRepository: IAdvertisementRepository
     {
         private readonly ProjectContext context;
-       public AdvertisementRepository(ProjectContext _context)
+        public AdvertisementRepository(ProjectContext _context)
         {
-            context = _context;     
+            context = _context;
         }
 
 
         #region add advertisement
 
-        public async Task<AdvertisementDTO> Add(int unitID, string ownerID)
+        public async Task<Addvertisement> Add(int unitID, string ownerID)
         {
-            Unit unitFromDB = await context.Units.FirstOrDefaultAsync(u => u.id == unitID && !u.isDeleted && u.status=="empty");
+            Unit unitFromDB = await context.Units.FirstOrDefaultAsync(u => u.id == unitID && u.ownerId == ownerID &&
+            !u.isDeleted && u.status.Trim().ToLower() == "empty");
             if (unitFromDB == null)
             {
                 return null; // Unit not found or is deleted
             }
-            if (unitFromDB.ownerId != ownerID)
-            {
-                return null; // User does not own this unit
-            }
+            //if (unitFromDB.ownerId != ownerID)
+            //{
+            //    return null; // User does not own this unit
+            //}
             Addvertisement newAd = new Addvertisement
             {
                 title = unitFromDB.type + " in " + unitFromDB.city,
                 description = "Available " + unitFromDB.type + ": " + unitFromDB.description,
-                isDeleted=unitFromDB.isDeleted,
+                isDeleted = unitFromDB.isDeleted,
                 userId = ownerID,
                 unitId = unitFromDB.id
 
@@ -39,29 +40,7 @@ namespace Real_Estatae_Project.Repositories
             context.Addvertisements.Add(newAd);
             await context.SaveChangesAsync();
 
-            AdvertisementDTO newAdInfo = new AdvertisementDTO
-            {
-                AdID=newAd.id,
-                title = unitFromDB.type + " in " + unitFromDB.city,
-                description = "Available "+unitFromDB.type+": " + unitFromDB.description,
-                publishDate = DateTime.Now,
-                price = unitFromDB.price,   
-                type = unitFromDB.type,
-                city = unitFromDB.city,
-                street = unitFromDB.street,
-                area = unitFromDB.area,
-                flatNumber = unitFromDB.flatNumber,
-                buildingNumber = unitFromDB.buildingNumber,
-                image1 = unitFromDB.image1,
-                image2 = unitFromDB.image2,
-                image3 = unitFromDB.image3,
-                unitId = unitFromDB.id,
-                communityName = unitFromDB.community.name 
-
-            };
-
-            return newAdInfo; // Successfully added advertisement
-
+            return newAd; // Successfully added advertisement
 
         }
         #endregion
@@ -70,7 +49,7 @@ namespace Real_Estatae_Project.Repositories
 
         public async Task<bool> Edit(int id, AdvertisementDTO updatedAd)
         {
-            Addvertisement existingAd = await context.Addvertisements.FindAsync(id);        
+            Addvertisement existingAd = await context.Addvertisements.FindAsync(id);
             if (existingAd == null)
             {
                 return false; // Advertisement not found
@@ -89,13 +68,41 @@ namespace Real_Estatae_Project.Repositories
         ////////////////////
 
         #region GetAll
-        public List<Addvertisement> GetAll()
+        public List<AdvertisementDTO> GetAll()
         {
-            return context.Addvertisements
+            var addvertisements = context.Addvertisements
                   .Where(ads => !ads.isDeleted)
                   .Include(ads => ads.Appointments)
                   .Include(ads => ads.unit)
-                  .ToList(); ;
+                  .ThenInclude(u => u.community)
+                  .Include(ads => ads.unit)
+                  .ThenInclude(u => u.owner)
+                  .ToList();
+
+            var result = addvertisements.Select(ad => new AdvertisementDTO
+            {
+                AdID = ad.id,
+                title = ad.title,
+                price = ad.unit?.price ?? 0,
+                description = ad.description,
+                type = ad.unit?.type ?? "Unknown",
+                city = ad.unit?.city ?? "Unknown",
+                street = ad.unit?.street ?? "Unknown",
+                area = ad.unit?.area,
+                flatNumber = ad.unit?.flatNumber,
+                buildingNumber = ad.unit?.buildingNumber,
+                image1 = ad.unit?.image1,
+                image2 = ad.unit?.image2,
+                image3 = ad.unit?.image3,
+                publishDate = ad.publishDate,
+                unitId = ad.unitId,
+                communityName = ad.unit?.community?.name ?? "Unknown",
+                userName = ad.unit?.owner?.UserName ?? "Unknown",
+                hasAppointment = ad.Appointments != null && ad.Appointments.Any()
+            }).ToList();
+
+
+            return result;
         }
 
 
@@ -117,11 +124,18 @@ namespace Real_Estatae_Project.Repositories
         public bool DeleteAds(int id, string userId)
         {
             Addvertisement addvertisement = context.Addvertisements
+                     .Include(ad => ad.Appointments)
                     .FirstOrDefault(ads => ads.id == id && ads.userId == userId && !ads.isDeleted);
             if (addvertisement == null)
                 return false;
 
-            addvertisement.isDeleted = true;
+
+            if (addvertisement.Appointments != null && addvertisement.Appointments.Any())
+            {
+                context.Appointments.RemoveRange(addvertisement.Appointments);
+            }
+            addvertisement.Appointments = null;
+            context.Remove(addvertisement);
             Save();
             return true;
         }
@@ -129,7 +143,7 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region LastTwo
-        public List<Addvertisement> GetLastTwoAdsByCommunityOwner(int communityId)
+        public List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(int communityId)
         {
             //get owner of community
             string ownerId = context.Communities
@@ -137,16 +151,37 @@ namespace Real_Estatae_Project.Repositories
                       .Select(c => c.ownerId).FirstOrDefault();
             if (string.IsNullOrEmpty(ownerId))
             {
-                return new List<Addvertisement>();
+                return new List<AdvertisementDTO>();
             }
 
             //get last 2ads
-            var addvertisement = context.Addvertisements
+            var addvertisements = context.Addvertisements
                      .Where(ads => ads.userId == ownerId && !ads.isDeleted)
                      .OrderByDescending(ads => ads.publishDate)
-                     .Take(2).Include(ads => ads.unit).ToList();
+                     .Take(2).Include(ads => ads.unit).ThenInclude(u => u.community).ToList();
 
-            return addvertisement;
+            var result = addvertisements.Select(ad => new AdvertisementDTO
+            {
+                AdID = ad.id,
+                title = ad.title,
+                price = ad.unit.price,
+                description = ad.description,
+                type = ad.unit.type,
+                city = ad.unit.city,
+                street = ad.unit.street,
+                area = ad.unit.area,
+                flatNumber = ad.unit.flatNumber,
+                buildingNumber = ad.unit.buildingNumber,
+                image1 = ad.unit.image1,
+                image2 = ad.unit.image2,
+                image3 = ad.unit.image3,
+                publishDate = ad.publishDate,
+                unitId = ad.unitId,
+                communityName = ad.unit.community.name
+            }).ToList();
+
+
+            return result;
         }
 
         #endregion
@@ -157,7 +192,26 @@ namespace Real_Estatae_Project.Repositories
             context.SaveChanges();
         }
 
+        public List<AdsByOwner> GetAllByOwner(string ownerId)
+        {
+            List<Addvertisement> addvertisements = context.Addvertisements
+                 .Include(ad => ad.unit)
+                 .Where(ad => ad.unit.ownerId == ownerId && !ad.isDeleted)
+                 .ToList();
+            var result = addvertisements.Select(ad => new AdsByOwner
+            {
+                AdID = ad.id,
+                street = ad.unit.street,
+                city = ad.unit.city,
+                buildingNumber = ad.unit.buildingNumber,
+                flatNumber = ad.unit.flatNumber,
+                area = ad.unit.area
+            }).ToList();
+            return result;
+        }
+
         #endregion
+
 
     }
 }

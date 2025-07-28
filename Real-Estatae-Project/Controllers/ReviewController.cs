@@ -140,7 +140,7 @@ namespace Real_Estatae_Project.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllReviews()
         {
-            List<Review> reviews = await reviewRepository.GetAllReviews();
+            List<AllReviewDTO> reviews = await reviewRepository.GetAllReviews();
             if (reviews == null || reviews.Count == 0)
             {
                 return NotFound(new { message = "No reviews found." });
@@ -155,7 +155,7 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> GetAllReviewsByRenterId()
         {
             string renterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(renterId) || !User.IsInRole("Renter") )
+            if (string.IsNullOrEmpty(renterId) || !User.IsInRole("Renter"))
             {
                 return Unauthorized(new { message = "Unauthorized access." });
             }

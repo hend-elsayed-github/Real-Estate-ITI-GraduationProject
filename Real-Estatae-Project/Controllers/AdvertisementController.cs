@@ -74,7 +74,6 @@ namespace Real_Estatae_Project.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Assuming you have a method in the repository to edit the advertisement
             var result = await adsRepository.Edit(id, updatedAd);
             if (!result)
             {
@@ -91,8 +90,8 @@ namespace Real_Estatae_Project.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            List<Addvertisement> addvertisements = adsRepository.GetAll();
-            return Ok(new { success = true, message = "return all successfully", data = addvertisements });
+            List<AdvertisementDTO> addvertisements = adsRepository.GetAll();
+            return Ok(addvertisements);
         }
         #endregion
 
@@ -128,7 +127,7 @@ namespace Real_Estatae_Project.Controllers
         [HttpGet("LastTwo/{communityId:int}")]
         public IActionResult GetLastTwo(int communityId)
         {
-            List<Addvertisement> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(communityId);
+            List<AdvertisementDTO> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(communityId);
 
             return Ok(new
             {
@@ -136,6 +135,21 @@ namespace Real_Estatae_Project.Controllers
                 message = "Returned last two ads by community owner.",
                 data = addvertisements
             });
+        }
+        #endregion
+
+        #region GetAllByOwner
+        [Authorize]
+        [HttpGet("get")]
+        public IActionResult getAllByOwner()
+        {
+            string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<AdsByOwner> ads = adsRepository.GetAllByOwner(ownerId);
+            if (ads == null)
+            {
+                return NotFound(new { message = "not found ads for this user" });
+            }
+            return Ok(ads);
         }
         #endregion
 

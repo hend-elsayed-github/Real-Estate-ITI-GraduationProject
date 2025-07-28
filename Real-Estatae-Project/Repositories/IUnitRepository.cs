@@ -5,13 +5,13 @@ namespace Real_Estatae_Project.Repositories
 {
     public interface IUnitRepository : IRepository<Unit>
     {
-        List<Unit> GetAll(string ownerId);
+        List<AllUnit> GetAll(string ownerId);
         Unit GetById(int id, string ownerId);
 
-        List<Unit> Filter(string? type, string? status,string userId);
+        List<Unit> Filter(string? type, string? status, string userId);
 
         List<Unit> Search(string searchTerm, string userId);
- 
+
         Unit Add(Unit entity);
 
         Task Update(string ownerId, int id, UnitDTO UpdatingRef);

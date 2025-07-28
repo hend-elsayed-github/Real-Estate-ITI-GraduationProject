@@ -36,13 +36,13 @@ namespace Real_Estatae_Project.Repositories
         #region check if the renter has community or not, if he has so he can add review otherwise he can't :D
         public async Task<bool> CheckIfRenterHasCommunity(string renterId)
         {
-           if (renterId==null)
-                {
+            if (renterId == null)
+            {
                 return false; // Renter ID is null
             }
             // Check if the renter has any communities
             bool hasCommunity = await userManager.Users
-                .AnyAsync(u => u.communityId != null && u.Id==renterId) ;
+                .AnyAsync(u => u.communityId != null && u.Id == renterId);
             return hasCommunity; // Return true if the renter has at least one community
         }
         #endregion
@@ -52,7 +52,7 @@ namespace Real_Estatae_Project.Repositories
         public async Task<bool> Edit(int id, ReviewDTO updatedReview, string renterId)
         {
             Review existingReview = await _context.Reviews.FindAsync(id);
-            if(existingReview == null || existingReview.userId != renterId)
+            if (existingReview == null || existingReview.userId != renterId)
             {
                 return false; // Review not found or user does not have permission to edit
             }
@@ -75,7 +75,7 @@ namespace Real_Estatae_Project.Repositories
         public async Task<bool> Delete(int id, string renterId)
         {
             Review review = await _context.Reviews
-                .Where(r => r.id == id && r.userId==renterId )
+                .Where(r => r.id == id && r.userId == renterId)
                 .FirstOrDefaultAsync();
 
             if (review == null)
@@ -96,7 +96,7 @@ namespace Real_Estatae_Project.Repositories
         {
             return await _context.Reviews
                 .Include(r => r.community)
-                .Where(r => r.communityId==_communityId)
+                .Where(r => r.communityId == _communityId)
                 .ToListAsync();
         }
         #endregion
@@ -124,11 +124,26 @@ namespace Real_Estatae_Project.Repositories
 
 
         #region get all reviews of all communites
-        public async Task<List<Review>> GetAllReviews()
+        public async Task<List<AllReviewDTO>> GetAllReviews()
         {
-            return await _context.Reviews
+            var Reviews = await _context.Reviews
                 .Include(r => r.community)
+                .Include(r => r.renter)
                 .ToListAsync();
+            var result = Reviews.Select(r => new AllReviewDTO
+            {
+                id = r.id,
+                content = r.content,
+                publishDate = r.publishDate,
+                fullName = r.renter.firstName + ' ' + r.renter.lastName,
+                userImage = r.renter.image,
+                userName = r.renter.UserName,
+                rate = r.rate
+            }).ToList();
+
+            return result;
+
+
         }
         #endregion
 

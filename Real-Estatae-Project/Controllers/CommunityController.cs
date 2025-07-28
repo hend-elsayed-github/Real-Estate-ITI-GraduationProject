@@ -113,7 +113,7 @@ namespace Real_Estatae_Project.Controllers
         #endregion
         #region Top5
         [HttpGet("topActive")]
-        public async Task<ActionResult<List<TopUserDTO>>> GetTopActiveUsersInCommunity()
+        public async Task<ActionResult<List<DTO.TopUserDTO>>> GetTopActiveUsersInCommunity()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             List<UserCommunityDTO> users = await userRepository.GetTopActiveUsersByCommunityAsync(userId);

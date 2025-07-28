@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Real_Estatae_Project.DTO.Reservation;
 using Real_Estatae_Project.Models;
 using Real_Estate_Project.Models;
 
@@ -14,9 +15,26 @@ namespace Real_Estatae_Project.Repositories
 
 
         #region getAll
-        public List<Reservation> GetAll(string ownerId)
+        public List<AllReservationDTO> GetAll(string ownerId)
         {
-            return context.Reservations.Where(r => r.appointment.ownerId == ownerId).ToList();
+            List<Reservation> reservations = context.Reservations
+                .Where(r => r.appointment.ownerId == ownerId)
+                .Include(r => r.appointment).ThenInclude(app => app.advertisement)
+                .ThenInclude(ad => ad.unit).ToList();
+            var result = reservations.Select(r => new AllReservationDTO
+            {
+                id = r.id,
+                appointmentId = r.appointment.id,
+                email = r.email,
+                name = r.name,
+                phoneNumber = r.phoneNumber,
+                reservationDate = r.reservationDate,
+                Status = r.status.ToString(),
+                Location = r.appointment.advertisement.unit.city + ", " +
+                     r.appointment.advertisement.unit.area + ", " +
+                    r.appointment.advertisement.unit.street + 'S'
+            }).ToList();
+            return result;
         }
         #endregion
 
@@ -61,7 +79,7 @@ namespace Real_Estatae_Project.Repositories
 
         #region add a reservation
         // renter or visitor can add a reservation but the owner can not
-        public async Task< Reservation> Add(Reservation reservation)
+        public async Task<Reservation> Add(Reservation reservation)
 
         {
             if (reservation == null)
@@ -69,7 +87,7 @@ namespace Real_Estatae_Project.Repositories
                 return null;
             }
             using var transaction = await context.Database.BeginTransactionAsync();
-            var appointment = await context.Appointments.Where(a => a.id == reservation.appointmentId && a.isAvaliable).FirstOrDefaultAsync();          
+            var appointment = await context.Appointments.Where(a => a.id == reservation.appointmentId && a.isAvaliable).FirstOrDefaultAsync();
             if (appointment == null || !appointment.isAvaliable)
             {
                 return null; // Appointment not found or not available
@@ -88,21 +106,35 @@ namespace Real_Estatae_Project.Repositories
 
         #region Edit a reservation 
 
-        public async Task<bool> Edit(int id, string ownerId)
+        public async Task<bool> Edit(int id, string ownerId, string status)
         {
-            var existingReservation = await context.Reservations.Where(r => r.id == id && r.appointment.ownerId == ownerId).FirstOrDefaultAsync();      
+            var existingReservation = await context.Reservations
+                 .Where(r => r.id == id && r.appointment.ownerId == ownerId)
+                 .FirstOrDefaultAsync();
+
             if (existingReservation == null)
             {
-                return false; // Reservation not found
+                return false; // Not found or unauthorized
             }
-            // Update the properties of the existing reservation
-            existingReservation.status=ReservationStatus.Confirmed; // Example of updating the status to confirmed
+
+            // Try to parse string to enum (case-insensitive)
+            if (!Enum.TryParse<ReservationStatus>(status, true, out var newStatus))
+            {
+                return false; // Invalid status string
+            }
+
+            // Optional: Only allow Confirmed or Cancelled
+            if (newStatus != ReservationStatus.Confirmed && newStatus != ReservationStatus.Cancelled && newStatus != ReservationStatus.Completed)
+            {
+                return false; // Restrict to allowed values
+            }
+
+            existingReservation.status = newStatus;
             await context.SaveChangesAsync();
-            return true; // Successfully updated
+            return true;
         }
 
         #endregion
-
 
     }
 }

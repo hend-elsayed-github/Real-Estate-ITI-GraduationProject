@@ -203,40 +203,63 @@ namespace Real_Estatae_Project.Controllers
 
 
         #region get user info
+
         [Authorize]
+
         [HttpGet("GetUserInfo")] //http://localhost:5267/api/Account/GetUserInfo
+
         public async Task<IActionResult> GetUserInfo()
+
         {
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var Role = User.FindFirst(ClaimTypes.Role)?.Value;
 
 
             if (userId == null)
+
                 return Unauthorized();
 
             var user = await userManager.FindByIdAsync(userId);
 
             if (user == null)
+
                 return NotFound();
 
+            var compLocation = communityRepo.Get(userId);
+
             return Ok(new
+
             {
+
                 user.Id,
+
                 user.UserName,
+
                 user.Email,
+
                 user.firstName,
+
                 user.lastName,
+
                 user.image,
+
                 user.PhoneNumber,
+
+                compLocation,
+
                 user.communityId,
+
                 Role
 
 
-
             });
+
         }
+
         #endregion
+
 
     }
 }

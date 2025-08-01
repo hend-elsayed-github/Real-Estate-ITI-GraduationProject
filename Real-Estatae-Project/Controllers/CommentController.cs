@@ -73,26 +73,28 @@ namespace Real_Estatae_Project.Controllers
             string commenterName = commenter.firstName + " " + commenter.lastName;
 
 
-            string message = $"{commenterName} commented on your post";
+              if (postOwnerId != userId)
+              {
+              string message = $"{commenterName} commented on your post";
 
 
-            var notification = new Notification
-            {
-                userId = postOwnerId,
-                message = message,
-                sender = commenterName
-            };
-            await _notificationRepository.AddAsync(notification);
+         var notification = new Notification
+       {
+           userId = postOwnerId,
+           message = message,
+           sender = commenterName
+       };
+       await _notificationRepository.AddAsync(notification);
 
-            //  SignalR
-            await _hubContext.Clients.User(postOwnerId)
-                .SendAsync("ReceiveNotification", new
-                {
-                    message = message,
-                    sender = commenterName,
-                    createdAt = DateTime.UtcNow
-                });
-
+       //  SignalR
+       await _hubContext.Clients.User(postOwnerId)
+           .SendAsync("ReceiveNotification", new
+           {
+               message = message,
+               sender = commenterName,
+               createdAt = DateTime.UtcNow
+           });
+   }
             return Ok(new
             {
                 message = "Comment added successfully.",

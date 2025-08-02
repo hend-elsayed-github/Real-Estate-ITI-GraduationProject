@@ -27,9 +27,10 @@ namespace Real_Estatae_Project.Repositories
         #region Get all available appointments
         public async Task<List<AppointmentAvDTO>> GetAllAvailable(int _id)
         {
+            var today = DateTime.Today;
             List<Appointment> appointments = await context.Appointments
                 .Include(a => a.advertisement)
-                .Where(a => a.isAvaliable == true && a.advertisement.id == _id)
+      .Where(a => a.isAvaliable == true && a.advertisement.id == _id && a.appointmentDate.Date >= today)
                 .ToListAsync();
             var result = appointments.Select(app => new AppointmentAvDTO
             {

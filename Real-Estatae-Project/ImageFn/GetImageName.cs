@@ -1,4 +1,5 @@
-﻿using Real_Estate_Project.Models;
+﻿using Real_Estatae_Project.Repositories;
+using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Images
 {
@@ -17,6 +18,8 @@ namespace Real_Estatae_Project.Images
                 {
                     await image.CopyToAsync(stream);
                 }
+                //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
+
                 return fileName;
 
             }

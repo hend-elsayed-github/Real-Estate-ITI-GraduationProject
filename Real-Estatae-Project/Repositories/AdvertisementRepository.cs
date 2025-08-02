@@ -143,24 +143,32 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region LastTwo
-        public List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(int communityId)
+        public List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(string ownerId)
         {
-            //get owner of community
-            string ownerId = context.Communities
-                      .Where(c => c.id == communityId)
-                      .Select(c => c.ownerId).FirstOrDefault();
+
             if (string.IsNullOrEmpty(ownerId))
             {
                 return new List<AdvertisementDTO>();
             }
+            var community = context.Communities
+              .Include(c => c.Units)
+             .FirstOrDefault(c => c.ownerId == ownerId);
 
-            //get last 2ads
-            var addvertisements = context.Addvertisements
-                     .Where(ads => ads.userId == ownerId && !ads.isDeleted)
-                     .OrderByDescending(ads => ads.publishDate)
-                     .Take(2).Include(ads => ads.unit).ThenInclude(u => u.community).ToList();
+            if (community == null)
+            {
+                return new List<AdvertisementDTO>();
+            }
 
-            var result = addvertisements.Select(ad => new AdvertisementDTO
+            // Get last 2 ads by this owner
+            var advertisements = context.Addvertisements
+                .Where(ad => ad.userId == ownerId && !ad.isDeleted)
+                .OrderByDescending(ad => ad.publishDate)
+                .Take(2)
+                .Include(ad => ad.unit)
+                    .ThenInclude(u => u.community)
+                .ToList();
+
+            var result = advertisements.Select(ad => new AdvertisementDTO
             {
                 AdID = ad.id,
                 title = ad.title,
@@ -179,7 +187,6 @@ namespace Real_Estatae_Project.Repositories
                 unitId = ad.unitId,
                 communityName = ad.unit.community.name
             }).ToList();
-
 
             return result;
         }

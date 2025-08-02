@@ -124,17 +124,16 @@ namespace Real_Estatae_Project.Controllers
         #endregion
 
         #region GetLastTwo
-        [HttpGet("LastTwo/{communityId:int}")]
-        public IActionResult GetLastTwo(int communityId)
+        [Authorize]
+        [HttpGet("LastTwo")]
+        public IActionResult GetLastTwo()
         {
-            List<AdvertisementDTO> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(communityId);
+            string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<AdvertisementDTO> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(ownerId);
 
-            return Ok(new
-            {
-                success = true,
-                message = "Returned last two ads by community owner.",
-                data = addvertisements
-            });
+            return Ok(
+                addvertisements
+            );
         }
         #endregion
 

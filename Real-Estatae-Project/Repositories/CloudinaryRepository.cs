@@ -14,9 +14,13 @@ namespace Real_Estatae_Project.Repositories
             Account account = new Account(
                 config.Value.CloudName,
                 config.Value.ApiKey,
-                config.Value.ApiSecret);
+                config.Value.ApiSecret
+            );
 
-            _cloudinary = new Cloudinary(account);
+            _cloudinary = new Cloudinary(account)
+            {
+                Api = { Timeout = 180000 } // 3 minutes in milliseconds
+            };
         }
 
         public async Task<string> UploadImageAsync(IFormFile file)

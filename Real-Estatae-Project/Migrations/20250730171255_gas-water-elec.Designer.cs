@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Real_Estate_Project.Models;
 
@@ -11,9 +12,11 @@ using Real_Estate_Project.Models;
 namespace Real_Estatae_Project.Migrations
 {
     [DbContext(typeof(ProjectContext))]
-    partial class ProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20250730171255_gas-water-elec")]
+    partial class gaswaterelec
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,7 +185,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("ownerId");
 
-                    b.ToTable("Appointments", (string)null);
+                    b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("Real_Estatae_Project.Models.KnowledgeEntry", b =>
@@ -207,7 +210,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("KnowledgeEntries", (string)null);
+                    b.ToTable("KnowledgeEntries");
                 });
 
             modelBuilder.Entity("Real_Estatae_Project.Models.React", b =>
@@ -231,7 +234,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reacts", (string)null);
+                    b.ToTable("Reacts");
                 });
 
             modelBuilder.Entity("Real_Estatae_Project.Models.Reservation", b =>
@@ -268,7 +271,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasIndex("appointmentId")
                         .IsUnique();
 
-                    b.ToTable("Reservations", (string)null);
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Addvertisement", b =>
@@ -307,7 +310,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("userId");
 
-                    b.ToTable("Addvertisements", (string)null);
+                    b.ToTable("Addvertisements");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.ApplicationUser", b =>
@@ -431,7 +434,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("userId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Community", b =>
@@ -454,7 +457,7 @@ namespace Real_Estatae_Project.Migrations
                     b.HasIndex("ownerId")
                         .IsUnique();
 
-                    b.ToTable("Communities", (string)null);
+                    b.ToTable("Communities");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.CommunityPost", b =>
@@ -491,7 +494,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("userId");
 
-                    b.ToTable("CommunityPosts", (string)null);
+                    b.ToTable("CommunityPosts");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Maintenance", b =>
@@ -530,7 +533,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("unitId");
 
-                    b.ToTable("Maintenances", (string)null);
+                    b.ToTable("Maintenances");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Notification", b =>
@@ -563,7 +566,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("userId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Payment", b =>
@@ -612,7 +615,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Rent", b =>
@@ -639,7 +642,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("unitId");
 
-                    b.ToTable("Rents", (string)null);
+                    b.ToTable("Rents");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Review", b =>
@@ -677,7 +680,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("userId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.Unit", b =>
@@ -762,7 +765,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("renterId");
 
-                    b.ToTable("Units", (string)null);
+                    b.ToTable("Units");
                 });
 
             modelBuilder.Entity("Real_Estate_Project.Models.VerificationCode", b =>
@@ -792,7 +795,7 @@ namespace Real_Estatae_Project.Migrations
 
                     b.HasIndex("userId");
 
-                    b.ToTable("VerificationCodes", (string)null);
+                    b.ToTable("VerificationCodes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

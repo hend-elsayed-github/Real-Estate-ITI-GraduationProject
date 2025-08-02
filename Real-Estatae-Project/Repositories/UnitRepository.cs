@@ -8,10 +8,12 @@ namespace Real_Estatae_Project.Repositories
     public class UnitRepository : IUnitRepository
     {
         private readonly ProjectContext Context;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public UnitRepository(ProjectContext _Context)
+        public UnitRepository(ProjectContext _Context, UserManager<ApplicationUser> userManager)
         {
             Context = _Context;
+            this.userManager = userManager;
         }
 
 
@@ -74,11 +76,28 @@ namespace Real_Estatae_Project.Repositories
         {
             Unit unitFromDB = GetById(id, ownerId);
 
+            //if the unit has a renter & onwer changes theis renter, so old renter id will be removed from the unit
+            // also we have to delete the old renter from community 
+            if (unitFromDB!=null && unitFromDB.renterSSN!=UpdatingRef.renterSSN)
+            {
+                var oldRenterId = unitFromDB.renterId;
+                var oldRenter = await Context.Users.FirstOrDefaultAsync(u => u.Id == oldRenterId);
+
+                if (oldRenter != null)
+                {
+                    oldRenter.communityId = null;
+                    await userManager.UpdateAsync(oldRenter);
+                }
+
+                unitFromDB.renterId = null;
+            }
+
             unitFromDB.price = UpdatingRef.price;
             unitFromDB.description = UpdatingRef.description;
             unitFromDB.status = UpdatingRef.status;
             unitFromDB.type = UpdatingRef.type;
             unitFromDB.renterSSN = UpdatingRef.renterSSN;
+
 
             List<IFormFile?> images = new() { UpdatingRef.image1, UpdatingRef.image2, UpdatingRef.image3 };
             string?[] currentImagePaths = { unitFromDB.image1, unitFromDB.image2, unitFromDB.image3 };

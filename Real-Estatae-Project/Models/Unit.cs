@@ -23,11 +23,11 @@ namespace Real_Estate_Project.Models
         public string? renterSSN { get; set; }  //to know it belongs to which renter so when renter enters his ssn, automatically the unit set to him
 
         //need to be varcharr
-        public string electricityNum { get; set; }
+        public string? electricityNum { get; set; }
 
-        public string waterNum { get; set; }
+        public string? waterNum { get; set; }
 
-        public string gasNum { get; set; }
+        public string? gasNum { get; set; }
 
         public bool isDeleted { get; set; }=false;
         // maintenance-unit 1-m(maintenance)

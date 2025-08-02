@@ -22,9 +22,9 @@ namespace Real_Estatae_Project.DTO.Unit
         [ValidImage(ErrorMessage = "Only image files (.jpg, .png, etc.) are allowed.")]
         public IFormFile? image3 { get; set; }
 
-        public string electricityNum { get; set; }
-        public string waterNum { get; set; }
-        public string gasNum { get; set; }
+        public string? electricityNum { get; set; }
+        public string? waterNum { get; set; }
+        public string? gasNum { get; set; }
 
         
     }

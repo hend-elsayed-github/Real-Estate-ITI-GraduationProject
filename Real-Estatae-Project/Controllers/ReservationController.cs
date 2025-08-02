@@ -155,6 +155,15 @@ namespace Real_Estatae_Project.Controllers
             {
                 return NotFound(new { success = false, message = "Reservation not found or already confirmed." });
             }
+
+            // send an email to the person who made the reservation 
+
+            var reservation = reservationRepository.GetById(id);
+            string subject = "Appointment Confirmed";
+            string message = $"Your reservation has been confirmed at {reservation.appointment}" ;
+            await _emailService.SendEmailAsync(reservation.email, subject, message);
+
+
             return Ok(new { success = true, message = "Reservation confirmed successfully." });
 
         }

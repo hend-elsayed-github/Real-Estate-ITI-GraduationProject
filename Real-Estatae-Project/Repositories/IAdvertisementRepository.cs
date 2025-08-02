@@ -14,7 +14,7 @@ namespace Real_Estatae_Project.Repositories
 
         bool DeleteAds(int id, string userId);
 
-        List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(int communityId);
+        List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(string ownerId);
         List<AdsByOwner> GetAllByOwner(string ownerId);
         void Save();
     }

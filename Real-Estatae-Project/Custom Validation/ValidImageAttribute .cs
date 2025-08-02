@@ -4,8 +4,8 @@ namespace Real_Estatae_Project.Custom_Validation
 {
     public class ValidImageAttribute : ValidationAttribute
     {
-        private readonly string[] _allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-        private readonly string[] _allowedContentTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/bmp" };
+        private readonly string[] _allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp",".webp" };
+        private readonly string[] _allowedContentTypes = new[] { "image/jpg", "image/jpeg", "image/png", "image/gif", "image/bmp","image/webp" };
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {

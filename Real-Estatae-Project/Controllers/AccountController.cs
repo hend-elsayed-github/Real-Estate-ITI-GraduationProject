@@ -18,21 +18,25 @@ namespace Real_Estatae_Project.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
-        public ICommunityRepository communityRepo;
-        public IConfiguration Config { get; }   
+        private ICommunityRepository communityRepo;
+        private IConfiguration Config { get; } 
+        private ICloudinaryRepository cloudinaryRepository; 
 
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo)
+        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo, ICloudinaryRepository cloudinaryRepository)
         {
             this.userManager = userManager;
             this.Config = Config;
             this.communityRepo = _communityRepo;
-            
+            this.cloudinaryRepository = cloudinaryRepository;
+
         }
 
 
 
         #region Registeration
         [HttpPost("Register")] // api/Account/Register
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public async Task<IActionResult> Register([FromForm] RegisterDTO userFromRequest)
         {
             if (!ModelState.IsValid)
@@ -68,7 +72,7 @@ namespace Real_Estatae_Project.Controllers
                     await userFromRequest.imageFile.CopyToAsync(stream);
                 }
 
-                // Upload to Cloudinary
+                //Upload to Cloudinary
                 //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
                 user.image = fileName;
                 await userManager.UpdateAsync(user); 
@@ -186,7 +190,8 @@ namespace Real_Estatae_Project.Controllers
                             token = new JwtSecurityTokenHandler().WriteToken(myToken),// gereate & Make it string
                             expiration = DateTime.Now.AddHours(72), // OR myTokn.expires
                             role= UserRoles.FirstOrDefault(),
-                            userName=userFromDB.UserName
+                            userName=userFromDB.UserName,
+                            image=userFromDB.image
                             
                         });
                     }

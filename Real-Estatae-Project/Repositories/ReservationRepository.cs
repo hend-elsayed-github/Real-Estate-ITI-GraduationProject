@@ -17,10 +17,15 @@ namespace Real_Estatae_Project.Repositories
         #region getAll
         public List<AllReservationDTO> GetAll(string ownerId)
         {
+            DateTime today = DateTime.Today;
+
             List<Reservation> reservations = context.Reservations
-                .Where(r => r.appointment.ownerId == ownerId)
-                .Include(r => r.appointment).ThenInclude(app => app.advertisement)
-                .ThenInclude(ad => ad.unit).ToList();
+                .Where(r => r.appointment.ownerId == ownerId && r.reservationDate.Date >= today)
+                .Include(r => r.appointment)
+                    .ThenInclude(app => app.advertisement)
+                        .ThenInclude(ad => ad.unit)
+                .ToList();
+
             var result = reservations.Select(r => new AllReservationDTO
             {
                 id = r.id,
@@ -31,9 +36,10 @@ namespace Real_Estatae_Project.Repositories
                 reservationDate = r.reservationDate,
                 Status = r.status.ToString(),
                 Location = r.appointment.advertisement.unit.city + ", " +
-                     r.appointment.advertisement.unit.area + ", " +
-                    r.appointment.advertisement.unit.street + 'S'
+                           r.appointment.advertisement.unit.area + ", " +
+                           r.appointment.advertisement.unit.street
             }).ToList();
+
             return result;
         }
         #endregion

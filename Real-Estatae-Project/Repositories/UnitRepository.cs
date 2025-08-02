@@ -78,7 +78,7 @@ namespace Real_Estatae_Project.Repositories
 
             //if the unit has a renter & onwer changes theis renter, so old renter id will be removed from the unit
             // also we have to delete the old renter from community 
-            if (unitFromDB!=null && unitFromDB.renterSSN!=UpdatingRef.renterSSN)
+            if (unitFromDB.renterSSN!=null && unitFromDB.renterSSN!=UpdatingRef.renterSSN)
             {
                 var oldRenterId = unitFromDB.renterId;
                 var oldRenter = await Context.Users.FirstOrDefaultAsync(u => u.Id == oldRenterId);

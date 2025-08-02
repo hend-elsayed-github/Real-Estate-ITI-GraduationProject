@@ -31,12 +31,14 @@ namespace Real_Estatae_Project.Controllers
             var notifications = await _NotificationRepository.GetUserNotifications(userId);
 
             var notificationsdto = notifications.Select(n => new NotificationDTO
-            {
-                Id = n.id,
-                Massage = n.message,
-                isRead = n.isRead,
-            });
-            return Ok(notifications);
+                 {
+                     Id = n.id,
+                     Massage = n.message,
+                     isRead = n.isRead,
+                     sender = n.sender,
+                
+                 });
+ return Ok(notificationsdto);
         }
 
 
@@ -46,7 +48,8 @@ namespace Real_Estatae_Project.Controllers
 
 
             await _NotificationRepository.MarkAsRead(id);
-            return NoContent();
+            //return NoContent();
+            return Ok();
         }
 
 

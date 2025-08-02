@@ -52,6 +52,10 @@ namespace Real_Estatae_Project.Controllers
             string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int _communityId = unitRepo.GetCommunityId(_ownerId);
 
+            if (string.IsNullOrEmpty(_ownerId) || !User.IsInRole("Owner"))
+            {
+                return Unauthorized();
+            }
 
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
@@ -133,6 +137,10 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> Update( int id, [FromForm] UnitDTO updatingRef)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(ownerId) || !User.IsInRole("Owner"))
+            {
+                return Unauthorized();
+            }
 
             if (ModelState.IsValid)
             {

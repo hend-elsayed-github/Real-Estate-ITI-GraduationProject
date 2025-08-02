@@ -12,5 +12,6 @@
         public string fullName { get; set; }
         public string userName { get; set; }
         public string userImage { get; set; }
+        public string communityName { get; set; }
     }
 }

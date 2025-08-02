@@ -138,7 +138,8 @@ namespace Real_Estatae_Project.Repositories
                 fullName = r.renter.firstName + ' ' + r.renter.lastName,
                 userImage = r.renter.image,
                 userName = r.renter.UserName,
-                rate = r.rate
+                rate = r.rate,
+                communityName=r.community.name
             }).ToList();
 
             return result;

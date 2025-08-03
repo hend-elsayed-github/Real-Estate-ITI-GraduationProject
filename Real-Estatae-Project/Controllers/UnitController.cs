@@ -15,9 +15,12 @@ namespace Real_Estatae_Project.Controllers
     public class UnitController : ControllerBase
     {
         IUnitRepository unitRepo;
-        public UnitController(IUnitRepository _unitRepo)
+        ICloudinaryRepository cloudinaryRepository;
+        public UnitController(IUnitRepository _unitRepo, ICloudinaryRepository _cloudinaryRepository)
         {
             unitRepo = _unitRepo;
+            cloudinaryRepository = _cloudinaryRepository;
+
         }
         #region GetAll
         [HttpGet]
@@ -32,6 +35,8 @@ namespace Real_Estatae_Project.Controllers
 
         #region GetById
         [HttpGet("{id:int}")]
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public IActionResult GetById(int id)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -47,14 +52,24 @@ namespace Real_Estatae_Project.Controllers
             string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int _communityId = unitRepo.GetCommunityId(_ownerId);
 
+            if (string.IsNullOrEmpty(_ownerId) || !User.IsInRole("Owner"))
+            {
+                return Unauthorized();
+            }
 
-            if (ModelState.IsValid) {
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
 
-        string? imageFromReq1 = await GetImageName.GetImageNameFn(unitDTO.image1);
-        string? imageFromReq2 = await GetImageName.GetImageNameFn(unitDTO.image2);
-        string? imageFromReq3 = await GetImageName.GetImageNameFn(unitDTO.image3);
+                string? imageFromReq1 = await GetImageName.GetImageNameFn(unitDTO.image1);
+                string? imageFromReq2 = await GetImageName.GetImageNameFn(unitDTO.image2);
+                string? imageFromReq3 = await GetImageName.GetImageNameFn(unitDTO.image3);
+                //string? imageFromReq1 = await cloudinaryRepository.UploadImageAsync(unitDTO.image1);
+                //string? imageFromReq2 = await cloudinaryRepository.UploadImageAsync(unitDTO.image2);
+                //string? imageFromReq3 = await cloudinaryRepository.UploadImageAsync(unitDTO.image3);
 
-        Unit unit = new Unit
+
+                Unit unit = new Unit
         {
             status = unitDTO.status,
             price = unitDTO.price,
@@ -84,9 +99,9 @@ namespace Real_Estatae_Project.Controllers
 
         return CreatedAtAction("GetById", new { id = result.id }, result);
 
-    }
+    
 
-    return BadRequest("Invalid data");
+    
 
 }
 
@@ -122,6 +137,10 @@ namespace Real_Estatae_Project.Controllers
         public async Task<IActionResult> Update( int id, [FromForm] UnitDTO updatingRef)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(ownerId) || !User.IsInRole("Owner"))
+            {
+                return Unauthorized();
+            }
 
             if (ModelState.IsValid)
             {

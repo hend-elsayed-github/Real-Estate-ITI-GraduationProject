@@ -21,11 +21,11 @@ namespace Real_Estatae_Project.DTO.Unit
         public string? image2 { get; set; }
         public string? image3 { get; set; }
         public string? renterSSN { get; set; }
-        public string electricityNum { get; set; }
+        public string? electricityNum { get; set; }
 
-        public string waterNum { get; set; }
+        public string? waterNum { get; set; }
 
-        public string gasNum { get; set; }
+        public string? gasNum { get; set; }
         public bool isAds { get; set; } = false;
 
     }

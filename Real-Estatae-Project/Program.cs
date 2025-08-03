@@ -1,6 +1,7 @@
 
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -143,11 +144,31 @@ namespace Real_Estatae_Project
             // Stripe
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+            #region Cloudinary
             //cloudinary
             builder.Services.Configure<CloudinarySettings>(
             builder.Configuration.GetSection("CloudinarySettings"));
 
             builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
+
+            //to encrease request timeout
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = 104_857_600; // 100 MB
+            });
+
+            builder.Services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = 104_857_600;
+            });
+
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 10_000_000; // 10MB or higher
+            });
+
+            //to encrease request timeout 
+            #endregion
 
 
             var app = builder.Build();

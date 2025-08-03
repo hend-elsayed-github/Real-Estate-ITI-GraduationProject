@@ -18,21 +18,25 @@ namespace Real_Estatae_Project.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
-        public ICommunityRepository communityRepo;
-        public IConfiguration Config { get; }   
+        private ICommunityRepository communityRepo;
+        private IConfiguration Config { get; } 
+        private ICloudinaryRepository cloudinaryRepository; 
 
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo)
+        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo, ICloudinaryRepository cloudinaryRepository)
         {
             this.userManager = userManager;
             this.Config = Config;
             this.communityRepo = _communityRepo;
-            
+            this.cloudinaryRepository = cloudinaryRepository;
+
         }
 
 
 
         #region Registeration
         [HttpPost("Register")] // api/Account/Register
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public async Task<IActionResult> Register([FromForm] RegisterDTO userFromRequest)
         {
             if (!ModelState.IsValid)
@@ -68,7 +72,7 @@ namespace Real_Estatae_Project.Controllers
                     await userFromRequest.imageFile.CopyToAsync(stream);
                 }
 
-                // Upload to Cloudinary
+                //Upload to Cloudinary
                 //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
                 user.image = fileName;
                 await userManager.UpdateAsync(user); 
@@ -205,43 +209,61 @@ namespace Real_Estatae_Project.Controllers
 
 
         #region get user info
+
         [Authorize]
+
         [HttpGet("GetUserInfo")] //http://localhost:5267/api/Account/GetUserInfo
+
         public async Task<IActionResult> GetUserInfo()
+
         {
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var Role = User.FindFirst(ClaimTypes.Role)?.Value;
 
 
             if (userId == null)
+
                 return Unauthorized();
 
             var user = await userManager.FindByIdAsync(userId);
 
             if (user == null)
+
                 return NotFound();
 
             var compLocation = communityRepo.Get(userId);
 
             return Ok(new
+
             {
+
                 user.Id,
+
                 user.UserName,
+
                 user.Email,
+
                 user.firstName,
+
                 user.lastName,
+
                 user.image,
+
                 user.PhoneNumber,
                 compLocation,
                 user.communityId,
+
                 Role
 
 
-
             });
+
         }
+
         #endregion
+
 
     }
 }

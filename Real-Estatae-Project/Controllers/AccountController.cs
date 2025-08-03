@@ -108,7 +108,7 @@ namespace Real_Estatae_Project.Controllers
                 communityRepo.Save(); 
             }
 
-            return Ok("User registered successfully");
+            return Ok(new {message= "User registered successfully" });
         }
 
         #endregion
@@ -191,7 +191,8 @@ namespace Real_Estatae_Project.Controllers
                             expiration = DateTime.Now.AddHours(72), // OR myTokn.expires
                             role= UserRoles.FirstOrDefault(),
                             userName=userFromDB.UserName,
-                            image=userFromDB.image
+                            image=userFromDB.image 
+
                             
                         });
                     }
@@ -251,9 +252,7 @@ namespace Real_Estatae_Project.Controllers
                 user.image,
 
                 user.PhoneNumber,
-
                 compLocation,
-
                 user.communityId,
 
                 Role

@@ -30,7 +30,7 @@ namespace Real_Estatae_Project.Controllers
 
             if (string.IsNullOrEmpty(ownerId) || !User.IsInRole("Owner"))
             {
-                return Unauthorized();
+                return Unauthorized(new {sucess=false,message="Unauthorized"});
             }
 
 
@@ -43,7 +43,7 @@ namespace Real_Estatae_Project.Controllers
 
             if (addedAd == null)
             {
-                return NotFound(new { message = "Unit not found or you do not have permission to add an advertisement." });
+                return NotFound(new {sucess=false, message = "Unit not found or you do not have permission to add an advertisement." });
             }
             return Ok(new
             {
@@ -129,7 +129,8 @@ namespace Real_Estatae_Project.Controllers
         public IActionResult GetLastTwo()
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<AdvertisementDTO> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(ownerId);
+            string role = User.FindFirstValue(ClaimTypes.Role);
+            List<AdvertisementDTO> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(ownerId,role);
 
             return Ok(
                 addvertisements

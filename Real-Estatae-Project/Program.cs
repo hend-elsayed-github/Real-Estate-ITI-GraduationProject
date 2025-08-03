@@ -203,4 +203,3 @@ namespace Real_Estatae_Project
         }
     }
 }
-

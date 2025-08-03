@@ -108,7 +108,7 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
-        ///////////////////////////////////
+       
         public async Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId)
         {
             // Get the communityId (as user or owner)

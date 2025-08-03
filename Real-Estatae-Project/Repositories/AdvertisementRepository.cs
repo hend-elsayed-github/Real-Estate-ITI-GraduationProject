@@ -143,24 +143,45 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region LastTwo
-        public List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(int communityId)
+        public List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(string ownerId, string role)
         {
-            //get owner of community
-            string ownerId = context.Communities
-                      .Where(c => c.id == communityId)
-                      .Select(c => c.ownerId).FirstOrDefault();
+
             if (string.IsNullOrEmpty(ownerId))
             {
                 return new List<AdvertisementDTO>();
             }
+            int communityId;
+            if (role == "Owner")
+            {
+                var community = context.Communities
+                .FirstOrDefault(c => c.ownerId == ownerId);
 
-            //get last 2ads
-            var addvertisements = context.Addvertisements
-                     .Where(ads => ads.userId == ownerId && !ads.isDeleted)
-                     .OrderByDescending(ads => ads.publishDate)
-                     .Take(2).Include(ads => ads.unit).ThenInclude(u => u.community).ToList();
+                if (community == null)
+                    return new List<AdvertisementDTO>();
 
-            var result = addvertisements.Select(ad => new AdvertisementDTO
+                communityId = community.id;
+            }
+            else
+            {
+                var unit = context.Units
+               .FirstOrDefault(u => u.renterId == ownerId);
+
+                if (unit == null)
+                    return new List<AdvertisementDTO>();
+
+                communityId = unit.communityId;
+            }
+
+            // Get last 2 ads
+            var advertisements = context.Addvertisements
+             .Include(ad => ad.unit)
+              .ThenInclude(u => u.community)
+               .Where(ad => ad.unit.communityId == communityId && !ad.isDeleted)
+               .OrderByDescending(ad => ad.publishDate)
+               .Take(2)
+               .ToList();
+
+            var result = advertisements.Select(ad => new AdvertisementDTO
             {
                 AdID = ad.id,
                 title = ad.title,
@@ -180,9 +201,9 @@ namespace Real_Estatae_Project.Repositories
                 communityName = ad.unit.community.name
             }).ToList();
 
-
             return result;
         }
+
 
         #endregion
 

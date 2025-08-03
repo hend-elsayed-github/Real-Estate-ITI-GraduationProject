@@ -19,14 +19,16 @@ namespace Real_Estatae_Project.Controllers
     public class ReservationController : ControllerBase
     {
         private readonly IReservationRepository reservationRepository;
+        private readonly IAppointmentRepository appointmentRepository;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly INotificationRepository _notificationRepository;
         private readonly IEmailService _emailService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public ReservationController(IReservationRepository reservationRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext, IEmailService emailService, UserManager<ApplicationUser> userManager)
+        public ReservationController(IReservationRepository reservationRepository,IAppointmentRepository appointmentRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext, IEmailService emailService, UserManager<ApplicationUser> userManager)
         {
             this.reservationRepository = reservationRepository;
+            this.appointmentRepository = appointmentRepository;
             _notificationRepository = NotificationRepository;
             _hubContext = hubContext;
             _emailService = emailService;
@@ -86,6 +88,11 @@ namespace Real_Estatae_Project.Controllers
             {
                 return BadRequest(ModelState);
             }
+            var appointment = appointmentRepository.GetById(reservationDTO.appointmentId);
+            if (appointment == null)
+            {
+                return NotFound(new { message = "Appointment not found." });
+            }
 
             Reservation reservation = new Reservation
             {
@@ -104,8 +111,8 @@ namespace Real_Estatae_Project.Controllers
             //INotification
 
             string userName = reservationDTO.name;
-  
-            var ownerid = reservation.appointment.ownerId;
+
+            var ownerid = appointment.ownerId;
 
             string notificationMessage = $"{userName} booked an appointment for {reservation.reservationDate}";
 

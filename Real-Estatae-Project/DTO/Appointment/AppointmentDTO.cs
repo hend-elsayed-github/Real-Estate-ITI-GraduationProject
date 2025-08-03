@@ -6,7 +6,7 @@ namespace Real_Estatae_Project.DTO.Appointment
 {
     public class AppointmentDTO
     {
-        public DateTime appointmentDate { get; set; }
+        public string appointmentDate { get; set; }
         public int advertisementId { get; set; }
 
     }

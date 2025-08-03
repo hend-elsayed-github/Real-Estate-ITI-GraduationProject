@@ -108,32 +108,80 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
-        ///////////////////////////////////
+       
         public async Task<List<UserCommunityDTO>> GetTopActiveUsersByCommunityAsync(string userId)
         {
-            int? communityId = await _Context.Users.Where(u => u.Id == userId).Select(c => c.communityId).FirstOrDefaultAsync();
+            // Get the communityId (as user or owner)
+            int? communityId = await _Context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.communityId)
+                .FirstOrDefaultAsync();
+
             if (communityId == null)
-                communityId = await _Context.Communities.Where(u => u.ownerId == userId).Select(c => c.id).FirstOrDefaultAsync();
+            {
+                communityId = await _Context.Communities
+                    .Where(c => c.ownerId == userId)
+                    .Select(c => c.id)
+                    .FirstOrDefaultAsync();
+            }
 
             if (communityId == null)
                 return new List<UserCommunityDTO>();
 
-            var users = await _Context.Users
-        .Select(user => new UserCommunityDTO
-        {
-            Name = user.firstName + " " + user.lastName,
-            Email = user.Email,
-            Image = user.image,
-            PostCount = _Context.CommunityPosts
-                            .Count(p => p.userId == user.Id && p.communityId == communityId && !p.isDeleted),
-            CommentCount = _Context.Comments
-                            .Count(c => c.userId == user.Id && c.communityPost.communityId == communityId && !c.isDeleted),
-            ReactCount = _Context.Reacts
-                            .Count(r => r.UserId == user.Id && r.Post.communityId == communityId)
-        })
-        .ToListAsync();
+            // Get users in the same community
+            var usersInCommunity = await _Context.Users
+                .Where(u => u.communityId == communityId)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.firstName,
+                    u.lastName,
+                    u.Email,
+                    u.image
+                })
+                .ToListAsync();
 
-            var topUsers = users
+            var userIds = usersInCommunity.Select(u => u.Id).ToList();
+
+            // Count posts per user
+            var postCounts = await _Context.CommunityPosts
+                .Where(p => userIds.Contains(p.userId) && p.communityId == communityId && !p.isDeleted)
+                .GroupBy(p => p.userId)
+                .Select(g => new { UserId = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            // Count comments per user
+            var commentCounts = await _Context.Comments
+                .Where(c => userIds.Contains(c.userId) && c.communityPost.communityId == communityId && !c.isDeleted)
+                .GroupBy(c => c.userId)
+                .Select(g => new { UserId = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            // Count reacts per user
+            var reactCounts = await _Context.Reacts
+                .Where(r => userIds.Contains(r.UserId) && r.Post.communityId == communityId)
+                .GroupBy(r => r.UserId)
+                .Select(g => new { UserId = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            // Merge all counts
+            var topUsers = usersInCommunity
+                .Select(u =>
+                {
+                    int postCount = postCounts.FirstOrDefault(p => p.UserId == u.Id)?.Count ?? 0;
+                    int commentCount = commentCounts.FirstOrDefault(c => c.UserId == u.Id)?.Count ?? 0;
+                    int reactCount = reactCounts.FirstOrDefault(r => r.UserId == u.Id)?.Count ?? 0;
+
+                    return new UserCommunityDTO
+                    {
+                        Name = u.firstName + " " + u.lastName,
+                        Email = u.Email,
+                        Image = u.image,
+                        PostCount = postCount,
+                        CommentCount = commentCount,
+                        ReactCount = reactCount
+                    };
+                })
                 .OrderByDescending(u => u.PostCount + u.CommentCount + u.ReactCount)
                 .Take(5)
                 .ToList();

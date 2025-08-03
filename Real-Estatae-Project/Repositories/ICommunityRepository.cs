@@ -9,6 +9,7 @@ namespace Real_Estatae_Project.Repositories
         int GetCommunityId(string ownerId);
         string GetName(int commId);
         bool Update(string ownerId, CommunityInfoDTO newName);
+        List<compLocationDTO> Get(string ownerId);
         void Save();
     }
 }

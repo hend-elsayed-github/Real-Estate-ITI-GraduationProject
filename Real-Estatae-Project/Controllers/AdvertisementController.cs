@@ -16,7 +16,7 @@ namespace Real_Estatae_Project.Controllers
 
         public AdvertisementController(IAdvertisementRepository _adsRepository)
         {
-            this.adsRepository = adsRepository;
+            this.adsRepository = _adsRepository;
         }
 
 
@@ -30,7 +30,7 @@ namespace Real_Estatae_Project.Controllers
 
             if (string.IsNullOrEmpty(ownerId) || !User.IsInRole("Owner"))
             {
-                return Unauthorized();
+                return Unauthorized(new {sucess=false,message="Unauthorized"});
             }
 
 
@@ -43,7 +43,7 @@ namespace Real_Estatae_Project.Controllers
 
             if (addedAd == null)
             {
-                return NotFound(new { message = "Unit not found or you do not have permission to add an advertisement." });
+                return NotFound(new {sucess=false, message = "Unit not found or you do not have permission to add an advertisement." });
             }
             return Ok(new
             {
@@ -124,17 +124,17 @@ namespace Real_Estatae_Project.Controllers
         #endregion
 
         #region GetLastTwo
-        [HttpGet("LastTwo/{communityId:int}")]
-        public IActionResult GetLastTwo(int communityId)
+        [Authorize]
+        [HttpGet("LastTwo")]
+        public IActionResult GetLastTwo()
         {
-            List<AdvertisementDTO> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(communityId);
+            string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string role = User.FindFirstValue(ClaimTypes.Role);
+            List<AdvertisementDTO> addvertisements = adsRepository.GetLastTwoAdsByCommunityOwner(ownerId,role);
 
-            return Ok(new
-            {
-                success = true,
-                message = "Returned last two ads by community owner.",
-                data = addvertisements
-            });
+            return Ok(
+                addvertisements
+            );
         }
         #endregion
 

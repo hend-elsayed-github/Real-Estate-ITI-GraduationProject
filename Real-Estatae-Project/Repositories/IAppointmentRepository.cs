@@ -11,7 +11,7 @@ namespace Real_Estatae_Project.Repositories
         List<AllAppointmentDTO> GetAllByOwner(string ownerId);
         void AddAppointment(Appointment appointment);
         bool EditAppointment(Appointment appointment);
-        Appointment GetById(string ownerId, int id);
+        Appointment GetById(int id);
         void Save();
     }
 }

@@ -61,5 +61,20 @@ namespace Real_Estatae_Project.Repositories
         {
           _context.SaveChanges();
         }
+
+        public List<compLocationDTO> Get(string ownerId)
+        {
+            var compLocations = _context.Units
+                 .Where(u => u.ownerId == ownerId)
+                 .Select(u => new compLocationDTO
+                  {
+                     city = u.city,
+                    area = u.area
+                  })
+                 .Distinct() 
+                 .ToList();
+
+            return compLocations;
+        }
     }
 }

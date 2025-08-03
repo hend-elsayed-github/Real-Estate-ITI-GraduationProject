@@ -142,7 +142,7 @@ namespace Real_Estatae_Project
 
             // Stripe
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
-          
+
             //cloudinary
             builder.Services.Configure<CloudinarySettings>(
             builder.Configuration.GetSection("CloudinarySettings"));
@@ -182,4 +182,3 @@ namespace Real_Estatae_Project
         }
     }
 }
-

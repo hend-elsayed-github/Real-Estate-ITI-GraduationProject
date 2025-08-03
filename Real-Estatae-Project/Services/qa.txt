@@ -10,3 +10,5 @@ how can renters see my advertisements?||Renters can visit the "Ads" section wher
 can i communicate with my neighbors?||Yes, go to the "Community" section to post updates, ask questions, or join discussions with neighbors.
 can i rate the community i live in?||Yes, renters can go to the "Add Review" from renter home page section and leave a rating and review for their living area.
 how do i add a new unit as an owner?||After logging in as an owner, from your home and click "Add New Unit". Fill in the required information and save.
+Hi?||Welcome To Our Website Livana. How Can I help you?
+Hello?||Welcome To Our Website Livana. How Can I help you?

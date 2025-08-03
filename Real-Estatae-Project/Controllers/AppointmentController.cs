@@ -98,10 +98,15 @@ namespace Real_Estatae_Project.Controllers
             {
                 return BadRequest(ModelState);
             }
+            DateTime parsedDate;
+            if (!DateTime.TryParse(appointmentDTO.appointmentDate, out parsedDate))
+            {
+                return BadRequest("Invalid date format");
+            }
             Appointment appointment = new Appointment
             {
                 ownerId = _ownerId,
-                appointmentDate = appointmentDTO.appointmentDate,
+                appointmentDate = parsedDate,
                 isAvaliable = true,
                 advertisementId = appointmentDTO.advertisementId
             };
@@ -123,11 +128,16 @@ namespace Real_Estatae_Project.Controllers
             {
                 return BadRequest(ModelState);
             }
+            DateTime parsedDate;
+            if (!DateTime.TryParse(appointmentDTO.appointmentDate, out parsedDate))
+            {
+                return BadRequest("Invalid date format");
+            }
 
             Appointment updateAppointment = new Appointment
             {
                 id = id,
-                appointmentDate = appointmentDTO.appointmentDate,
+                appointmentDate = parsedDate,
                 ownerId = _ownerId
             };
             bool success = appointmentRepository.EditAppointment(updateAppointment);

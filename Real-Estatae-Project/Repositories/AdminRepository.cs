@@ -84,6 +84,7 @@ namespace Real_Estatae_Project.Repositories
 
                 ownerDtos.Add(new OwnerDTO
                 {
+                    Id=owner.Id,
                     firstName = owner.firstName,
                     lastName = owner.lastName,
                     userName = owner.UserName,
@@ -175,6 +176,8 @@ namespace Real_Estatae_Project.Repositories
         }
 
         #endregion
+
+        
 
     }
 }

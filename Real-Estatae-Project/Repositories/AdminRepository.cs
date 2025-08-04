@@ -177,7 +177,49 @@ namespace Real_Estatae_Project.Repositories
 
         #endregion
 
-        
+
+        //#region Delete the admin along with everything that belongs to them.
+        //public async void  Delete(string ownerId)
+        //{
+        //    var ownerCommunity =await Context.Communities.Where(c => c.ownerId == ownerId).Select(c => c.id).FirstOrDefaultAsync();
+        //    var ownerUnits =await Context.Units.Where(u => u.ownerId == ownerId).ToListAsync();
+        //    List<ApplicationUser> renters = await userManager.Users.Where(u => u.communityId == ownerCommunity).ToListAsync();
+
+
+        //}
+        //#endregion
+
+        #region profit per month
+        public async Task<List<ProfitDTO>> GetProfitMonth()
+        {
+            var groupedData = await Context.Rents
+                .Where(r => r.IsPaid)
+                .GroupBy(r => new
+                {
+                    r.Payment.PaymentDate.Year,
+                    r.Payment.PaymentDate.Month
+                })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Profit = g.Sum(r => (decimal)r.Rentvalue * 0.1m)
+                })
+                .ToListAsync(); // execute query here
+
+            var profitDTOs = groupedData
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .Select(x => new ProfitDTO
+                {
+                    month = $"{x.Month:D2}/{x.Year}",
+                    profit = x.Profit
+                })
+                .ToList();
+
+            return profitDTOs;
+        }
+
+        #endregion
 
     }
 }

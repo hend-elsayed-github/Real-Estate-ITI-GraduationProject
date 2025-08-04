@@ -132,5 +132,21 @@ namespace Real_Estatae_Project.Controllers
 
         #endregion
 
+
+        #region get profits per month
+        [HttpGet("profitsPerMonth")]
+        public async Task<IActionResult> profitsPerMonth()
+        {
+            string adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(adminId) || !User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
+            var profits = await adminRepository.GetProfitMonth();
+            return Ok(new { maessage = "success" , data=profits});
+
+        }
+        #endregion
     }
 }

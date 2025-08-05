@@ -18,6 +18,8 @@
 
         public string role { get; set; }
 
+        public bool isActive { get; set; }
+
 
     }
 }

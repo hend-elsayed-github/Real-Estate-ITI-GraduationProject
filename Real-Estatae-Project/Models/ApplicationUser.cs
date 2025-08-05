@@ -13,7 +13,7 @@ namespace Real_Estate_Project.Models
 
         public string? image {  get; set; }
         
-        public bool? isActive {  get; set; }=true;
+        public bool isActive {  get; set; }=true;
         public string? StripeAccountId { get; set; }
         public DateTime createdAt { get; set; }= DateTime.Now;
 

@@ -9,5 +9,6 @@ namespace Real_Estatae_Project.Repositories
         Task<List<RenterDTO>> GetAllRenters();
         Task<object> GeneralNumbers();
         Task<List<ProfitDTO>> GetProfitMonth();
+        Task Transfer(string oldOwner, string newOwner);
     }
 }

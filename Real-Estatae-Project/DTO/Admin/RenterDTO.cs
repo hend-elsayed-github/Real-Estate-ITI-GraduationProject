@@ -13,5 +13,7 @@
         public string communityName { get; set; }
 
         public string role { get; set; }
+        public bool isActive { get; set; }
+
     }
 }

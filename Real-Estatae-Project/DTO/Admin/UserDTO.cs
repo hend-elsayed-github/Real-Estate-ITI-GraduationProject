@@ -8,6 +8,7 @@
         public string email { get; set; }
         public string role { get; set; }
         public string? communityName { get; set; }
+        public bool isActive { get; set; }
 
         //for owners
         public int? unitCount { get; set; }

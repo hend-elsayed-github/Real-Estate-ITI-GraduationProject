@@ -126,8 +126,8 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized();
             }
 
-            var numbers = adminRepository.GeneralNumbers();
-            return Ok(new { message = "success", data = numbers });
+            var numbers = await  adminRepository.GeneralNumbers();
+            return Ok( numbers );
         }
 
         #endregion

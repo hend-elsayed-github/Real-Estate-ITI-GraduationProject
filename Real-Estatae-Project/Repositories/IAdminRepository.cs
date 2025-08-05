@@ -10,5 +10,8 @@ namespace Real_Estatae_Project.Repositories
         Task<object> GeneralNumbers();
         Task<List<ProfitDTO>> GetProfitMonth();
         Task Transfer(string oldOwner, string newOwner);
+        Task<List<ProfitPerCommunityDTO>> GetProfitPerCommunity();
+        List<AllReserDTO> GetReservation();
+        List<AdsVsReservationsDTO> GetMonthlyAdsVsReservations();
     }
 }

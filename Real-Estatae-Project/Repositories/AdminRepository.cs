@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO.Admin;
+using Real_Estatae_Project.DTO.Reservation;
+using Real_Estatae_Project.Models;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -299,7 +302,73 @@ namespace Real_Estatae_Project.Repositories
             }
 
         }
+
+
         #endregion
 
+        #region ads vs Reservation
+        public List<AdsVsReservationsDTO> GetMonthlyAdsVsReservations()
+        {
+            var data = Context.Addvertisements.GroupBy(a => a.publishDate.Month)
+                .Select(g => new AdsVsReservationsDTO
+                {
+                    Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(g.Key),
+                    AdsCount = g.Count(),
+                    ReservationsCount = Context.Reservations.Count(r => r.reservationDate.Month == g.Key)
+                }).ToList();
+            return data;
+        }
+
+        #endregion
+        #region profitperCommunity
+        public async Task<List<ProfitPerCommunityDTO>> GetProfitPerCommunity()
+        {
+            var result = await Context.Rents
+                .Where(r => r.IsPaid && r.unit != null && r.unit.community != null)
+                .GroupBy(r => r.unit.community.name)
+                .Select(g => new ProfitPerCommunityDTO
+                {
+                    CommunityName = g.Key,
+                    Profit = g.Sum(r => (decimal)r.Rentvalue * 0.1m)
+                }).ToListAsync();
+            return result;
+        }
+
+
+        #endregion
+        #region GetReseervation
+        public List<AllReserDTO> GetReservation()
+        {
+            List<Reservation> reservations = Context.Reservations
+                .Where(r => r.status == ReservationStatus.Completed || r.status == ReservationStatus.Cancelled)
+                .Include(r => r.appointment)
+                    .ThenInclude(app => app.advertisement)
+                        .ThenInclude(ad => ad.unit)
+                 .Include(r=> r.appointment)
+                 .ThenInclude(r => r.owner)
+
+                .ToList();
+
+            var result = reservations.Select(r => new AllReserDTO
+            {
+                id = r.id,
+                appointmentId = r.appointment?.id ?? 0,
+                email = r.email,
+                name = r.name,
+                phoneNumber = r.phoneNumber,
+                reservationDate = r.reservationDate,
+                Status = r.status.ToString() ?? "Unknown",
+                Location =
+                (r.appointment?.advertisement?.unit?.city ?? "N/A") + ", " +
+                (r.appointment?.advertisement?.unit?.area ?? "N/A") + ", " +
+                (r.appointment?.advertisement?.unit?.street ?? "N/A"),
+                owner = (r.appointment?.owner?.firstName ?? "") + " " + (r.appointment?.owner?.lastName ?? "")
+            }).ToList();
+
+            return result;
+
+        }
+
     }
+    #endregion
 }

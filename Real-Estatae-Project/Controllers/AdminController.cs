@@ -129,11 +129,10 @@ namespace Real_Estatae_Project.Controllers
             {
                 return Unauthorized();
             }
+                var numbers = await adminRepository.GeneralNumbers();
+                return Ok(numbers);
 
-            var numbers = await  adminRepository.GeneralNumbers();
-            return Ok( numbers );
-        }
-
+            }
         #endregion
 
 
@@ -178,6 +177,52 @@ namespace Real_Estatae_Project.Controllers
                 
                 return StatusCode(500, new { message = "An error occurred during transfer.", error = ex.Message });
             }
+        }
+        #endregion
+
+        #region ads vs reservation
+
+        [HttpGet("adsVsReservations")]
+        public ActionResult<List<AdsVsReservationsDTO>> GetAdsVsReservations()
+        {
+            string adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(adminId) || !User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
+            var result = adminRepository.GetMonthlyAdsVsReservations();
+            return Ok(result);
+        }
+        #endregion
+
+        #region profitperCommunity
+        [HttpGet("profitperCommunity")]
+        public async Task<IActionResult> GetProfitPerCommunity()
+        {
+            string adminId =  User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(adminId) || !User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
+            var data= await adminRepository.GetProfitPerCommunity();
+            return Ok(data);
+        }
+        #endregion
+
+        #region AllReservation
+        [HttpGet("AllReservation")]
+        public ActionResult<List<AllReserDTO>> GetReservation()
+        {
+            string adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(adminId) || !User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
+            var result = adminRepository.GetReservation();
+            return Ok(result);
         }
         #endregion
     }

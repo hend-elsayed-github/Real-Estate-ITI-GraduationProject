@@ -26,7 +26,7 @@ namespace Real_Estatae_Project.Repositories
 
             List<Reservation> reservations = context.Reservations
 
-                .Where(r => r.appointment.ownerId == ownerId && r.reservationDate.Date >= today)
+                .Where(r => r.appointment.ownerId == ownerId)
 
                 .Include(r => r.appointment)
 

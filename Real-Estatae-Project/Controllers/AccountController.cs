@@ -133,7 +133,7 @@ namespace Real_Estatae_Project.Controllers
 
                 }
 
-                if (userFromDB != null)
+                if (userFromDB != null && userFromDB.isActive==true)
                 {
                     //Check Password 
                     bool Found = await userManager.CheckPasswordAsync(userFromDB, userFromRequest.password);

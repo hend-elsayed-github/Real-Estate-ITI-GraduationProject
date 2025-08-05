@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Real_Estatae_Project.DTO.Admin;
 using Real_Estatae_Project.DTO.Auth;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
@@ -76,11 +77,12 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized();
             }
 
-            var users = adminRepository.GetAll();
+            var users =await adminRepository.GetAll();
             return Ok(new { message = "success", data = users });
         }
 
         #endregion
+
 
         #region Get All Owners
         [HttpGet("Owners")]
@@ -92,11 +94,12 @@ namespace Real_Estatae_Project.Controllers
             {
                 return Unauthorized();
             }
-            var owners = adminRepository.GetAllOwners();
+            var owners =await adminRepository.GetAllOwners();
             return Ok(new { message = "success", data = owners });
         }
 
         #endregion
+
 
         #region Get All Renters
         [HttpGet("Renters")]
@@ -109,11 +112,12 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized();
             }
 
-            var renters = adminRepository.GetAllRenters();
+            var renters =await adminRepository.GetAllRenters();
             return Ok(new { message = "success", data = renters });
         }
 
         #endregion
+
 
         #region Get general numbers
         [HttpGet("Numbers")]
@@ -146,6 +150,34 @@ namespace Real_Estatae_Project.Controllers
             var profits = await adminRepository.GetProfitMonth();
             return Ok(new { maessage = "success" , data=profits});
 
+        }
+        #endregion
+
+        #region Transfer
+        [HttpPost("Transfer")]
+        public async Task<IActionResult> Transfer(TransferDTO transfer)
+        {
+            string adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(adminId) || !User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "old owner id and new one are required" });
+            }
+
+            try
+            {
+                await adminRepository.Transfer(transfer.oldOwnerId, transfer.newOwnerId);
+                return Ok(new { message = "success" });
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, new { message = "An error occurred during transfer.", error = ex.Message });
+            }
         }
         #endregion
     }

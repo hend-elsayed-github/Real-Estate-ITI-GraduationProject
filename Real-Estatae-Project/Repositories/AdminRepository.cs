@@ -16,7 +16,7 @@ namespace Real_Estatae_Project.Repositories
         }
 
 
-        #region Get all Users
+        #region Get active all Users
         public async Task<List<UserDTO>> GetAll()
         {
             var users = await userManager.Users.ToListAsync();
@@ -56,7 +56,8 @@ namespace Real_Estatae_Project.Repositories
                     role = role,
                     communityName = communityName,
                     unitCount = ownerUnits,
-                    adCount = ownerAds
+                    adCount = ownerAds,
+                    isActive=user.isActive
                 });
             }
 
@@ -92,14 +93,15 @@ namespace Real_Estatae_Project.Repositories
                     role = "Owner",
                     communityName = communityName,
                     unitCount = ownerUnits,
-                    adCount = ownerAds
+                    adCount = ownerAds,
+                    isActive=owner.isActive
                 });
             }
             return ownerDtos;
         }
         #endregion
 
-        #region Get all Renters
+        #region Get all  Renters 
         public async Task<List<RenterDTO>> GetAllRenters()
         {
             var renters = await userManager.GetUsersInRoleAsync("Renter");
@@ -121,8 +123,9 @@ namespace Real_Estatae_Project.Repositories
                     userName = renter.UserName,
                     email = renter.Email,
                     role = "Renter",
-                    communityName = communityName?? "Not Yet",
-                    
+                    communityName = communityName ?? "Not Yet",
+                    isActive = renter.isActive
+
                 });
             }
             return renterDtos;
@@ -132,11 +135,11 @@ namespace Real_Estatae_Project.Repositories
         #region general numbers
         public async Task<object> GeneralNumbers()
         {
-            int userCount = await userManager.Users.CountAsync(); // Includes admin
+            int userCount = await userManager.Users.CountAsync(); // Includes admin and inActive users
 
             // Get role-based user counts
-            int ownerCount = (await userManager.GetUsersInRoleAsync("Owner")).Count;
-            int renterCount = (await userManager.GetUsersInRoleAsync("Renter")).Count;
+            int ownerCount = (await userManager.GetUsersInRoleAsync("Owner")).Count; //includes active and non active
+            int renterCount = (await userManager.GetUsersInRoleAsync("Renter")).Count; //includes active and non active
 
             // Unit counts
             int unitCount = await Context.Units.CountAsync(u=>u.isDeleted==false);
@@ -205,7 +208,7 @@ namespace Real_Estatae_Project.Repositories
                     Month = g.Key.Month,
                     Profit = g.Sum(r => (decimal)r.Rentvalue * 0.1m)
                 })
-                .ToListAsync(); // execute query here
+                .ToListAsync(); 
 
             var profitDTOs = groupedData
                 .OrderBy(x => x.Year).ThenBy(x => x.Month)
@@ -219,6 +222,83 @@ namespace Real_Estatae_Project.Repositories
             return profitDTOs;
         }
 
+        #endregion
+
+        #region transfer to new owner
+        public async Task Transfer(string oldOwner, string newOwner)
+        {
+            using var transaction = await Context.Database.BeginTransactionAsync(); 
+            try
+            {
+                //new owner has by default a community so we will remove it to take this, our website allow one community for each owner
+                var newCommunity = await Context.Communities.Where(c => c.ownerId == newOwner).FirstOrDefaultAsync();
+                if (newCommunity != null)
+                {
+                    Context.Communities.Remove(newCommunity);
+                }
+
+                //old notifications, posts, reacts and comments will be deleted, but other things will be transfered to the nwe owner
+                var oldNotifications = await Context.Notifications.Where(n => n.userId == oldOwner).ToListAsync();
+                var oldReacts = await Context.Reacts.Where(r => r.UserId == oldOwner).ToListAsync();
+                var oldComments = await Context.Comments.Where(c => c.userId == oldOwner).ToListAsync();
+                var oldPosts=await Context.CommunityPosts.Where(p=>p.userId==oldOwner).ToListAsync();
+                //
+                var oldUnits=await Context.Units.Where(u=>u.ownerId==oldOwner).ToListAsync();
+                var oldCommunity = await Context.Communities.Where(c => c.ownerId == oldOwner).FirstOrDefaultAsync(); //only one
+                var oldAds=await Context.Addvertisements.Where(ad=>ad.userId==oldOwner).ToListAsync();
+                var oldAppointments=await Context.Appointments.Where(ap=>ap.ownerId==oldOwner).ToListAsync();
+
+                //delete
+                Context.Notifications.RemoveRange(oldNotifications);
+                Context.Reacts.RemoveRange(oldReacts);
+
+                foreach (var comment in oldComments)
+                {
+                    comment.isDeleted = true;
+                }
+
+                foreach (var post in oldPosts)
+                {
+                    post.isDeleted = true;
+                }
+
+                //update the rest
+
+                if (oldCommunity != null)
+                {
+                    oldCommunity.ownerId = newOwner;
+                }
+
+                foreach (var unit in oldUnits)
+                {
+                    unit.ownerId = newOwner;
+                }
+
+                foreach (var ad in oldAds)
+                {
+                    ad.userId = newOwner;
+                }
+
+                foreach (var ap in oldAppointments)
+                {
+                    ap.ownerId = newOwner;
+                }
+
+                //old owner still but inActive 
+                var oldOwnerUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == oldOwner);
+                 oldOwnerUser.isActive = false;
+                await  userManager.UpdateAsync(oldOwnerUser);
+
+                await Context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+
+        }
         #endregion
 
     }

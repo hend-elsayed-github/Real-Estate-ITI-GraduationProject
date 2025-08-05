@@ -41,6 +41,9 @@ namespace Real_Estatae_Project
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
                options =>
                {
+                   //to lock user for 15min, if they failed to login fo 5 times
+                   options.Lockout.MaxFailedAccessAttempts = 5;
+                   options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                    options.Password.RequireNonAlphanumeric = true;
                    options.Password.RequireLowercase = true;
                    options.Password.RequireUppercase = true;

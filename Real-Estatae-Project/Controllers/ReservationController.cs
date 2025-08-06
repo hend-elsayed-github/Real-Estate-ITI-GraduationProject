@@ -134,15 +134,15 @@ namespace Real_Estatae_Project.Controllers
             });
 
             //   email 
-            var ownerUser = await _userManager.FindByIdAsync(ownerid);
-            if (ownerUser != null && !string.IsNullOrEmpty(ownerUser.Email))
-            {
-                string subject = "Appointment Confirmed";
-                string message = $"An appointment has been booked for {reservation.appointment} by {reservationDTO.name} his email {reservationDTO.email} phone {reservationDTO.phoneNumber}";
-                await _emailService.SendEmailAsync(ownerUser.Email, subject, message);
-            }
+            //var ownerUser = await _userManager.FindByIdAsync(ownerid);
+            //if (ownerUser != null && !string.IsNullOrEmpty(ownerUser.Email))
+            //{
+            //    string subject = "Appointment Confirmed";
+            //    string message = $"An appointment has been booked for {reservation.appointment} by {reservationDTO.name} his email {reservationDTO.email} phone {reservationDTO.phoneNumber}";
+            //    await _emailService.SendEmailAsync(ownerUser.Email, subject, message);
+            //}
 
-            return Ok(new { success = true, message = "Reservation added successfully.", data = addedReservation });
+            return Ok(new { success = true, message = "Reservation added successfully." });
         }
         #endregion
 
@@ -167,9 +167,15 @@ namespace Real_Estatae_Project.Controllers
 
             var reservation = reservationRepository.GetById(id);
             string subject = "Appointment Confirmed";
-            string message = $"Your reservation has been confirmed at {reservation.appointment}" ;
+            string message = $"Your reservation has been confirmed at {reservation.appointment.appointmentDate:MMMM dd, yyyy hh:mm tt}" ;
             await _emailService.SendEmailAsync(reservation.email, subject, message);
 
+
+            //await _emailService.SendEmailAsync(
+            //    toEmail: reservation.email,
+            //    subject: _subject,
+            //    htmlBody: "<h1>Hi there!</h1><p>Thanks for joining us 🎉</p>"
+            //);
 
             return Ok(new { success = true, message = "Reservation confirmed successfully." });
 

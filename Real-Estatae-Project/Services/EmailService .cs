@@ -1,5 +1,7 @@
-﻿using System.Net.Mail;
+﻿using Microsoft.Extensions.Options;
+using Real_Estatae_Project.DTO.Email;
 using System.Net;
+using System.Net.Mail;
 
 namespace Real_Estatae_Project.Services
 {
@@ -13,26 +15,28 @@ namespace Real_Estatae_Project.Services
             _config = config;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string message)
+        public async Task SendEmailAsync(string toEmail, string subject, string htmlBody)
         {
-            var smtpClient = new SmtpClient(_config["Smtp:Host"])
-            {
-                Port = int.Parse(_config["Smtp:Port"]),
-                Credentials = new NetworkCredential(_config["Smtp:Username"], _config["Smtp:Password"]),
-                EnableSsl = true,
-            };
-           
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_config["Smtp:Username"]),
-                Subject = subject,
-                Body = message,
-                IsBodyHtml = true,
-            };
-            mailMessage.To.Add(toEmail);
+            var emailSettings = _config.GetSection("EmailSettings").Get<EmailSettings>();
 
-            await smtpClient.SendMailAsync(mailMessage);
+            var message = new MailMessage();
+            message.From = new MailAddress(emailSettings.SenderEmail, emailSettings.SenderName);
+            message.To.Add(new MailAddress(toEmail));
+            message.Subject = subject;
+            message.Body = htmlBody;
+            message.IsBodyHtml = true;
+
+            using (var smtp = new SmtpClient(emailSettings.SmtpHost, emailSettings.SmtpPort))
+            {
+                smtp.EnableSsl = true;
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential(emailSettings.Username, emailSettings.Password);
+
+                await smtp.SendMailAsync(message);
+            }
 
         }
+
+        
     }
 }

@@ -74,7 +74,7 @@ namespace Real_Estatae_Project.Repositories
 
         public Reservation GetById(int id)
         {
-            return context.Reservations.Where(r => r.id == id).FirstOrDefault();
+            return context.Reservations.Include(r=>r.appointment).Where(r => r.id == id).FirstOrDefault();
         }
 
         #endregion
@@ -126,7 +126,7 @@ namespace Real_Estatae_Project.Repositories
             }
 
             appointment.isAvaliable = false; // Mark the appointment as not available
-            appointment.reservation = reservation; // Link the reservation to the appointment
+            //appointment.reservation = reservation; // Link the reservation to the appointment
             context.Reservations.Add(reservation);
             await context.SaveChangesAsync();
             await transaction.CommitAsync();

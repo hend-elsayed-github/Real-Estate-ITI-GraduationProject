@@ -78,7 +78,7 @@ namespace Real_Estatae_Project.Controllers
             }
 
             var users =await adminRepository.GetAll();
-            return Ok(new { message = "success", data = users });
+            return Ok(users);
         }
 
         #endregion
@@ -95,7 +95,7 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized();
             }
             var owners =await adminRepository.GetAllOwners();
-            return Ok(new { message = "success", data = owners });
+            return Ok(owners);
         }
 
         #endregion
@@ -113,7 +113,7 @@ namespace Real_Estatae_Project.Controllers
             }
 
             var renters =await adminRepository.GetAllRenters();
-            return Ok(new { message = "success", data = renters });
+            return Ok(renters);
         }
 
         #endregion
@@ -147,7 +147,7 @@ namespace Real_Estatae_Project.Controllers
                 return Unauthorized();
             }
             var profits = await adminRepository.GetProfitMonth();
-            return Ok(new { maessage = "success" , data=profits});
+            return Ok(profits);
 
         }
         #endregion

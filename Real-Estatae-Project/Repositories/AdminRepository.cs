@@ -162,7 +162,7 @@ namespace Real_Estatae_Project.Repositories
             // Profit
             double totalRent = await Context.Rents.Where(r => r.IsPaid == true).SumAsync(r => r.Rentvalue);
 
-            decimal totalProfit =(decimal) totalRent * 0.1m;
+            decimal totalProfit =(decimal) totalRent * 0.05m;
             return new
             {
                 userCount,
@@ -209,7 +209,7 @@ namespace Real_Estatae_Project.Repositories
                 {
                     Year = g.Key.Year,
                     Month = g.Key.Month,
-                    Profit = g.Sum(r => (decimal)r.Rentvalue * 0.1m)
+                    Profit = g.Sum(r => (decimal)r.Rentvalue * 0.05m)
                 })
                 .ToListAsync(); 
 
@@ -320,6 +320,7 @@ namespace Real_Estatae_Project.Repositories
         }
 
         #endregion
+
         #region profitperCommunity
         public async Task<List<ProfitPerCommunityDTO>> GetProfitPerCommunity()
         {
@@ -329,13 +330,14 @@ namespace Real_Estatae_Project.Repositories
                 .Select(g => new ProfitPerCommunityDTO
                 {
                     CommunityName = g.Key,
-                    Profit = g.Sum(r => (decimal)r.Rentvalue * 0.1m)
+                    Profit = g.Sum(r => (decimal)r.Rentvalue * 0.05m)
                 }).ToListAsync();
             return result;
         }
 
 
         #endregion
+
         #region GetReseervation
         public List<AllReserDTO> GetReservation()
         {

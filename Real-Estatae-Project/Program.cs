@@ -199,7 +199,9 @@ namespace Real_Estatae_Project
             RecurringJob.AddOrUpdate<IRentRepositories>(
                 "generate-monthly-rents",
                 x => x.GenerateMonthlyRentsAsync(),
-                Cron.Monthly);
+               // Cron.Monthly
+               Cron.Minutely
+            );
 
             app.MapControllers();
             app.MapHub<NotificationHub>("/hubs/notification");

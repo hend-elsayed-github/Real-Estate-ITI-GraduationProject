@@ -50,7 +50,8 @@ namespace Real_Estatae_Project
                    options.Password.RequireDigit = true;
                    options.Password.RequiredLength = 8;
                })
-               .AddEntityFrameworkStores<ProjectContext>();
+               .AddEntityFrameworkStores<ProjectContext>()
+               .AddDefaultTokenProviders();
 
             //services
 

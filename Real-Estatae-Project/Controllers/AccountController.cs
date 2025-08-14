@@ -2,14 +2,20 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Real_Estatae_Project.DTO.Auth;
+using Real_Estatae_Project.DTO.Password;
+using Real_Estatae_Project.DTO.User;
 using Real_Estatae_Project.Repositories;
+using Real_Estatae_Project.Services;
 using Real_Estate_Project.Models;
 using Stripe;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Real_Estatae_Project.Controllers
 {
@@ -20,14 +26,17 @@ namespace Real_Estatae_Project.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private ICommunityRepository communityRepo;
         private IConfiguration Config { get; } 
-        private ICloudinaryRepository cloudinaryRepository; 
+        private ICloudinaryRepository cloudinaryRepository;
+        private readonly IEmailService _emailService;
 
-        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, ICommunityRepository _communityRepo, ICloudinaryRepository cloudinaryRepository)
+        public AccountController(UserManager<ApplicationUser> userManager, IConfiguration Config, IEmailService emailService, ICommunityRepository _communityRepo, ICloudinaryRepository cloudinaryRepository)
         {
             this.userManager = userManager;
             this.Config = Config;
             this.communityRepo = _communityRepo;
             this.cloudinaryRepository = cloudinaryRepository;
+            this._emailService = emailService;
+
 
         }
 
@@ -129,7 +138,7 @@ namespace Real_Estatae_Project.Controllers
 
                 if (userFromDB == null )
                 {
-                    userFromDB = await userManager.FindByEmailAsync(userFromRequest?.email);
+                    userFromDB = await userManager.Users.FirstOrDefaultAsync(u => u.Email == userFromRequest.email);
 
                 }
 
@@ -264,6 +273,128 @@ namespace Real_Estatae_Project.Controllers
 
         #endregion
 
+        #region requestpasswordReset
+        [HttpGet("requestPasswordreset/{email}")]
+        public async Task<IActionResult> RequestPasswordReset(string email)
+        {
+            var user = await userManager.Users.FirstOrDefaultAsync(u => u.Email == email);
+                      
+            if (user == null)
+            {
+                return BadRequest(new { sucess = false, message = "No User found with this email" });
+            }
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user!);
+            string validToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetToken));
+            await SendPasswordResetEmail(user.Email, validToken);
 
+            return Ok(new { sucess = true, message = "Check your email for password reset link." }); 
+
+        }
+
+        private async Task SendPasswordResetEmail(string? email, string validToken)
+        {
+            var audienceIP = Config["JWT:AudienceIP"]?.TrimEnd('/'); ;
+            string resetLink = $"{audienceIP}/reset-password?email={email}&token={validToken}";
+
+            StringBuilder sb = new();
+            sb.AppendLine("<!DOCTYPE html>");
+            sb.AppendLine("<html lang=\"en\">");
+            sb.AppendLine("<head>");
+            sb.AppendLine("<meta charset=\"UTF-8\">");
+            sb.AppendLine("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+            sb.AppendLine("<title>Password Reset</title>");
+            sb.AppendLine("<style>");
+            sb.AppendLine("    body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }");
+            sb.AppendLine("    .email-container { max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }");
+            sb.AppendLine("    h1 { color: #333; }");
+            sb.AppendLine("    a {text-decoration: none;color: gainsboro;}");
+            sb.AppendLine("    p { color: #555; }");
+            sb.AppendLine("    .button { background-color: #3a74b3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }");
+            sb.AppendLine("    .button:hover { background-color: #2a5a93; }");
+            sb.AppendLine("</style>");
+            sb.AppendLine("</head>");
+            sb.AppendLine("<body>");
+            sb.AppendLine("    <div class=\"email-container\">");
+            sb.AppendLine($"        <h1>Hello, {email}</h1>");
+            sb.AppendLine("        <p>You requested to set a new password for your account. Click the button below to set your password:</p>");
+            sb.AppendLine($"        <p><a href=\"{resetLink}\" class=\"button\">Set Your Password</a></p>");
+            sb.AppendLine("        <p>If you didn’t request this, please ignore this email.</p>");
+            sb.AppendLine("        <p>Thank you,</p>");
+            sb.AppendLine("    </div>");
+            sb.AppendLine("</body>");
+            sb.AppendLine("</html>");
+            string message = sb.ToString();
+            await _emailService.SendEmailAsync(
+               toEmail: email,
+               subject: "password Reset",
+               htmlBody:message
+           );
+        }
+
+        #endregion
+
+        #region password reset
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
+        {
+            var user = await userManager.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (user == null)
+                return BadRequest(new { Sucess = false, message = "Invalid request." });
+
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+
+            var result = await userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
+
+            if (result.Succeeded)
+                return Ok(new { Sucess = true, message = "Password has been reset successfully." });
+
+            return BadRequest(result.Errors); 
+        }
+
+        #endregion
+
+        #region editImage
+        [Authorize]
+        [HttpPost("editImage")]
+        public async Task<IActionResult> EditImage([FromForm] EditImageDTO editImage)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { success = false, message = "User not found." });
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return NotFound(new { success = false, message = "User not found." });
+
+            if (editImage.image != null && editImage.image.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(editImage.image.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await editImage.image.CopyToAsync(stream);
+                }
+
+                if (!string.IsNullOrEmpty(user.image))
+                {
+                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images",user.image);
+                    if (System.IO.File.Exists(oldImagePath))
+                        System.IO.File.Delete(oldImagePath);
+                }
+                    //Upload to Cloudinary
+                    //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
+                    user.image = fileName;
+                await userManager.UpdateAsync(user);
+                return Ok(new {success=true, message = "Image updated successfully",data=fileName });
+            }
+
+            return BadRequest(new { success = false, message = "No Image Upload." });
+        }
+        #endregion
     }
 }

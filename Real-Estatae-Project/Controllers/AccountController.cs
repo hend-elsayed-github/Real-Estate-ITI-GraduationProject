@@ -96,17 +96,29 @@ namespace Real_Estatae_Project.Controllers
             if (role == "Owner")
             {
 
-                //var accountService = new AccountService();
-                //var stripeAccount = await accountService.CreateAsync(new AccountCreateOptions
-                //{
-                //    Type = "standard"
-                //});
+                var accountService = new AccountService();
+                var stripeAccount = await accountService.CreateAsync(new AccountCreateOptions
+                {
+                    Type = "standard",
+                    Email = user.Email,
+                    BusinessType = "individual"
+                });
 
-              
-                //user.StripeAccountId = stripeAccount.Id;
-                user.StripeAccountId = "acct_1RnAYNIgZmVK93tC";
+
+                user.StripeAccountId = stripeAccount.Id;
+                //user.StripeAccountId = "acct_1RnAYNIgZmVK93tC";
 
                 await userManager.UpdateAsync(user);
+
+                // Create onboarding link
+                var accountLinkService = new AccountLinkService();
+                var accountLink = await accountLinkService.CreateAsync(new AccountLinkCreateOptions
+                {
+                    Account = stripeAccount.Id,
+                    RefreshUrl = "http://localhost:4200", // where to send user if onboarding fails
+                    ReturnUrl = "http://localhost:4200/login", // where to send user after success
+                    Type = "account_onboarding"
+                });
                 Community newComm = new Community
                 {
                     name = "new community",
@@ -114,9 +126,17 @@ namespace Real_Estatae_Project.Controllers
                 };
 
                 communityRepo.Create(newComm);
-                communityRepo.Save(); 
+                communityRepo.Save();
+
+                return Ok(new
+                {
+                    message = "Owner registered successfully",
+                    onboardingUrl = accountLink.Url 
+                });
+            
             }
 
+            
             return Ok(new {message= "User registered successfully" });
         }
 

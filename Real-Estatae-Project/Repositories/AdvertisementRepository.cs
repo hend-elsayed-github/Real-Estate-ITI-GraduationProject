@@ -123,19 +123,28 @@ namespace Real_Estatae_Project.Repositories
         #region Delete
         public bool DeleteAds(int id, string userId)
         {
-            Addvertisement addvertisement = context.Addvertisements
-                     .Include(ad => ad.Appointments)
-                    .FirstOrDefault(ads => ads.id == id && ads.userId == userId && !ads.isDeleted);
-            if (addvertisement == null)
+            var advertisement = context.Addvertisements
+                .Include(ad => ad.Appointments)
+                    .ThenInclude(ap => ap.reservation)
+        .FirstOrDefault(ad => ad.id == id && ad.userId == userId && !ad.isDeleted);
+
+            if (advertisement == null)
                 return false;
 
-
-            if (addvertisement.Appointments != null && addvertisement.Appointments.Any())
+            foreach (var appointment in advertisement.Appointments.ToList())
             {
-                context.Appointments.RemoveRange(addvertisement.Appointments);
+
+                if (appointment.reservation != null)
+                    context.Reservations.Remove(appointment.reservation);
             }
-            addvertisement.Appointments = null;
-            context.Remove(addvertisement);
+
+
+            if (advertisement.Appointments?.Any() == true)
+                context.Appointments.RemoveRange(advertisement.Appointments);
+
+
+            context.Addvertisements.Remove(advertisement);
+
             Save();
             return true;
         }

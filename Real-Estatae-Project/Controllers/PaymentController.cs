@@ -1,19 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Real_Estatae_Project.DTO.payment;
 using Real_Estatae_Project.Hubs;
 using Real_Estatae_Project.Repositories;
 using Real_Estate_Project.Models;
 using Stripe;
 using Stripe.Checkout;
-using System.Collections.Generic;
 using System.Security.Claims;
+
 
 namespace Real_Estatae_Project.Controllers
 {
@@ -29,8 +24,11 @@ namespace Real_Estatae_Project.Controllers
         private readonly INotificationRepository _notificationRepository;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly ILogger<PaymentController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext, ILogger<PaymentController> logger)
+
+        public PaymentController(IRentRepositories rentRepository, IPaymentRepository paymentRepository, IUserRepository userRepository, INotificationRepository NotificationRepository,
+            IHubContext<NotificationHub> hubContext, ILogger<PaymentController> logger,IConfiguration configuration)
 
         {
             _rentRepository = rentRepository;
@@ -39,6 +37,7 @@ namespace Real_Estatae_Project.Controllers
             _userRepository = userRepository;
             _notificationRepository = NotificationRepository;
             _hubContext = hubContext;
+            _configuration = configuration;
         }
         #region owner account
 
@@ -94,7 +93,6 @@ namespace Real_Estatae_Project.Controllers
         #region Payment Intent
         [Authorize(Roles="Renter")]
         [HttpPost("PaymentIntent")]
-
         public async Task<IActionResult> CreatePaymentIntent( int rentId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -103,8 +101,6 @@ namespace Real_Estatae_Project.Controllers
 
             var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
 
-
-
             if (rent == null)
                 return BadRequest("Invalid  rent");
 
@@ -112,42 +108,37 @@ namespace Real_Estatae_Project.Controllers
 
                 return BadRequest("already paid rent");
 
-
-
             var owner = rent.unit.owner; 
             if (string.IsNullOrEmpty(owner.StripeAccountId))
                 return BadRequest("Owner doesn't have a Stripe account");
 
-            var paymentIntentService = new PaymentIntentService();
-
+            var paymentIntentService = new PaymentIntentService();     
             var intent = await paymentIntentService.CreateAsync(new PaymentIntentCreateOptions
             {
                 Amount = (long)(rent.Rentvalue * 100),
-                Currency = "usd", 
+                Currency = "usd",
                 PaymentMethodTypes = new List<string> { "card" },
+                ApplicationFeeAmount = (long)((decimal)rent.Rentvalue * 0.05m * 100), 
                 TransferData = new PaymentIntentTransferDataOptions
                 {
                     Destination = owner.StripeAccountId
                 },
                 Metadata = new Dictionary<string, string>
-        {
-            { "RentId", rent.id.ToString() },
-              { "RenterId", userId }
-        }
-            });
+                    {
+                        { "RentId", rent.id.ToString() },
+                        { "RenterId", userId }
+                    }
+                    });
 
             return Ok(new { clientSecret = intent.ClientSecret });
         }
 
-
         #endregion
-
 
         #region session
         [HttpPost("CreateCheckoutSession")]
         [Authorize(Roles = "Renter")]
-
-        public async Task<IActionResult> CreateCheckoutSession([FromBody] int rentId )
+        public async Task<IActionResult> CreateCheckoutSession([FromBody] int rentId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -155,37 +146,56 @@ namespace Real_Estatae_Project.Controllers
 
             var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
 
-
-
             if (rent == null)
                 return BadRequest("Invalid  rent");
 
             if (rent.IsPaid)
+
                 return BadRequest("already paid rent");
 
+            var owner = rent.unit.owner;
+            if (string.IsNullOrEmpty(owner.StripeAccountId))
+                return BadRequest("Owner doesn't have a Stripe account");
+
             var domain = "https://print-on-demand.runasp.net";
+            var adminFee = (long)((decimal)rent.Rentvalue * 0.05m * 100);
+            var landlordAccountId = owner.StripeAccountId;
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
                 LineItems = new List<SessionLineItemOptions>
+        {
+            new SessionLineItemOptions
             {
-                new SessionLineItemOptions
+                PriceData = new SessionLineItemPriceDataOptions
                 {
-                    PriceData = new SessionLineItemPriceDataOptions
+                    Currency = "usd",
+                    UnitAmount = (long)(rent.Rentvalue * 100),
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        Currency = "usd",
-                        UnitAmount = (long)(rent.Rentvalue * 100),
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
-                        {
-                            Name = $"Rent for {rent.dueDate:MMMM yyyy}"
-                        }
-                    },
-                   
-                }
-            },
+                        Name = $"Rent for {rent.dueDate:MMMM yyyy}"
+                    }
+                },
+                Quantity = 1
+            }
+        },
                 Mode = "payment",
                 SuccessUrl = $"{domain}/payment-success?session_id={{CHECKOUT_SESSION_ID}}",
-                CancelUrl = $"{domain}/payment-cancel"
+                CancelUrl = $"{domain}/payment-cancel",
+
+                PaymentIntentData = new SessionPaymentIntentDataOptions
+                {
+                    ApplicationFeeAmount = adminFee, 
+                    TransferData = new SessionPaymentIntentDataTransferDataOptions
+                    {
+                        Destination = landlordAccountId 
+                    },
+                    Metadata = new Dictionary<string, string>
+                        {
+                            { "RentId", rent.id.ToString() },
+                            { "RenterId", userId }
+                        }
+                }
             };
 
             var service = new SessionService();
@@ -193,13 +203,11 @@ namespace Real_Estatae_Project.Controllers
 
             return Ok(new { url = session.Url });
         }
-
         #endregion
 
         #region webhook
 
         [HttpPost("webhooks/stripe")]
-    
         public async Task<IActionResult> StripeWebhook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
@@ -210,13 +218,20 @@ namespace Real_Estatae_Project.Controllers
             try
             {
                 var stripeEvent = EventUtility.ConstructEvent(
-                    json,
-                    Request.Headers["Stripe-Signature"], "whsec_v1pMEnScasI5tcS8nvEmscPISjUEVSIG"
-                );
-
-                if (stripeEvent.Type == "payment_intent.succeeded")
+            json,
+            Request.Headers["Stripe-Signature"],
+            _configuration["Stripe:WebhookSecret"]
+            );
+                
+              //  if (stripeEvent.Type == "payment_intent.succeeded" )
+                if ( stripeEvent.Type == "checkout.session.completed")
                 {
-                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                  //  var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    var session = stripeEvent.Data.Object as Session;
+
+                    var paymentIntentId = session.PaymentIntentId;
+                    var paymentIntentService = new PaymentIntentService();
+                    var paymentIntent = await paymentIntentService.GetAsync(paymentIntentId);
 
                     if (paymentIntent?.Metadata != null && paymentIntent.Metadata.ContainsKey("RentId")                   
                              && paymentIntent.Metadata.ContainsKey("RenterId"))
@@ -230,16 +245,17 @@ namespace Real_Estatae_Project.Controllers
                         var paymentMethod = await service.GetAsync(paymentMethodId);
                         var type = paymentMethod.Type;
 
-                        var StripePaymentMethodId= paymentMethod.Id;
+                        var StripePaymentMethodId = paymentMethod.Id;
                         string cardBrand = null;
                         string last4 = null;
+
 
                         if (paymentMethod.Type == "card" && paymentMethod.Card != null)
                         {
                             cardBrand = paymentMethod.Card.Brand;
                             last4 = paymentMethod.Card.Last4;
                         }
-
+                     
                         await _rentRepository.UpdateRentAsync(rentId);
 
                         var payment = new Payment
@@ -256,8 +272,7 @@ namespace Real_Estatae_Project.Controllers
                         };
 
                        var result= await _paymentRepository.createPayment(payment);
-
-                        
+              
                         return Ok();
 
                     }
@@ -284,7 +299,6 @@ namespace Real_Estatae_Project.Controllers
         }
 
         #endregion
-
 
         #region teast endpoint
 
@@ -317,6 +331,7 @@ namespace Real_Estatae_Project.Controllers
                 Amount = (long)(rent.Rentvalue * 100),
                 Currency = "usd",
                 PaymentMethodTypes = new List<string> { "card" },
+                ApplicationFeeAmount = (long)((decimal)rent.Rentvalue * 0.05m * 100), 
                 TransferData = new PaymentIntentTransferDataOptions
                 {
                     Destination = owner.StripeAccountId
@@ -348,15 +363,11 @@ namespace Real_Estatae_Project.Controllers
 
             var result = await _paymentRepository.createPayment(payment);
             //INotification
-
             var user = await _userRepository.FindByIdAsync(userId);
             string userName = user.firstName + " " + user.lastName;
             var ownerid = rent.unit.ownerId;
 
-            string notificationMessage = $"{userName} Paying rent for {rent.dueDate}";
-
-            
-
+            string notificationMessage = $"{userName} Paying rent for {rent.dueDate}";         
                 var notification = new Notification
                 {
                     userId = ownerid,
@@ -376,6 +387,5 @@ namespace Real_Estatae_Project.Controllers
                 return Ok(new { clientSecret = intent.ClientSecret });
         }
         #endregion
-
     }
 }

@@ -14,7 +14,6 @@ namespace Real_Estatae_Project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
     public class PaymentController : ControllerBase
     {
 
@@ -200,7 +199,46 @@ namespace Real_Estatae_Project.Controllers
 
             var service = new SessionService();
             var session = await service.CreateAsync(options);
+  //inset in db
 
+            await _rentRepository.UpdateRentAsync(rentId);
+
+            var payment = new Payment
+            {
+                Amount = rent.unit.price,
+                RentId = rentId,
+                UserId = rent.unit.renterId,
+                StripePaymentIntentId = "paymentIntent.Id",
+                paymentType = "card",
+                CardBrand = "cardBrand",
+                CardLast4 = "CardLast4",
+                StripePaymentMethodId = "StripePaymentMethodId"
+
+            };
+
+            var result = await _paymentRepository.createPayment(payment);
+            //INotification
+            var user = await _userRepository.FindByIdAsync(userId);
+            string userName = user.firstName + " " + user.lastName;
+            var ownerid = rent.unit.ownerId;
+
+            string notificationMessage = $"{userName} Paying rent for {rent.dueDate}";         
+                var notification = new Notification
+                {
+                    userId = ownerid,
+                    sender = userName,
+                    message = notificationMessage,
+
+                };
+                await _notificationRepository.AddAsync(notification);
+
+                // signlR
+                await _hubContext.Clients.User(ownerid).SendAsync("ReceiveNotification", new
+                {
+                    message = notificationMessage,
+                    sender = userName,
+                    createdAt = DateTime.UtcNow
+                });
             return Ok(new { url = session.Url });
         }
         #endregion

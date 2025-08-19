@@ -47,6 +47,8 @@ namespace Real_Estatae_Project.Controllers
 
         #region AddUnit
         [HttpPost]
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public async Task<IActionResult> Add([FromForm] AddUnitsDTO unitDTO)
         {
             string _ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -61,15 +63,15 @@ namespace Real_Estatae_Project.Controllers
                 return BadRequest(ModelState);
             }
 
-                string? imageFromReq1 = await GetImageName.GetImageNameFn(unitDTO.image1);
-                string? imageFromReq2 = await GetImageName.GetImageNameFn(unitDTO.image2);
-                string? imageFromReq3 = await GetImageName.GetImageNameFn(unitDTO.image3);
-                //string? imageFromReq1 = await cloudinaryRepository.UploadImageAsync(unitDTO.image1);
-                //string? imageFromReq2 = await cloudinaryRepository.UploadImageAsync(unitDTO.image2);
-                //string? imageFromReq3 = await cloudinaryRepository.UploadImageAsync(unitDTO.image3);
+            //string? imageFromReq1 = await GetImageName.GetImageNameFn(unitDTO.image1);
+            //string? imageFromReq2 = await GetImageName.GetImageNameFn(unitDTO.image2);
+            //string? imageFromReq3 = await GetImageName.GetImageNameFn(unitDTO.image3);
+            string? imageFromReq1 = await cloudinaryRepository.UploadImageAsync(unitDTO.image1);
+            string? imageFromReq2 = await cloudinaryRepository.UploadImageAsync(unitDTO.image2);
+            string? imageFromReq3 = await cloudinaryRepository.UploadImageAsync(unitDTO.image3);
 
 
-                Unit unit = new Unit
+            Unit unit = new Unit
         {
             status = unitDTO.status,
             price = unitDTO.price,
@@ -134,6 +136,8 @@ namespace Real_Estatae_Project.Controllers
 
         #region Update
         [HttpPut("{id:int}")]
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public async Task<IActionResult> Update( int id, [FromForm] UnitDTO updatingRef)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -158,10 +162,10 @@ namespace Real_Estatae_Project.Controllers
 
         #region Delete
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (unitRepo.Delete(ownerId, id) == true)
+            if ( await unitRepo.Delete(ownerId, id) == true)
             {
                 unitRepo.Save();
                 return Ok(new { success = true, message="Deleted" });

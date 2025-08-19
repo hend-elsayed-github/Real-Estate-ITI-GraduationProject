@@ -138,13 +138,13 @@ namespace Real_Estatae_Project.Controllers
         #region session
         [HttpPost("CreateCheckoutSession")]
         [Authorize(Roles = "Renter")]
-        public async Task<IActionResult> CreateCheckoutSession([FromBody] int rentId)
+        public async Task<IActionResult> CreateCheckoutSession([FromBody] PaymentDTO rentId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var rent = await _rentRepository.GetRentByIdAsync(rentId, userId);
+            var rent = await _rentRepository.GetRentByIdAsync(rentId.RentId, userId);
 
             if (rent == null)
                 return BadRequest("Invalid  rent");
@@ -157,7 +157,7 @@ namespace Real_Estatae_Project.Controllers
             if (string.IsNullOrEmpty(owner.StripeAccountId))
                 return BadRequest("Owner doesn't have a Stripe account");
 
-            var domain = "https://print-on-demand.runasp.net";
+            var domain = _configuration["JWT:AudienceIP"];
             var adminFee = (long)((decimal)rent.Rentvalue * 0.05m * 100);
             var landlordAccountId = owner.StripeAccountId;
             var options = new SessionCreateOptions
@@ -180,8 +180,8 @@ namespace Real_Estatae_Project.Controllers
             }
         },
                 Mode = "payment",
-                SuccessUrl = $"{domain}/payment-success?session_id={{CHECKOUT_SESSION_ID}}",
-                CancelUrl = $"{domain}/payment-cancel",
+                SuccessUrl = $"{domain}/renterTabs",
+                CancelUrl = $"{domain}/renterTabs",
 
                 PaymentIntentData = new SessionPaymentIntentDataOptions
                 {

@@ -12,7 +12,7 @@ namespace Real_Estatae_Project.Repositories
         List<AdvertisementDTO> GetAll();
         Addvertisement GetById(int id);
 
-        bool DeleteAds(int id, string userId);
+        Task<bool> DeleteAds(int id, string userId);
 
         List<AdvertisementDTO> GetLastTwoAdsByCommunityOwner(string ownerId,string role);
         List<AdsByOwner> GetAllByOwner(string ownerId);

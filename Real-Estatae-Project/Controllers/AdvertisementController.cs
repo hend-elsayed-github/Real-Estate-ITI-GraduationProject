@@ -111,10 +111,10 @@ namespace Real_Estatae_Project.Controllers
         #region delete
         [Authorize(Roles = "Owner")]
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             string ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isDelete = adsRepository.DeleteAds(id, ownerId);
+            bool isDelete =await adsRepository.DeleteAds(id, ownerId);
             if (isDelete)
             {
                 return Ok(new { success = true, message = "deleted" });

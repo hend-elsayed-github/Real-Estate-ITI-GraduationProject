@@ -5,15 +5,18 @@ using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO.Reservation;
 using Real_Estatae_Project.Models;
 using Real_Estate_Project.Models;
+using Real_Estatae_Project.Services;
 
 namespace Real_Estatae_Project.Repositories
 {
     public class ReservationRepository: IReservationRepository
     {
         private readonly ProjectContext context;
-        public ReservationRepository(ProjectContext _context)
+        private readonly IEmailService _emailService;           
+        public ReservationRepository(ProjectContext _context, IEmailService emailService)
         {
             this.context = _context;
+            _emailService = emailService;
         }
 
         #region getAll
@@ -136,11 +139,12 @@ namespace Real_Estatae_Project.Repositories
         }
         #endregion
 
-        #region Edit a reservation 
+        #region Edit a reservation
 
         public async Task<bool> Edit(int id, string ownerId, string status)
         {
             var existingReservation = await context.Reservations
+                  .Include(r => r.appointment)
                  .Where(r => r.id == id && r.appointment.ownerId == ownerId)
                  .FirstOrDefaultAsync();
 
@@ -163,6 +167,46 @@ namespace Real_Estatae_Project.Repositories
 
             existingReservation.status = newStatus;
             await context.SaveChangesAsync();
+
+            // send an email (only for Confirmed/Cancelled)
+            if (newStatus == ReservationStatus.Confirmed || newStatus == ReservationStatus.Cancelled)
+            {
+                var reservation = await context.Reservations
+                    .Include(r => r.appointment)
+                    .FirstOrDefaultAsync(r => r.id == id);
+
+                if (reservation != null)
+                {
+                    var dateText = reservation.appointment?.appointmentDate.ToString("MMMM dd, yyyy • h:mm tt");
+
+                    string subject = newStatus == ReservationStatus.Confirmed
+                        ? "Appointment Confirmed"
+                        : "Appointment Cancelled";
+
+                    string bodyMessage = newStatus == ReservationStatus.Confirmed
+                        ? $"Hi <strong>{reservation.name}</strong>, your reservation has been confirmed."
+                        : $"Hi <strong>{reservation.name}</strong>, unfortunately your reservation was cancelled.";
+
+                    string message = $@"
+<!DOCTYPE html>
+<html>
+<body style='font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;'>
+<div style='max-width: 500px; margin: auto; background: white; border-radius: 8px; padding: 20px; text-align: center; border: 1px solid #ddd;'>
+<h2 style='color: #4CAF50; margin-bottom: 10px;'>{subject}</h2>
+<p style='font-size: 14px; color: #555;'>{bodyMessage}</p>
+ 
+           <div style='margin: 20px 0; padding: 10px; background: #f0f0f0; border-radius: 6px;'>
+<p style='margin: 5px 0; font-size: 16px;'><strong>Date:</strong> {dateText}</p>
+<p style='margin: 5px 0; font-size: 16px;'><strong>Reservation #:</strong> {reservation.id}</p>
+</div>
+<p style='margin-top: 20px; font-size: 12px; color: #888;'>If you didn’t make this reservation, please contact us.</p>
+</div>
+</body>
+</html>";
+
+                    await _emailService.SendEmailAsync(reservation.email, subject, message);
+                }
+            }
             return true;
         }
 

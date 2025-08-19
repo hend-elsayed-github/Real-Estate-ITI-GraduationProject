@@ -73,16 +73,16 @@ namespace Real_Estatae_Project.Controllers
 
             if (userFromRequest.imageFile != null && userFromRequest.imageFile.Length > 0)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userFromRequest.imageFile.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+                //var fileName = Guid.NewGuid().ToString() + Path.GetExtension(userFromRequest.imageFile.FileName);
+                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await userFromRequest.imageFile.CopyToAsync(stream);
-                }
+                //using (var stream = new FileStream(filePath, FileMode.Create))
+                //{
+                //    await userFromRequest.imageFile.CopyToAsync(stream);
+                //}
 
                 //Upload to Cloudinary
-                //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
+                var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
                 user.image = fileName;
                 await userManager.UpdateAsync(user); 
             }
@@ -115,8 +115,8 @@ namespace Real_Estatae_Project.Controllers
                 var accountLink = await accountLinkService.CreateAsync(new AccountLinkCreateOptions
                 {
                     Account = stripeAccount.Id,
-                    RefreshUrl = "http://localhost:4200", // where to send user if onboarding fails
-                    ReturnUrl = "http://localhost:4200/login", // where to send user after success
+                    RefreshUrl = Config["JWT:AudienceIP"], // where to send user if onboarding fails
+                    ReturnUrl = Config["JWT:AudienceIP"]+"/login", // where to send user after success
                     Type = "account_onboarding"
                 });
                 Community newComm = new Community
@@ -376,6 +376,8 @@ namespace Real_Estatae_Project.Controllers
         #region editImage
         [Authorize]
         [HttpPost("editImage")]
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public async Task<IActionResult> EditImage([FromForm] EditImageDTO editImage)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -392,23 +394,30 @@ namespace Real_Estatae_Project.Controllers
 
             if (editImage.image != null && editImage.image.Length > 0)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(editImage.image.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+                //var fileName = Guid.NewGuid().ToString() + Path.GetExtension(editImage.image.FileName);
+                //var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await editImage.image.CopyToAsync(stream);
-                }
+                //using (var stream = new FileStream(filePath, FileMode.Create))
+                //{
+                //    await editImage.image.CopyToAsync(stream);
+                //}
 
+                //if (!string.IsNullOrEmpty(user.image))
+                //{
+                //    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images",user.image);
+                //    if (System.IO.File.Exists(oldImagePath))
+                //        System.IO.File.Delete(oldImagePath);
+                //}
+
+                //delete old one if exists  
                 if (!string.IsNullOrEmpty(user.image))
                 {
-                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images",user.image);
-                    if (System.IO.File.Exists(oldImagePath))
-                        System.IO.File.Delete(oldImagePath);
+                    await cloudinaryRepository.DeleteImageAsync(user.image);
                 }
-                    //Upload to Cloudinary
-                    //var fileName = await cloudinaryRepository.UploadImageAsync(userFromRequest.imageFile);
-                    user.image = fileName;
+                //Upload to Cloudinary
+                var fileName = await cloudinaryRepository.UploadImageAsync(editImage.image);
+                    
+                user.image = fileName;
                 await userManager.UpdateAsync(user);
                 return Ok(new {success=true, message = "Image updated successfully",data=fileName });
             }

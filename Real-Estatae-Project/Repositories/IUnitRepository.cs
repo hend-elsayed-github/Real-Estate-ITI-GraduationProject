@@ -16,7 +16,7 @@ namespace Real_Estatae_Project.Repositories
 
         Task Update(string ownerId, int id, UnitDTO UpdatingRef);
 
-        bool Delete(string ownerId, int id);
+        Task<bool> Delete(string ownerId, int id);
 
         void Save();
         public int GetCommunityId(string ownerId);

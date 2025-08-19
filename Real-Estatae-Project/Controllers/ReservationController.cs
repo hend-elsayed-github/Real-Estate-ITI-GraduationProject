@@ -165,31 +165,31 @@ namespace Real_Estatae_Project.Controllers
             }
 
             // send an email to the person who made the reservation 
-            if (status == ReservationStatus.Confirmed.ToString())
-            {
+            //if (status == ReservationStatus.Confirmed.ToString())
+            //{
                 
-                var reservation = reservationRepository.GetById(id);
-                var dateText = reservation?.appointment?.appointmentDate.ToString("MMMM dd, yyyy • h:mm tt");
-                string subject = "Appointment Confirmed";
-                string message = $@"
-                    <!DOCTYPE html>
-                    <html>
-                    <body style='font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;'>
-                       <div style='max-width: 500px; margin: auto; background: white; border-radius: 8px; padding: 20px; text-align: center; border: 1px solid #ddd;'>
-                       <h2 style='color: #4CAF50; margin-bottom: 10px;'>Appointment Confirmed</h2>
-                       <p style='font-size: 14px; color: #555;'>Hi <strong>{reservation?.name}</strong>, your reservation has been confirmed.</p>
+            //    var reservation = reservationRepository.GetById(id);
+            //    var dateText = reservation?.appointment?.appointmentDate.ToString("MMMM dd, yyyy • h:mm tt");
+            //    string subject = "Appointment Confirmed";
+            //    string message = $@"
+            //        <!DOCTYPE html>
+            //        <html>
+            //        <body style='font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;'>
+            //           <div style='max-width: 500px; margin: auto; background: white; border-radius: 8px; padding: 20px; text-align: center; border: 1px solid #ddd;'>
+            //           <h2 style='color: #4CAF50; margin-bottom: 10px;'>Appointment Confirmed</h2>
+            //           <p style='font-size: 14px; color: #555;'>Hi <strong>{reservation?.name}</strong>, your reservation has been confirmed.</p>
     
-                       <div style='margin: 20px 0; padding: 10px; background: #f0f0f0; border-radius: 6px;'>
-                          <p style='margin: 5px 0; font-size: 16px;'><strong>Date:</strong> {dateText}</p>
-                        <p style='margin: 5px 0; font-size: 16px;'><strong>Reservation #:</strong> {reservation?.id}</p>
-                      </div>
-                      <p style='margin-top: 20px; font-size: 12px; color: #888;'>If you didn’t make this reservation, please contact us.</p>
-                      </div>
-                   </body>
-                  </html>";
-                ;
-                await _emailService.SendEmailAsync(reservation.email, subject, message);
-            }
+            //           <div style='margin: 20px 0; padding: 10px; background: #f0f0f0; border-radius: 6px;'>
+            //              <p style='margin: 5px 0; font-size: 16px;'><strong>Date:</strong> {dateText}</p>
+            //            <p style='margin: 5px 0; font-size: 16px;'><strong>Reservation #:</strong> {reservation?.id}</p>
+            //          </div>
+            //          <p style='margin-top: 20px; font-size: 12px; color: #888;'>If you didn’t make this reservation, please contact us.</p>
+            //          </div>
+            //       </body>
+            //      </html>";
+            //    ;
+            //    await _emailService.SendEmailAsync(reservation.email, subject, message);
+            //}
 
             //await _emailService.SendEmailAsync(
             //    toEmail: reservation.email,

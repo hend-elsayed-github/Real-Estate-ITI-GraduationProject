@@ -5,7 +5,7 @@ using Real_Estatae_Project.DTO.Cloudinary;
 
 namespace Real_Estatae_Project.Repositories
 {
-    public class CloudinaryRepository:ICloudinaryRepository
+    public class CloudinaryRepository : ICloudinaryRepository
     {
         private readonly Cloudinary _cloudinary;
 
@@ -30,14 +30,44 @@ namespace Real_Estatae_Project.Repositories
             var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(file.FileName, stream),
-                Folder = "Images" 
+                Folder = "Images"
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
             return uploadResult.SecureUrl.ToString();
         }
+
+        public async Task DeleteImageAsync(string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+                return;
+
+            string publicId = ExtractPublicIdFromUrl(imageUrl);
+            if (string.IsNullOrEmpty(publicId))
+                return;
+
+            var deletionParams = new DeletionParams(publicId);
+            await _cloudinary.DestroyAsync(deletionParams);
+        }
+
+        public string ExtractPublicIdFromUrl(string imageUrl)
+        {
+            var uri = new Uri(imageUrl);
+            var segments = uri.AbsolutePath.Split('/');
+
+            // last segment has file + extension
+            var fileName = segments.Last(); // e.g. myphoto.jpg
+
+            // remove extension
+            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+
+            // publicId = "Images/myphoto"
+            var folder = segments[segments.Length - 2];
+            return $"{folder}/{fileNameWithoutExt}";
+        }
     }
+
 
 }
 

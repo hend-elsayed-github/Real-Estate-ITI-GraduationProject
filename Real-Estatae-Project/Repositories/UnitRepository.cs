@@ -9,11 +9,15 @@ namespace Real_Estatae_Project.Repositories
     {
         private readonly ProjectContext Context;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly ICloudinaryRepository cloudinaryRepository;
+        private readonly IAdvertisementRepository advertisementRepository;
 
-        public UnitRepository(ProjectContext _Context, UserManager<ApplicationUser> userManager)
+        public UnitRepository(ProjectContext _Context, UserManager<ApplicationUser> userManager, ICloudinaryRepository _cloudinaryRepository, IAdvertisementRepository _advertisementRepository)
         {
             Context = _Context;
             this.userManager = userManager;
+            cloudinaryRepository=_cloudinaryRepository;
+            advertisementRepository = _advertisementRepository;     
         }
 
 
@@ -111,21 +115,23 @@ namespace Real_Estatae_Project.Repositories
                     // i need to delete the old image if exists
                     if (!string.IsNullOrEmpty(currentImagePaths[i]))
                     {
-                        string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", currentImagePaths[i]);
-                        if (File.Exists(oldFilePath))
-                        {
-                            File.Delete(oldFilePath);
-                        }
+                        //string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", currentImagePaths[i]);
+                        //if (File.Exists(oldFilePath))
+                        //{
+                        //    File.Delete(oldFilePath);
+                        //}
+                        await cloudinaryRepository.DeleteImageAsync(currentImagePaths[i]);  
                     }
 
                     // Save new image 
-                    string newFileName = Guid.NewGuid().ToString() + Path.GetExtension(newImage.FileName);
-                    string newFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", newFileName);
+                    //string newFileName = Guid.NewGuid().ToString() + Path.GetExtension(newImage.FileName);
+                    //string newFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", newFileName);
 
-                    using (var stream = new FileStream(newFilePath, FileMode.Create))
-                    {
-                        await newImage.CopyToAsync(stream);
-                    }
+                    //using (var stream = new FileStream(newFilePath, FileMode.Create))
+                    //{
+                    //    await newImage.CopyToAsync(stream);
+                    //}
+                    string newFileName = await cloudinaryRepository.UploadImageAsync(newImage);
 
                     // update the path
                     currentImagePaths[i] = newFileName;
@@ -144,12 +150,20 @@ namespace Real_Estatae_Project.Repositories
 
 
         #region Delete a single unit
-        public bool Delete(string ownerId, int id)
+        public async Task<bool> Delete(string ownerId, int id)
         {
             Unit unit = GetById(id, ownerId);
+            Addvertisement ad=Context.Addvertisements
+                .FirstOrDefault(a => a.unitId == id);       
 
             if (unit != null)
             {
+                if(ad != null)
+                {
+                    // if the unit has an advertisement, we have to delete it first
+                    await advertisementRepository.DeleteAds(ad.id, ownerId);
+                }   
+
                 unit.isDeleted = true;
                 return true;
             }

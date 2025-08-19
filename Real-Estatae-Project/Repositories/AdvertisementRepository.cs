@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Real_Estatae_Project.DTO.Advertisement;
+using Real_Estatae_Project.Models;
 using Real_Estate_Project.Models;
 
 namespace Real_Estatae_Project.Repositories
@@ -7,9 +8,11 @@ namespace Real_Estatae_Project.Repositories
     public class AdvertisementRepository: IAdvertisementRepository
     {
         private readonly ProjectContext context;
-        public AdvertisementRepository(ProjectContext _context)
+        private readonly IReservationRepository reservationRepository;
+        public AdvertisementRepository(ProjectContext _context, IReservationRepository _reservationRepository)
         {
             context = _context;
+            reservationRepository = _reservationRepository;
         }
 
 
@@ -121,12 +124,12 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
         #region Delete
-        public bool DeleteAds(int id, string userId)
+        public async Task<bool> DeleteAds(int id, string userId)
         {
             var advertisement = context.Addvertisements
                 .Include(ad => ad.Appointments)
                     .ThenInclude(ap => ap.reservation)
-        .FirstOrDefault(ad => ad.id == id && ad.userId == userId && !ad.isDeleted);
+       .FirstOrDefault(ad => ad.id == id && ad.userId == userId && !ad.isDeleted);
 
             if (advertisement == null)
                 return false;
@@ -135,7 +138,13 @@ namespace Real_Estatae_Project.Repositories
             {
 
                 if (appointment.reservation != null)
-                    context.Reservations.Remove(appointment.reservation);
+                {
+                    var success = await reservationRepository.Edit(appointment.reservation.id, userId, ReservationStatus.Cancelled.ToString());
+                    if (success)
+                    {
+                        context.Reservations.Remove(appointment.reservation);
+                    }
+                }
             }
 
 
@@ -145,7 +154,7 @@ namespace Real_Estatae_Project.Repositories
 
             context.Addvertisements.Remove(advertisement);
 
-            Save();
+            context.SaveChangesAsync();
             return true;
         }
 

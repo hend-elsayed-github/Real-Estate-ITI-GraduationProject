@@ -23,13 +23,16 @@ namespace Real_Estatae_Project.Controllers
         private readonly IUserRepository _userRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private ICloudinaryRepository cloudinaryRepository;
 
-        public PostController(IPostRepository postRepository, IUserRepository UserRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext)
+
+        public PostController(IPostRepository postRepository, IUserRepository UserRepository, INotificationRepository NotificationRepository, IHubContext<NotificationHub> hubContext, ICloudinaryRepository _cloudinaryRepository)
         {
             _postRepository = postRepository;
             _userRepository = UserRepository;
             _notificationRepository = NotificationRepository;
             _hubContext = hubContext;
+            cloudinaryRepository = _cloudinaryRepository;
         }
 
 
@@ -78,6 +81,8 @@ namespace Real_Estatae_Project.Controllers
         #region Add Post
 
         [HttpPost]
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public async Task<IActionResult> AddPost([FromForm] PostInfoDTO postinfo)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -94,7 +99,8 @@ namespace Real_Estatae_Project.Controllers
             if (communityId == null)
                 return BadRequest(new { message = "User not assigned to a community." });
 
-            string? imageFromReq = await GetImageName.GetImageNameFn(postinfo.image);
+            //string? imageFromReq = await GetImageName.GetImageNameFn(postinfo.image);
+            string? imageFromReq = await cloudinaryRepository.UploadImageAsync(postinfo.image);                
             var post = new CommunityPost
             {
                 content = postinfo.content,
@@ -168,6 +174,8 @@ namespace Real_Estatae_Project.Controllers
 
         #region update post
         [HttpPut("{id}")]
+        [RequestSizeLimit(104_857_600)] // 100 MB
+        [RequestFormLimits(MultipartBodyLengthLimit = 104_857_600)]
         public async Task<IActionResult> UpdatePost(int id, [FromForm] PostInfoDTO postdto)
         {
 
@@ -184,7 +192,9 @@ namespace Real_Estatae_Project.Controllers
                 return NotFound(new { message = "Post not found or access denied." });
      
 
-            string? imageFromReq = await GetImageName.GetImageNameFn(postdto.image);
+            //string? imageFromReq = await GetImageName.GetImageNameFn(postdto.image);
+            string? imageFromReq = await cloudinaryRepository.UploadImageAsync(postdto.image);
+
             string? imageUrl = imageFromReq != null ? imageFromReq : existingPost.image;
 
             var updatedpost = new CommunityPost

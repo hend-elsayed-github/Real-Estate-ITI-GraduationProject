@@ -157,15 +157,18 @@ namespace Real_Estatae_Project
 
             builder.Services.AddScoped<ICloudinaryRepository, CloudinaryRepository>();
 
-            //to encrease request timeout
+            //to encrease request size
             builder.WebHost.ConfigureKestrel(options =>
             {
                 options.Limits.MaxRequestBodySize = 104_857_600; // 100 MB
+                options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10);   // increase keep-alive
+                options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(10); // increase headers timeout
             });
 
             builder.Services.Configure<IISServerOptions>(options =>
             {
                 options.MaxRequestBodySize = 104_857_600;
+                options.MaxRequestBodyBufferSize = 104_857_600;
             });
 
             builder.Services.Configure<FormOptions>(options =>

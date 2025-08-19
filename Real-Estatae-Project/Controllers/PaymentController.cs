@@ -201,12 +201,12 @@ namespace Real_Estatae_Project.Controllers
             var session = await service.CreateAsync(options);
   //inset in db
 
-            await _rentRepository.UpdateRentAsync(rentId);
+            await _rentRepository.UpdateRentAsync(rentId.RentId);
 
             var payment = new Payment
             {
                 Amount = rent.unit.price,
-                RentId = rentId,
+                RentId = rentId.RentId,
                 UserId = rent.unit.renterId,
                 StripePaymentIntentId = "paymentIntent.Id",
                 paymentType = "card",

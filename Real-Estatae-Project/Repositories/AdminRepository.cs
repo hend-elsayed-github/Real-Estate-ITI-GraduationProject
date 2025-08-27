@@ -12,7 +12,7 @@ namespace Real_Estatae_Project.Repositories
     {
         private readonly ProjectContext Context;
         private readonly UserManager<ApplicationUser> userManager;
-        public AdminRepository(ProjectContext _Context, UserManager<ApplicationUser> _userManager) 
+        public AdminRepository(ProjectContext _Context, UserManager<ApplicationUser> _userManager)
         {
             Context = _Context;
             userManager = _userManager;
@@ -60,7 +60,7 @@ namespace Real_Estatae_Project.Repositories
                     communityName = communityName,
                     unitCount = ownerUnits,
                     adCount = ownerAds,
-                    isActive=user.isActive
+                    isActive = user.isActive
                 });
             }
 
@@ -88,7 +88,7 @@ namespace Real_Estatae_Project.Repositories
 
                 ownerDtos.Add(new OwnerDTO
                 {
-                    Id=owner.Id,
+                    Id = owner.Id,
                     firstName = owner.firstName,
                     lastName = owner.lastName,
                     userName = owner.UserName,
@@ -97,7 +97,7 @@ namespace Real_Estatae_Project.Repositories
                     communityName = communityName,
                     unitCount = ownerUnits,
                     adCount = ownerAds,
-                    isActive=owner.isActive
+                    isActive = owner.isActive
                 });
             }
             return ownerDtos;
@@ -112,8 +112,6 @@ namespace Real_Estatae_Project.Repositories
 
             foreach (var renter in renters)
             {
-
-
                 var communityName = await Context.Users
                          .Where(u => u.Id == renter.Id)
                          .Select(u => u.RenterCommunity.name)
@@ -145,7 +143,7 @@ namespace Real_Estatae_Project.Repositories
             int renterCount = (await userManager.GetUsersInRoleAsync("Renter")).Count; //includes active and non active
 
             // Unit counts
-            int unitCount = await Context.Units.CountAsync(u=>u.isDeleted==false);
+            int unitCount = await Context.Units.CountAsync(u => u.isDeleted == false);
             int emptyUnitCount = await Context.Units.CountAsync(u => u.isDeleted == false && u.status == "empty");
             int busyUnitCount = unitCount - emptyUnitCount;
 
@@ -157,12 +155,12 @@ namespace Real_Estatae_Project.Repositories
 
             // Other counts
             int communityCount = await Context.Communities.CountAsync();
-            int adCount = await Context.Addvertisements.CountAsync(ad=>ad.isDeleted==false);
+            int adCount = await Context.Addvertisements.CountAsync(ad => ad.isDeleted == false);
 
             // Profit
             double totalRent = await Context.Rents.Where(r => r.IsPaid == true).SumAsync(r => r.Rentvalue);
 
-            decimal totalProfit =(decimal) totalRent * 0.05m;
+            decimal totalProfit = (decimal)totalRent * 0.05m;
             return new
             {
                 userCount,
@@ -184,7 +182,7 @@ namespace Real_Estatae_Project.Repositories
         #endregion
 
 
-        //#region Delete the admin along with everything that belongs to them.
+        //#region Delete the owner along with everything that belongs to them.
         //public async void  Delete(string ownerId)
         //{
         //    var ownerCommunity =await Context.Communities.Where(c => c.ownerId == ownerId).Select(c => c.id).FirstOrDefaultAsync();
@@ -211,7 +209,7 @@ namespace Real_Estatae_Project.Repositories
                     Month = g.Key.Month,
                     Profit = g.Sum(r => (decimal)r.Rentvalue * 0.05m)
                 })
-                .ToListAsync(); 
+                .ToListAsync();
 
             var profitDTOs = groupedData
                 .OrderBy(x => x.Year).ThenBy(x => x.Month)
@@ -230,7 +228,7 @@ namespace Real_Estatae_Project.Repositories
         #region transfer to new owner
         public async Task Transfer(string oldOwner, string newOwner)
         {
-            using var transaction = await Context.Database.BeginTransactionAsync(); 
+            using var transaction = await Context.Database.BeginTransactionAsync();
             try
             {
                 //new owner has by default a community so we will remove it to take this, our website allow one community for each owner
@@ -244,12 +242,12 @@ namespace Real_Estatae_Project.Repositories
                 var oldNotifications = await Context.Notifications.Where(n => n.userId == oldOwner).ToListAsync();
                 var oldReacts = await Context.Reacts.Where(r => r.UserId == oldOwner).ToListAsync();
                 var oldComments = await Context.Comments.Where(c => c.userId == oldOwner).ToListAsync();
-                var oldPosts=await Context.CommunityPosts.Where(p=>p.userId==oldOwner).ToListAsync();
+                var oldPosts = await Context.CommunityPosts.Where(p => p.userId == oldOwner).ToListAsync();
                 //
-                var oldUnits=await Context.Units.Where(u=>u.ownerId==oldOwner).ToListAsync();
+                var oldUnits = await Context.Units.Where(u => u.ownerId == oldOwner).ToListAsync();
                 var oldCommunity = await Context.Communities.Where(c => c.ownerId == oldOwner).FirstOrDefaultAsync(); //only one
-                var oldAds=await Context.Addvertisements.Where(ad=>ad.userId==oldOwner).ToListAsync();
-                var oldAppointments=await Context.Appointments.Where(ap=>ap.ownerId==oldOwner).ToListAsync();
+                var oldAds = await Context.Addvertisements.Where(ad => ad.userId == oldOwner).ToListAsync();
+                var oldAppointments = await Context.Appointments.Where(ap => ap.ownerId == oldOwner).ToListAsync();
 
                 //delete
                 Context.Notifications.RemoveRange(oldNotifications);
@@ -289,8 +287,8 @@ namespace Real_Estatae_Project.Repositories
 
                 //old owner still but inActive 
                 var oldOwnerUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == oldOwner);
-                 oldOwnerUser.isActive = false;
-                await  userManager.UpdateAsync(oldOwnerUser);
+                oldOwnerUser.isActive = false;
+                await userManager.UpdateAsync(oldOwnerUser);
 
                 await Context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -346,7 +344,7 @@ namespace Real_Estatae_Project.Repositories
                 .Include(r => r.appointment)
                     .ThenInclude(app => app.advertisement)
                         .ThenInclude(ad => ad.unit)
-                 .Include(r=> r.appointment)
+                 .Include(r => r.appointment)
                  .ThenInclude(r => r.owner)
 
                 .ToList();
@@ -370,7 +368,59 @@ namespace Real_Estatae_Project.Repositories
             return result;
 
         }
+    
+        #endregion
+
+        #region get renters by community
+
+        public async Task<List<RenterDTO>> GetRentersByCommunity(string communityName)
+        {
+            var renters = await userManager.Users
+                .Where(u => u.RenterCommunity != null && u.RenterCommunity.name == communityName)
+                .ToListAsync();
+            var renterDtos = new List<RenterDTO>();
+            foreach (var renter in renters)
+            {
+                renterDtos.Add(new RenterDTO
+                {
+                    firstName = renter.firstName,
+                    lastName = renter.lastName,
+                    userName = renter.UserName,
+                    email = renter.Email,
+                    role = "Renter",
+                    communityName = communityName,
+                    isActive = renter.isActive
+                });
+            }
+            return renterDtos;
+        }
+
+        #endregion
+
+        #region get renters who doesn't have a community yet
+        public async Task<List<RenterDTO>> GetRentersWithNoCommunity()
+        {
+            var renters = await userManager.Users
+                .Where(u => u.RenterCommunity == null)
+                .ToListAsync();
+            var renterDtos = new List<RenterDTO>();
+            foreach (var renter in renters)
+            {
+                renterDtos.Add(new RenterDTO
+                {
+                    firstName = renter.firstName,
+                    lastName = renter.lastName,
+                    userName = renter.UserName,
+                    email = renter.Email,
+                    role = "Renter",
+                    communityName = "Not Yet",
+                    isActive = renter.isActive
+                });
+            }
+            return renterDtos;
+        }
+
+        #endregion
 
     }
-    #endregion
 }

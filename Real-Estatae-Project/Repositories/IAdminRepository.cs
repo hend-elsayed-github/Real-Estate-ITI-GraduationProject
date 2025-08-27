@@ -13,5 +13,7 @@ namespace Real_Estatae_Project.Repositories
         Task<List<ProfitPerCommunityDTO>> GetProfitPerCommunity();
         List<AllReserDTO> GetReservation();
         List<AdsVsReservationsDTO> GetMonthlyAdsVsReservations();
+        Task<List<RenterDTO>> GetRentersWithNoCommunity();
+        Task<List<RenterDTO>> GetRentersByCommunity(string communityName);
     }
 }

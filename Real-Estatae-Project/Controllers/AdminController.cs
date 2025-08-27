@@ -225,5 +225,37 @@ namespace Real_Estatae_Project.Controllers
             return Ok(result);
         }
         #endregion
+
+        #region get renters by community
+        [HttpGet("SearchByCommunity")]
+        public async Task<IActionResult> GetRentersByCommunity([FromQuery] string communityName)
+        {
+            string adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(adminId) || !User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
+            if (string.IsNullOrEmpty(communityName))
+            {
+                return BadRequest(new { message = "Community name is required." });
+            }
+            var renters = await adminRepository.GetRentersByCommunity(communityName);
+            return Ok(renters);
+        }
+        #endregion
+
+        #region get renters with no community
+        [HttpGet("NoCommunity")]
+        public async Task<IActionResult> GetRentersWithNoCommunity()
+        {
+            string adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(adminId) || !User.IsInRole("Admin"))
+            {
+                return Unauthorized();
+            }
+            var renters = await adminRepository.GetRentersWithNoCommunity();
+            return Ok(renters);
+        }
+        #endregion
     }
 }

@@ -192,7 +192,7 @@ namespace Real_Estatae_Project
 
             app.UseStaticFiles();
 
-
+            app.UseHttpsRedirection();          
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("FreePlan");

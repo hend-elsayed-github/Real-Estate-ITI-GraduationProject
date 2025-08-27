@@ -105,8 +105,8 @@ namespace Real_Estatae_Project.Controllers
                 });
 
 
-                user.StripeAccountId = stripeAccount.Id;
-                //user.StripeAccountId = "acct_1RnAYNIgZmVK93tC";
+                //user.StripeAccountId = stripeAccount.Id;
+                user.StripeAccountId = "acct_1RnAYNIgZmVK93tC";
 
                 await userManager.UpdateAsync(user);
 

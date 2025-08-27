@@ -126,18 +126,18 @@ namespace Real_Estatae_Project.Repositories
         #region Delete
         public async Task<bool> DeleteAds(int id, string userId)
         {
-            var advertisement = context.Addvertisements
+            var advertisement = await context.Addvertisements
                 .Include(ad => ad.Appointments)
-                    .ThenInclude(ap => ap.reservation)
-       .FirstOrDefault(ad => ad.id == id && ad.userId == userId && !ad.isDeleted);
+                .ThenInclude(ap => ap.reservation)
+               .FirstOrDefaultAsync(ad => ad.id == id && ad.userId == userId && !ad.isDeleted);
 
             if (advertisement == null)
                 return false;
 
-            foreach (var appointment in advertisement.Appointments.ToList())
+            foreach (var appointment in  advertisement.Appointments.ToList())
             {
 
-                if (appointment.reservation != null)
+                if ( appointment.reservation != null)
                 {
                     var success = await reservationRepository.Edit(appointment.reservation.id, userId, ReservationStatus.Cancelled.ToString());
                     if (success)
@@ -154,7 +154,7 @@ namespace Real_Estatae_Project.Repositories
 
             context.Addvertisements.Remove(advertisement);
 
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return true;
         }
 

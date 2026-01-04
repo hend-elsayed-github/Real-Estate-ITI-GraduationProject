@@ -39,7 +39,3 @@ It is available for an owner to transfer his units to a new owner through the ad
 
 Contributions are welcome. Please open issues and submit pull requests with a clear description of changes.
 
-
----
-
-If you'd like, I can push this README to the `dev` branch now.
